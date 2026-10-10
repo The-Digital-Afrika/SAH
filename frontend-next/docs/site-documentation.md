@@ -112,7 +112,7 @@ NEXT_PUBLIC_WP_API_URL
 Example:
 
 ```text
-NEXT_PUBLIC_WP_API_URL=https://sahomeschooling.com/wp-json
+NEXT_PUBLIC_WP_API_URL=https://cms.homeandschool.co.za/wp-json
 ```
 
 ## Caching And Revalidation
@@ -158,8 +158,8 @@ For Hostinger, the site can still run without Vercel, but a WordPress webhook or
 Create these variables on the live server:
 
 ```text
-NEXT_PUBLIC_WP_API_URL=https://sahomeschooling.com/wp-json
-NEXT_PUBLIC_SITE_URL=https://your-live-domain.co.za
+NEXT_PUBLIC_WP_API_URL=https://cms.homeandschool.co.za/wp-json
+NEXT_PUBLIC_SITE_URL=https://homeandschool.co.za
 NEXT_PUBLIC_GOOGLE_AD_NETWORK_CODE=23298734611
 WORDPRESS_WEBHOOK_SECRET=choose-a-secure-secret
 VERCEL_DEPLOY_HOOK_URL=
@@ -322,7 +322,7 @@ The site is wired to Google Publisher Tag ads using the same public Newspack/Goo
 23298734611
 ```
 
-Marketing can continue managing campaigns in Google/Newspack. The Next.js site provides the ad slots and requests the Google ads on the live page.
+Marketing can continue managing campaigns in Google/Newspack. The Next.js site provides the ad slots and requests the Google ads on the live page. The public frontend serves `/ads.txt` by checking the CMS first, then the legacy WordPress domain during migration.
 
 Supported placement names include:
 

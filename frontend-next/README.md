@@ -1,121 +1,36 @@
-# SA Homeschooling & Beyond Frontend
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-This is the active Next.js website for SA Homeschooling & Beyond.
+## Getting Started
 
-The site is a headless WordPress frontend. WordPress stays responsible for editorial content, while this app renders the public website with Next.js App Router, TypeScript, React, and Tailwind CSS.
-
-## Stack
-
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Tailwind CSS 4 through PostCSS
-- WordPress REST API as the primary content source
-- Local JSON/content fallbacks for resilience
-- Google Publisher Tag ad slots
-- Node.js production server through `server.js`
-
-## Local Development
-
-From this folder:
+First, run the development server:
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-If dependencies are missing, run:
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-```bash
-npm install
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Commands
+## Learn More
 
-```bash
-npm run dev      # Start the local development server
-npm run build    # Build the production app
-npm start        # Start the custom production server
-npm run lint     # Run ESLint
-```
+To learn more about Next.js, take a look at the following resources:
 
-`npm start` runs:
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-```bash
-node server.js
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-The server listens on `process.env.PORT` when provided, which is important for Hostinger-style Node.js hosting.
+## Deploy on Vercel
 
-## Main Routes
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-```text
-/                       Homepage
-/articles               Education article archive
-/articles/[slug]        Dynamic WordPress article
-/category/[slug]        Dynamic WordPress category archive
-/tag/[slug]             Dynamic WordPress tag archive
-/authors                WordPress author listing
-/authors/[slug]         WordPress author profile
-/magazines              Magazine archive
-/magazines/embed/[slug] DFlip/PDF magazine viewer
-/directory              Partner directory
-/directory/[slug]       Partner detail page
-/subscribe              Newsletter page
-/api/magazine-pdf       PDF proxy for allowed magazine PDFs
-/api/wordpress/deploy   WordPress revalidation webhook
-```
-
-## Environment Variables
-
-```text
-NEXT_PUBLIC_WP_API_URL=https://sahomeschooling.com/wp-json
-NEXT_PUBLIC_SITE_URL=https://sahomeschooling.com
-NEXT_PUBLIC_GOOGLE_AD_NETWORK_CODE=23298734611
-WORDPRESS_WEBHOOK_SECRET=choose-a-secure-secret
-VERCEL_DEPLOY_HOOK_URL=
-```
-
-`VERCEL_DEPLOY_HOOK_URL` is optional. It is only needed when the WordPress webhook should also trigger a Vercel deployment hook.
-
-## Important Files
-
-```text
-app/                    App Router pages and API routes
-components/             Shared UI and client components
-lib/wordpress.ts        WordPress data access, fallback content, helpers, ads, magazines
-lib/partners.ts         Static partner directory data
-data/wp-fallback-posts.json
-public/images/          Site imagery and migrated assets
-public/magazines/       Local magazine PDFs
-public/magazine-covers/ Local magazine cover images
-server.js               Custom production server
-docs/architecture.md    Developer architecture guide
-```
-
-## Content Model
-
-The site fetches posts, categories, tags, authors, media, and ad codes from the WordPress REST API configured by `NEXT_PUBLIC_WP_API_URL`.
-
-Partners are currently local static data in `lib/partners.ts`.
-
-Magazine issues are currently local curated data in `lib/wordpress.ts`, backed by PDFs and cover images in `public/`.
-
-Newsletter signup forms currently store completion state in the visitor browser and show an acknowledgement. They are not yet connected to an email platform or backend submission API.
-
-## Deployment
-
-Deploy this `frontend-next/` directory as the Node.js app.
-
-```bash
-npm install
-npm run build
-npm start
-```
-
-For a broader handoff, see:
-
-- [Architecture](docs/architecture.md)
-- [Site Documentation](docs/site-documentation.md)
-- [WordPress Webhook](docs/wordpress-vercel-webhook.md)
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -1,10 +1,20 @@
+import Image from "next/image";
 import Link from "next/link";
 
-export default function Footer() {
+export default function Footer({ flush = false }: { flush?: boolean }) {
   return (
-    <footer className="home-footer">
+    <footer className="home-footer" style={flush ? { marginTop: 0 } : undefined}>
       <div className="footer-columns">
-        <section>
+        <section className="footer-brand-column">
+          <Link className="footer-logo-link" href="/" aria-label="Home & School home">
+            <Image
+              className="footer-logo"
+              src="/images/hs-home-school-footer-logo-white-2026.png"
+              alt="Home & School"
+              width={1774}
+              height={887}
+            />
+          </Link>
           <h2>Our Office</h2>
           <p>
             Tshimologong Digital Precinct, 41 Juta Street,
@@ -19,7 +29,7 @@ export default function Footer() {
           <Link href="/magazines">Magazines</Link>
           <Link href="/directory">About Us</Link>
           <Link href="/directory">Contact Us</Link>
-          <Link href="#">Privacy Policy for SA Homeschooling &amp; Beyond</Link>
+          <Link href="#">Privacy Policy for SA Home&amp;School</Link>
           <Link href="/subscribe">Subscribe</Link>
         </section>
 
@@ -43,9 +53,10 @@ export default function Footer() {
       </div>
 
       <div className="footer-bottom">
-        <span>&copy; 2026 The Digital Afrikan &nbsp; Powered by Newspack</span>
-        <Link href="#">Privacy Policy for SA Homeschooling &amp; Beyond</Link>
+        <span>&copy; 2026 The Digital Afrikan</span>
+        <Link href="#">Privacy Policy for SA Home&amp;School</Link>
       </div>
     </footer>
   );
 }
+

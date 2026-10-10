@@ -228,9 +228,9 @@ export default function SignupPopup() {
         </button>
 
         <div className="signup-popup__badge" aria-hidden="true">
-          <span>H</span>
+          <span>h</span>
           <span className="signup-popup__badge-amp">&amp;</span>
-          <span>S</span>
+          <span>s</span>
         </div>
         <p className="kicker">Newsletter</p>
         <h2 id="signup-popup-title">Join our community</h2>
@@ -278,3 +278,5 @@ export default function SignupPopup() {
     </div>
   );
 }
+
+

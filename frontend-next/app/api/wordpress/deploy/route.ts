@@ -1,4 +1,4 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 type WordPressWebhookPayload = {
@@ -15,7 +15,8 @@ type WordPressWebhookPayload = {
   categories?: string[];
 };
 
-const staticPaths = ["/", "/articles", "/directory"];
+const staticPaths = ["/", "/articles", "/directory", "/magazines", "/authors"];
+const commonCategoryPaths = ["/category/education", "/category/parenting", "/category/development", "/category/cooking-bonding"];
 
 function getSecret(request: NextRequest) {
   return request.headers.get("x-wordpress-webhook-secret") ?? request.nextUrl.searchParams.get("secret");
@@ -51,7 +52,7 @@ async function triggerVercelDeployHook() {
   };
 }
 
-export async function POST(request: NextRequest) {
+async function revalidateWordPress(request: NextRequest, payload: WordPressWebhookPayload) {
   const expectedSecret = process.env.WORDPRESS_WEBHOOK_SECRET;
 
   if (!expectedSecret) {
@@ -62,7 +63,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid webhook secret" }, { status: 401 });
   }
 
-  const payload = (await request.json().catch(() => ({}))) as WordPressWebhookPayload;
   const status = getPostStatus(payload);
 
   if (status && status !== "publish") {
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
   }
 
   const paths = new Set(staticPaths);
+  commonCategoryPaths.forEach((path) => paths.add(path));
   const slug = getPostSlug(payload);
 
   if (slug) {
@@ -80,6 +81,8 @@ export async function POST(request: NextRequest) {
     paths.add(`/category/${categorySlug}`);
   });
 
+  revalidateTag("wordpress-json", "max");
+  revalidateTag("wordpress-paginated", "max");
   paths.forEach((path) => revalidatePath(path));
 
   const deployHook = await triggerVercelDeployHook();
@@ -89,4 +92,17 @@ export async function POST(request: NextRequest) {
     paths: [...paths],
     deployHook,
   });
+}
+
+export async function GET(request: NextRequest) {
+  return revalidateWordPress(request, {
+    slug: request.nextUrl.searchParams.get("slug") ?? undefined,
+    status: "publish",
+  });
+}
+
+export async function POST(request: NextRequest) {
+  const payload = (await request.json().catch(() => ({}))) as WordPressWebhookPayload;
+
+  return revalidateWordPress(request, payload);
 }

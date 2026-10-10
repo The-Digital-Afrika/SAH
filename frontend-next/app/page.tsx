@@ -7,8 +7,11 @@ import CategorySection from "@/components/CategorySection";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
+import SectionPageLayout from "@/components/SectionPageLayout";
+import SectionIntro from "@/components/SectionIntro";
+import tileStyles from "@/components/ImageStoryTile.module.css";
 import {
-  getFeaturedImage,
+  getArticleImage,
   getMagazinePosts,
   getPostAuthor,
   getPostExcerpt,
@@ -16,19 +19,20 @@ import {
   getPosts,
   getPostsByCategory,
   getPrimaryCategory,
+  isMagazineArticle,
   type MagazineIssue,
   type WPPost,
 } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
-  title: "SA Homeschooling & Beyond",
+  title: "Home&School",
   description:
     "Education, parenting, development, magazine, and partner resources for South African homeschool families.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "SA Homeschooling & Beyond",
+    title: "Home&School",
     description:
       "Education, parenting, development, magazine, and partner resources for South African homeschool families.",
     url: "/",
@@ -76,153 +80,174 @@ export default async function Home() {
       <Header />
 
       <main>
-        <section className="home-editorial-showcase" aria-label="Featured homeschool stories">
-          {posts[0] ? <HomeLeadStory post={posts[0]} /> : null}
+        <SectionPageLayout idPrefix="home">
+          <SectionIntro section="home" />
+          <section className="home-editorial-showcase" aria-label="Featured homeschool stories">
+            {posts[0] ? <HomeLeadStory post={posts[0]} /> : null}
 
-          <div className="home-card-row">
-            {posts.slice(1, 4).map((post) => (
-              <HomeImageTile post={post} key={post.id} />
-            ))}
-          </div>
+            <div className="home-card-row">
+              {posts.slice(1, 4).map((post) => (
+                <HomeImageTile post={post} key={post.id} />
+              ))}
+            </div>
 
-          <section className="home-top-stories-panel home-top-stories--expanded" aria-labelledby="home-top-stories-title">
-            <div className="section-rule" />
-            <h2 id="home-top-stories-title">Top stories</h2>
-            {posts.length ? (
-              <div className="home-top-stories-grid">
-                {posts.slice(0, 3).map((post) => (
-                  <HomeTopStory post={post} key={post.id} />
-                ))}
-              </div>
-            ) : (
-              <p className="archive-loading">Latest stories are temporarily unavailable. Please check back soon.</p>
-            )}
+            <section className="home-top-stories-panel home-top-stories--expanded" aria-labelledby="home-top-stories-title">
+              <div className="section-rule" />
+              <h2 id="home-top-stories-title">Top stories</h2>
+              {posts.length ? (
+                <div className="home-top-stories-grid">
+                  {posts.slice(0, 3).map((post) => (
+                    <HomeTopStory post={post} key={post.id} />
+                  ))}
+                </div>
+              ) : (
+                <p className="archive-loading">Latest stories are temporarily unavailable. Please check back soon.</p>
+              )}
+            </section>
           </section>
-        </section>
 
-        <AdBanner placement="home-middle" wrapClassName="home-ad-row modern-ad-row" />
+          <AdBanner placement="home-middle" wrapClassName="home-ad-row modern-ad-row" fallback />
 
-        <section className="home-community-magazines" aria-label="Community signup and magazines">
-          <aside className="home-magazine-feature home-community-magazine">
-            {featuredMagazine ? (
-              <HomeMagazineFeature issue={featuredMagazine} />
-            ) : (
-              <Link className="home-magazine-feature__card" href="/magazines">
+          <section className="home-community-magazines" aria-label="Community signup and magazines">
+            <aside className="home-magazine-feature home-community-magazine">
+              {featuredMagazine ? (
+                <HomeMagazineFeature issue={featuredMagazine} />
+              ) : (
+                <Link className="home-magazine-feature__card" href="/magazines">
+                  <span className="kicker">Magazines</span>
+                  <h3>Browse the SA Homeschooling magazine archive</h3>
+                  <p>Open uploaded PDF issues directly from the website.</p>
+                </Link>
+              )}
+            </aside>
+
+            <aside className="newsletter-card home-community-card">
+              <NewsletterForm
+                idPrefix="home-community"
+                className="newsletter-card-form"
+                title="Join our community"
+              />
+            </aside>
+          </section>
+
+          <AdBanner
+            placement="home-middle"
+            fallback
+            idSuffix="before-categories"
+            wrapClassName="home-ad-row modern-ad-row home-category-ad home-before-categories-ad"
+          />
+
+          {categorySections.map((section, index) => {
+            const config = categoryConfigs[index];
+
+            return section.category ? (
+              <Fragment key={config.slug}>
+                <CategorySection
+                  category={{
+                    ...section.category,
+                    slug: config.slug,
+                    name: config.name,
+                    description: config.description,
+                  }}
+                  posts={section.posts}
+                />
+                {index < categorySections.length - 1 ? (
+                  <AdBanner
+                    placement="home-middle"
+                    fallback
+                    idSuffix={`category-${config.slug}`}
+                    wrapClassName="home-ad-row modern-ad-row home-category-ad"
+                  />
+                ) : null}
+              </Fragment>
+            ) : null;
+          })}
+
+          <AdBanner
+            placement="home-middle"
+            fallback
+            idSuffix="before-resources"
+            wrapClassName="home-ad-row modern-ad-row home-category-ad home-before-resources-ad"
+          />
+
+          <section className="home-section home-section--soft" aria-labelledby="guides-title">
+            <div className="home-split home-guides-grid home-guides-grid--articles-only">
+              <div className="section-heading home-guides-heading">
+                <h2 id="guides-title">Education pathways, learning support, and future planning</h2>
+              </div>
+
+              <div className="article-stack home-guides-articles">
+                {posts.length ? (
+                  posts.slice(8, 12).map((post) => {
+                    const image = getArticleImage(post);
+
+                    return (
+                      <Link
+                        className={isMagazineArticle(post) ? "article-row-modern article-row-modern--magazine" : "article-row-modern"}
+                        href={`/articles/${post.slug}`}
+                        key={post.id}
+                      >
+                        <Image src={image.src} alt="" width={160} height={110} />
+                        <span>
+                          <strong>{getPostTitle(post)}</strong>
+                          <em>{getPostExcerpt(post)}</em>
+                        </span>
+                      </Link>
+                    );
+                  })
+                ) : (
+                  <p className="archive-loading">Education guides will appear here as soon as WordPress is reachable.</p>
+                )}
+              </div>
+
+              <EducationPathwaysCard posts={posts.slice(8, 12)} />
+            </div>
+          </section>
+
+          <section className="home-section home-section--white" aria-labelledby="resources-title">
+            <div className="section-heading">
+              <span className="kicker">Resources</span>
+              <h2 id="resources-title">Magazines, partners, and family activities</h2>
+            </div>
+
+            <div className="resource-grid">
+              <Link className="resource-card resource-card--magazine" href="/magazines">
                 <span className="kicker">Magazines</span>
                 <h3>Browse the SA Homeschooling magazine archive</h3>
-                <p>Open uploaded PDF issues in the built-in reader and move through pages from the website.</p>
+                <p>Open uploaded PDF issues directly from the website.</p>
               </Link>
-            )}
-          </aside>
-
-          <aside className="newsletter-card home-community-card">
-            <NewsletterForm
-              idPrefix="home-community"
-              className="newsletter-card-form"
-              title="Join our community"
-            />
-          </aside>
-        </section>
-
-        {categorySections.map((section, index) => {
-          const config = categoryConfigs[index];
-
-          return section.category ? (
-            <Fragment key={config.slug}>
-              <CategorySection
-                category={{
-                  ...section.category,
-                  slug: config.slug,
-                  name: config.name,
-                  description: config.description,
-                }}
-                posts={section.posts}
-              />
-              {index < categorySections.length - 1 ? (
-                <AdBanner
-                  placement="home-middle"
-                  idSuffix={`category-${config.slug}`}
-                  wrapClassName="home-ad-row modern-ad-row home-category-ad"
-                />
-              ) : null}
-            </Fragment>
-          ) : null;
-        })}
-
-        <AdBanner
-          placement="home-middle"
-          idSuffix="before-resources"
-          wrapClassName="home-ad-row modern-ad-row home-category-ad home-before-resources-ad"
-        />
-
-        <section className="home-section home-section--soft" aria-labelledby="guides-title">
-          <div className="home-split home-guides-grid home-guides-grid--articles-only">
-            <div className="section-heading home-guides-heading">
-              <h2 id="guides-title">Education pathways, learning support, and future planning</h2>
+              <Link className="resource-card resource-card--directory" href="/directory">
+                <span className="kicker">Partners</span>
+                <h3>Find learning providers and education partners</h3>
+                <p>Explore schools, resource centres, olympiads, study guides, and curriculum support partners.</p>
+              </Link>
+              <Link className="resource-card resource-card--recipes" href="/category/cooking-bonding">
+                <span className="kicker">Parenting</span>
+                <h3>Cook, connect, and learn together</h3>
+                <p>Family-friendly recipes that double as practical homeschool activities.</p>
+              </Link>
             </div>
+          </section>
 
-            <div className="article-stack home-guides-articles">
-              {posts.length ? (
-                posts.slice(8, 12).map((post) => {
-                  const image = getFeaturedImage(post);
-
-                  return (
-                    <Link className="article-row-modern" href={`/articles/${post.slug}`} key={post.id}>
-                      <Image src={image.src} alt="" width={160} height={110} />
-                      <span>
-                        <strong>{getPostTitle(post)}</strong>
-                        <em>{getPostExcerpt(post)}</em>
-                      </span>
-                    </Link>
-                  );
-                })
-              ) : (
-                <p className="archive-loading">Education guides will appear here as soon as WordPress is reachable.</p>
-              )}
-            </div>
-
-            <EducationPathwaysCard posts={posts.slice(8, 12)} />
-          </div>
-        </section>
-
-        <section className="home-section home-section--white" aria-labelledby="resources-title">
-          <div className="section-heading">
-            <span className="kicker">Resources</span>
-            <h2 id="resources-title">Magazines, partners, and family activities</h2>
-          </div>
-
-          <div className="resource-grid">
-            <Link className="resource-card resource-card--magazine" href="/magazines">
-              <span className="kicker">Magazines</span>
-              <h3>Browse the SA Homeschooling magazine archive</h3>
-              <p>Open uploaded PDF issues in the built-in reader and move through pages from the website.</p>
-            </Link>
-            <Link className="resource-card resource-card--directory" href="/directory">
-              <span className="kicker">Partners</span>
-              <h3>Find learning providers and education partners</h3>
-              <p>Explore schools, resource centres, olympiads, study guides, and curriculum support partners.</p>
-            </Link>
-            <Link className="resource-card resource-card--recipes" href="/category/cooking-bonding">
-              <span className="kicker">Parenting</span>
-              <h3>Cook, connect, and learn together</h3>
-              <p>Family-friendly recipes that double as practical homeschool activities.</p>
-            </Link>
-          </div>
-        </section>
-
-        <AdBanner placement="home-bottom" wrapClassName="home-ad-row modern-ad-row" />
+        </SectionPageLayout>
       </main>
 
-      <Footer />
+      <Footer flush />
     </div>
   );
 }
 
 function HomeLeadStory({ post }: { post: WPPost }) {
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
 
   return (
-    <article className="home-lead-story home-lead-story--compact">
+    <article
+      className={
+        isMagazineArticle(post)
+          ? "home-lead-story home-lead-story--compact home-lead-story--magazine"
+          : "home-lead-story home-lead-story--compact"
+      }
+    >
       <Link href={`/articles/${post.slug}`}>
         <Image src={image.src} alt={image.alt} width={image.width} height={image.height} />
         <div className="home-lead-copy">
@@ -235,10 +260,10 @@ function HomeLeadStory({ post }: { post: WPPost }) {
 }
 
 function HomeImageTile({ post }: { post: WPPost }) {
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
 
   return (
-    <Link className="home-image-tile" href={`/articles/${post.slug}`}>
+    <Link className={`home-image-tile ${tileStyles.tile}${isMagazineArticle(post) ? " home-image-tile--magazine" : ""}`} href={`/articles/${post.slug}`}>
       <Image src={image.src} alt={image.alt} width={image.width} height={image.height} />
       <span className="home-image-tile-category">{getPrimaryCategory(post)}</span>
       <h3>{getPostTitle(post)}</h3>
@@ -247,11 +272,11 @@ function HomeImageTile({ post }: { post: WPPost }) {
 }
 
 function HomeTopStory({ post }: { post: WPPost }) {
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
 
   return (
     <Link className="home-top-story" href={`/articles/${post.slug}`}>
-      <span className="home-top-story-media">
+      <span className={isMagazineArticle(post) ? "home-top-story-media home-top-story-media--magazine" : "home-top-story-media"}>
         <Image src={image.src} alt="" fill sizes="(max-width: 620px) 100vw, (max-width: 920px) 50vw, 33vw" />
       </span>
       <span className="home-top-story-copy">
@@ -324,3 +349,4 @@ function EducationPathwaysCard({ posts }: { posts: WPPost[] }) {
     </aside>
   );
 }
+

@@ -10,8 +10,8 @@ import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import {
+  getArticleImage,
   getAuthorBio,
-  getFeaturedImage,
   getPostAuthor,
   getPostBySlug,
   getPostAuthorProfile,
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     };
   }
 
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
   const title = getPostTitle(post);
   const description = getPostExcerpt(post);
 
@@ -74,7 +74,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   if (!post) return <ArticleUnavailable slug={slug} />;
 
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
   const categories = getPostCategories(post);
   const author = getPostAuthorProfile(post);
   const authorSlug = getPostAuthorSlug(post);
