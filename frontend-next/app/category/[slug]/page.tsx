@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import AdBanner from "@/components/AdBanner";
 import ArticleCard from "@/components/ArticleCard";
 import FeaturedMosaic from "@/components/FeaturedMosaic";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import ResourceCards from "@/components/ResourceCards";
+import SectionPageLayout from "@/components/SectionPageLayout";
+import SectionIntro from "@/components/SectionIntro";
 import { getCategoryBySlug, getPostsByCategory } from "@/lib/wordpress";
 
 type CategoryPageProps = {
@@ -80,51 +81,49 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       <Header />
 
       <main>
-        <FeaturedMosaic posts={posts} className="page-featured-mosaic" />
-
-        <section className="education-content-grid education-featured-modern">
-          <section className="news-section education-featured-list" aria-labelledby="category-archive-title">
-            <div className="section-rule" />
-            <h2 id="category-archive-title">Latest {pageCategory.name} Articles</h2>
-            <div className="education-archive-grid">
-              {posts.map((post) => (
-                <ArticleCard post={post} key={post.id} />
-              ))}
-            </div>
-            {!posts.length ? (
-              <p className="archive-loading">
-                {pageCategory.name} articles are temporarily unavailable. Please check back soon.
-              </p>
-            ) : null}
-            <nav className="post-navigation" aria-label={`${pageCategory.name} pagination`}>
-              {page > 1 ? <Link href={`/category/${pageCategory.slug}?page=${page - 1}`}>Previous page</Link> : <span />}
-              {page < totalPages ? (
-                <Link href={`/category/${pageCategory.slug}?page=${page + 1}`}>View More</Link>
-              ) : (
-                <span />
-              )}
-            </nav>
-          </section>
-
-          <aside className="education-sidebar">
+        <SectionPageLayout
+          idPrefix={`category-${pageCategory.slug}`}
+          newsletter={
             <NewsletterAdStack
               idPrefix={`category-${pageCategory.slug}`}
               formClassName="sidebar-newsletter labeled"
+              fallbackAds
             />
-          </aside>
-        </section>
+          }
+        >
+          <SectionIntro section={categoryKey} />
+          <FeaturedMosaic posts={posts} className="page-featured-mosaic" />
 
-        <AdBanner
-          placement="home-bottom"
-          idSuffix={`category-before-resources-${pageCategory.slug}`}
-          wrapClassName="archive-pagination-ad"
-          variant="google-ad-slot--wide-banner"
-        />
+          <section className="education-content-grid education-featured-modern">
+            <section className="news-section education-featured-list" aria-labelledby="category-archive-title">
+              <div className="section-rule" />
+              <h2 id="category-archive-title">Latest {pageCategory.name} Articles</h2>
+              <div className="education-archive-grid">
+                {posts.map((post) => (
+                  <ArticleCard post={post} key={post.id} />
+                ))}
+              </div>
+              {!posts.length ? (
+                <p className="archive-loading">
+                  {pageCategory.name} articles are temporarily unavailable. Please check back soon.
+                </p>
+              ) : null}
+              <nav className="post-navigation" aria-label={`${pageCategory.name} pagination`}>
+                {page > 1 ? <Link href={`/category/${pageCategory.slug}?page=${page - 1}`}>Previous page</Link> : <span />}
+                {page < totalPages ? (
+                  <Link href={`/category/${pageCategory.slug}?page=${page + 1}`}>View More</Link>
+                ) : (
+                  <span />
+                )}
+              </nav>
+            </section>
+          </section>
 
-        <ResourceCards context={getCategoryKey(pageCategory.slug, pageCategory.name)} />
+          <ResourceCards context={getCategoryKey(pageCategory.slug, pageCategory.name)} />
+        </SectionPageLayout>
       </main>
 
-      <Footer />
+      <Footer flush />
     </div>
   );
 }

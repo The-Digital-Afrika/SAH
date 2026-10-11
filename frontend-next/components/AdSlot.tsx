@@ -1,5 +1,5 @@
 import { getAdByPlacement, type AdPlacement } from "@/lib/wordpress";
-import GoogleAdUnit from "./GoogleAdUnit";
+import AdCreative from "./AdCreative";
 
 type AdSlotProps = {
   placement: AdPlacement;
@@ -7,20 +7,19 @@ type AdSlotProps = {
   idSuffix?: string;
   wrapClassName?: string;
   variant?: string;
+  fallback?: boolean;
 };
 
-export default async function AdSlot({ placement, className = "", idSuffix, wrapClassName, variant }: AdSlotProps) {
+export default async function AdSlot({ placement, className = "", idSuffix, wrapClassName, variant, fallback = false }: AdSlotProps) {
   const ad = await getAdByPlacement(placement);
-  const sizeClass = variant ?? ad.sizeClass;
-  const slot = (
-    <GoogleAdUnit ad={ad} sizeClass={sizeClass} className={className} idSuffix={idSuffix} />
-  );
-
-  if (!wrapClassName) return slot;
-
   return (
-    <div className={wrapClassName} aria-label="Advertisement">
-      {slot}
-    </div>
+    <AdCreative
+      ad={ad}
+      className={className}
+      idSuffix={idSuffix}
+      wrapClassName={wrapClassName}
+      variant={variant}
+      fallback={fallback}
+    />
   );
 }

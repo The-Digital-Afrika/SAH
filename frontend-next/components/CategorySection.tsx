@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getFeaturedImage, getPostExcerpt, getPostTitle, type WPCategory, type WPPost } from "@/lib/wordpress";
+import { getArticleImage, getPostExcerpt, getPostTitle, isMagazineArticle, type WPCategory, type WPPost } from "@/lib/wordpress";
+import styles from "./CategorySection.module.css";
 
 type CategorySectionProps = {
   category: WPCategory;
@@ -15,7 +16,7 @@ export default function CategorySection({ category, posts }: CategorySectionProp
 
   return (
     <section
-      className={`home-section home-section--soft${useArticleCards ? " home-category-section--cards" : ""}`}
+      className={`home-section home-section--soft${useArticleCards ? ` home-category-section--cards ${styles.cardSection}` : ""}`}
       aria-label={`${category.name} articles`}
     >
       <div className="home-split home-category-grid">
@@ -31,11 +32,12 @@ export default function CategorySection({ category, posts }: CategorySectionProp
           }
         >
           {posts.slice(0, 3).map((post) => {
-            const image = getFeaturedImage(post);
+            const image = getArticleImage(post);
+            const articleClassName = useArticleCards ? "article-row-modern home-category-card" : "article-row-modern";
 
             return (
               <Link
-                className={useArticleCards ? "article-row-modern home-category-card" : "article-row-modern"}
+                className={isMagazineArticle(post) ? `${articleClassName} article-row-modern--magazine` : articleClassName}
                 href={`/articles/${post.slug}`}
                 key={post.id}
               >

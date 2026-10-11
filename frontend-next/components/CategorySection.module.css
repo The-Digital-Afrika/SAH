@@ -1,0 +1,71 @@
+@media (min-width: 1101px) {
+  :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 280px) !important;
+    column-gap: 24px !important;
+  }
+}
+
+@media (min-width: 1101px) and (max-width: 1500px) {
+  :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) {
+    grid-template-columns: minmax(0, 1fr) 260px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto !important;
+    grid-template-areas: none !important;
+  }
+
+  :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) > * {
+    grid-column: 1 !important;
+    grid-row: auto !important;
+  }
+}
+
+:global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-card-grid) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)) !important;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.home-category-card) span {
+  min-width: 0;
+  padding-inline: 16px !important;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.home-category-card.article-row-modern--magazine) img {
+  object-fit: contain !important;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.home-category-card) strong {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 22px !important;
+  line-height: 1.2 !important;
+  overflow-wrap: anywhere;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.category-resource-card) {
+  min-width: 0;
+  padding: 22px !important;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.category-resource-card) h3 {
+  font-size: 26px !important;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.category-resource-card) p,
+:global(.home-page.modern-home) .cardSection :global(.category-topic-grid) span,
+:global(.home-page.modern-home) .cardSection :global(.category-latest-list) a {
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  :global(.home-page.modern-home) .cardSection :global(.home-category-card) strong {
+    font-size: 20px !important;
+  }
+}

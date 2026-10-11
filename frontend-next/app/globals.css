@@ -3259,13 +3259,6 @@ textarea {
   background: #ffffff;
 }
 
-.dflip-embed-page ._df_book {
-  width: 100%;
-  height: 100vh;
-  min-height: 520px;
-  margin: 0 auto;
-}
-
 .dflip-embed-page--fallback {
   display: grid;
   place-items: center;
@@ -19636,4 +19629,660 @@ form button,
   font-weight: 800 !important;
   letter-spacing: 0 !important;
   text-transform: uppercase !important;
+}
+
+/* Archive, partner, Ask Dalena, and magazine ads should stay visible even when Google has no immediate fill. */
+.education-page .education-sidebar .newsletter-stack-ad,
+.education-page .education-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending),
+.education-page .education-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty),
+.directory-page .directory-sidebar .newsletter-stack-ad,
+.directory-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending),
+.directory-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty),
+.partner-detail-page .directory-sidebar .newsletter-stack-ad,
+.partner-detail-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending),
+.partner-detail-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty),
+.magazine-newsletter-break .newsletter-stack-ad,
+.magazine-newsletter-break .newsletter-stack-ad:has(.google-ad-slot--pending),
+.magazine-newsletter-break .newsletter-stack-ad:has(.google-ad-slot--empty) {
+  position: relative !important;
+  display: flex !important;
+  width: 100% !important;
+  min-height: 250px !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.education-page .education-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending),
+.education-page .education-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty),
+.directory-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending),
+.directory-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty),
+.partner-detail-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending),
+.partner-detail-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty),
+.magazine-newsletter-break .newsletter-stack-ad:has(.google-ad-slot--pending),
+.magazine-newsletter-break .newsletter-stack-ad:has(.google-ad-slot--empty),
+.education-page .archive-pagination-ad:has(.google-ad-slot--pending),
+.education-page .archive-pagination-ad:has(.google-ad-slot--empty),
+.magazines-page .archive-pagination-ad:has(.google-ad-slot--pending),
+.magazines-page .archive-pagination-ad:has(.google-ad-slot--empty) {
+  border: 1px dashed rgba(229, 31, 88, 0.38) !important;
+  background: #fff7fa !important;
+}
+
+.education-page .education-sidebar .newsletter-stack-ad .google-ad-slot--pending,
+.education-page .education-sidebar .newsletter-stack-ad .google-ad-slot--empty,
+.directory-page .directory-sidebar .newsletter-stack-ad .google-ad-slot--pending,
+.directory-page .directory-sidebar .newsletter-stack-ad .google-ad-slot--empty,
+.partner-detail-page .directory-sidebar .newsletter-stack-ad .google-ad-slot--pending,
+.partner-detail-page .directory-sidebar .newsletter-stack-ad .google-ad-slot--empty {
+  display: flex !important;
+  visibility: visible !important;
+  width: min(300px, 100%) !important;
+  max-width: 300px !important;
+  min-height: 250px !important;
+  padding: 8px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.magazine-newsletter-break .newsletter-stack-ad .google-ad-slot--pending,
+.magazine-newsletter-break .newsletter-stack-ad .google-ad-slot--empty,
+.education-page .archive-pagination-ad .google-ad-slot--pending,
+.education-page .archive-pagination-ad .google-ad-slot--empty,
+.magazines-page .archive-pagination-ad .google-ad-slot--pending,
+.magazines-page .archive-pagination-ad .google-ad-slot--empty {
+  display: flex !important;
+  visibility: visible !important;
+  width: min(970px, 100%) !important;
+  min-height: 112px !important;
+  padding: 10px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.education-page .education-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending)::before,
+.education-page .education-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty)::before,
+.directory-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending)::before,
+.directory-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty)::before,
+.partner-detail-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--pending)::before,
+.partner-detail-page .directory-sidebar .newsletter-stack-ad:has(.google-ad-slot--empty)::before,
+.magazine-newsletter-break .newsletter-stack-ad:has(.google-ad-slot--pending)::before,
+.magazine-newsletter-break .newsletter-stack-ad:has(.google-ad-slot--empty)::before,
+.education-page .archive-pagination-ad:has(.google-ad-slot--pending)::before,
+.education-page .archive-pagination-ad:has(.google-ad-slot--empty)::before,
+.magazines-page .archive-pagination-ad:has(.google-ad-slot--pending)::before,
+.magazines-page .archive-pagination-ad:has(.google-ad-slot--empty)::before {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  content: "Advertisement" !important;
+  width: fit-content !important;
+  height: fit-content !important;
+  margin: auto !important;
+  color: var(--brand-pink) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+/* Home section divider ads should reserve visible placement areas, even before Google fills them. */
+.home-page .home-ad-row,
+.home-page .home-ad-row:has(.google-ad-slot--pending),
+.home-page .home-ad-row:has(.google-ad-slot--empty),
+.home-page .modern-ad-row,
+.home-page .modern-ad-row:has(.google-ad-slot--pending),
+.home-page .modern-ad-row:has(.google-ad-slot--empty),
+.home-page .home-category-ad,
+.home-page .home-category-ad:has(.google-ad-slot--pending),
+.home-page .home-category-ad:has(.google-ad-slot--empty) {
+  position: relative !important;
+  display: flex !important;
+  width: min(100% - 56px, 1180px) !important;
+  min-height: 132px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 44px auto 50px !important;
+  padding: 10px !important;
+  overflow: visible !important;
+}
+
+.home-page .home-ad-row:has(.google-ad-slot--pending),
+.home-page .home-ad-row:has(.google-ad-slot--empty),
+.home-page .modern-ad-row:has(.google-ad-slot--pending),
+.home-page .modern-ad-row:has(.google-ad-slot--empty),
+.home-page .home-category-ad:has(.google-ad-slot--pending),
+.home-page .home-category-ad:has(.google-ad-slot--empty) {
+  border: 1px dashed rgba(229, 31, 88, 0.38) !important;
+  background: #fff7fa !important;
+}
+
+.home-page .home-ad-row .google-ad-slot--pending,
+.home-page .home-ad-row .google-ad-slot--empty,
+.home-page .modern-ad-row .google-ad-slot--pending,
+.home-page .modern-ad-row .google-ad-slot--empty,
+.home-page .home-category-ad .google-ad-slot--pending,
+.home-page .home-category-ad .google-ad-slot--empty {
+  display: flex !important;
+  visibility: visible !important;
+  width: min(970px, 100%) !important;
+  min-height: 112px !important;
+  padding: 10px !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.home-page .home-ad-row:has(.google-ad-slot--pending)::before,
+.home-page .home-ad-row:has(.google-ad-slot--empty)::before,
+.home-page .modern-ad-row:has(.google-ad-slot--pending)::before,
+.home-page .modern-ad-row:has(.google-ad-slot--empty)::before,
+.home-page .home-category-ad:has(.google-ad-slot--pending)::before,
+.home-page .home-category-ad:has(.google-ad-slot--empty)::before {
+  position: absolute !important;
+  inset: 0 !important;
+  display: block !important;
+  content: "Advertisement" !important;
+  width: fit-content !important;
+  height: fit-content !important;
+  margin: auto !important;
+  color: var(--brand-pink) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-transform: uppercase !important;
+}
+
+/* Keep header dropdowns compact; the menu item should not inherit the full nav height. */
+@media (min-width: 1241px) {
+  .site-header .nav-dropdown {
+    position: relative !important;
+  }
+
+  .site-header .nav-dropdown-menu,
+  header.site-header nav.site-nav .nav-dropdown .nav-dropdown-menu,
+  header.site-header nav.site-nav .nav-dropdown:hover .nav-dropdown-menu,
+  header.site-header nav.site-nav .nav-dropdown:focus-within .nav-dropdown-menu {
+    left: 50% !important;
+    top: calc(100% - 8px) !important;
+    width: max-content !important;
+    min-width: 172px !important;
+    max-width: 220px !important;
+    padding: 6px !important;
+    border-radius: 7px !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .site-header .nav-dropdown-menu a,
+  .site-header .site-nav .nav-dropdown-menu a,
+  header.site-header nav.site-nav .nav-dropdown .nav-dropdown-menu a,
+  header.site-header nav.site-nav .nav-dropdown:hover .nav-dropdown-menu a,
+  header.site-header nav.site-nav .nav-dropdown:focus-within .nav-dropdown-menu a,
+  header.site-header nav.site-nav .nav-dropdown .nav-dropdown-menu a:visited {
+    display: flex !important;
+    min-height: 38px !important;
+    height: auto !important;
+    padding: 0 12px !important;
+    border-radius: 5px !important;
+    font-size: 12px !important;
+    line-height: 1.1 !important;
+    white-space: nowrap !important;
+  }
+}
+
+/* Magazine listing thumbnails use the magazine cover while keeping the existing article-card design. */
+.article-card--magazine img,
+.article-row-modern--magazine img,
+.home-lead-story--magazine img,
+.home-image-tile--magazine img,
+.home-top-story-media--magazine img,
+.pick-row--magazine img,
+.site-featured-lead--magazine img,
+.site-featured-tile--magazine img,
+.topic-card--magazine img,
+.wide-story--magazine img {
+  object-fit: cover !important;
+  object-position: center top !important;
+  background: #111821 !important;
+}
+
+
+/* New compact h&a. mark should keep its natural proportions in the header. */
+.site-header .brand {
+  width: clamp(150px, 12vw, 190px) !important;
+}
+
+.site-header .brand-logo {
+  width: auto !important;
+  max-width: 100% !important;
+  max-height: 60px !important;
+  height: auto !important;
+}
+
+
+/* Footer brand logo. */
+.home-footer .footer-logo-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  margin-bottom: 22px !important;
+}
+
+.home-footer .footer-logo {
+  display: block !important;
+  width: min(260px, 100%) !important;
+  height: auto !important;
+}
+
+.home-footer .footer-brand-column h2 {
+  margin-top: 0 !important;
+}
+
+/* Shared section rail stays beside the entire page, ending above the footer. */
+.section-page-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 28px;
+  width: min(1560px, calc(100% - 56px));
+  margin: 0 auto;
+  padding-bottom: 40px;
+  align-items: stretch;
+}
+
+.home-page .section-page-layout {
+  width: min(1786px, calc(100% - 56px));
+}
+
+.home-page.modern-home main:has(> .section-page-layout),
+.education-page main:has(> .section-page-layout),
+.magazines-page main:has(> .section-page-layout) {
+  padding-bottom: 0 !important;
+}
+
+.section-page-content {
+  min-width: 0;
+  align-self: start;
+  container-type: inline-size;
+}
+
+.section-page-content > .page-featured-mosaic,
+.section-page-content > .weekly-section,
+.section-page-content > .education-content-grid,
+.section-page-content > .resource-card-section,
+.section-page-content > .magazine-grid,
+.home-page .section-page-content > .home-editorial-showcase {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.section-page-content > .education-content-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.section-page-content .education-archive-section {
+  width: 100% !important;
+}
+
+.section-page-layout .section-page-content > .resource-card-section {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 34px 0 0 !important;
+  padding: 36px 24px !important;
+}
+
+.section-page-layout .section-page-content > .archive-pagination-ad {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 132px !important;
+}
+
+.section-page-content .magazine-newsletter-break .magazine-newsletter-stack {
+  grid-template-columns: minmax(0, 1fr) !important;
+  width: min(100%, 420px) !important;
+}
+
+.section-page-content .magazine-card .magazine-toolbar {
+  display: flex !important;
+  flex-wrap: wrap;
+}
+
+.section-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  width: 300px;
+  max-width: 100%;
+}
+
+.section-most-recent {
+  background: #fff;
+  border: 1px solid #e2e2e2;
+}
+
+.section-most-recent h2 {
+  margin: 0;
+  padding: 16px;
+  border-bottom: 1px solid #e2e2e2;
+  color: var(--brand-pink);
+  font-family: var(--body-font, Arial, Helvetica, sans-serif) !important;
+  font-size: 14px !important;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.section-most-recent ol {
+  margin: 0;
+  padding: 6px 18px 10px 42px;
+  list-style: decimal;
+}
+
+.section-most-recent li {
+  padding: 12px 0 12px 4px;
+  border-bottom: 1px solid #efefef;
+}
+
+.section-most-recent li:last-child {
+  border-bottom: 0;
+}
+
+.section-most-recent li::marker {
+  color: #8a8a8a;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.section-most-recent a {
+  display: block;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.section-most-recent a:hover,
+.section-most-recent a:focus-visible {
+  color: var(--brand-pink);
+  text-decoration: underline;
+}
+
+.section-most-recent p {
+  padding: 16px;
+  font-size: 13px;
+}
+
+.section-sidebar-lower-ads {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 24px;
+}
+
+.section-sidebar-ad-rail {
+  justify-content: flex-start;
+}
+
+.section-sidebar-ad-cell {
+  min-width: 0;
+  flex: none;
+}
+
+.section-sidebar .newsletter-ad-stack {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.section-sidebar .sidebar-newsletter.labeled h2 {
+  font-size: 26px !important;
+  overflow-wrap: anywhere;
+}
+
+.section-sidebar .section-sidebar-ad,
+.section-sidebar .newsletter-stack-ad {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 300px !important;
+  height: auto !important;
+  min-height: 274px !important;
+  margin: 0 !important;
+  padding: 24px 0 0 !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  background: #f5f5f5 !important;
+}
+
+.section-sidebar .section-sidebar-ad::before,
+.section-sidebar .newsletter-stack-ad::before {
+  content: "Advertisement" !important;
+  position: absolute !important;
+  inset: 6px 0 auto !important;
+  width: 100% !important;
+  margin: 0 !important;
+  color: #777 !important;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.3 !important;
+  text-align: center !important;
+  text-transform: uppercase !important;
+}
+
+.section-sidebar .google-ad-slot,
+.section-sidebar .newsletter-stack-ad .google-ad-slot {
+  display: flex !important;
+  visibility: visible !important;
+  width: 300px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 250px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+}
+
+@media (min-width: 1101px) and (max-width: 1500px) {
+  .home-page.modern-home .section-page-content .home-category-grid,
+  .home-page.modern-home .section-page-content .home-guides-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 300px) !important;
+  }
+
+  .home-page.modern-home .section-page-content .home-category-card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)) !important;
+  }
+}
+
+@container (max-width: 1000px) {
+  .home-page.modern-home .home-community-magazines {
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "magazine" "newsletter" !important;
+    width: min(100% - 32px, 620px) !important;
+  }
+
+  .home-page.modern-home .home-community-card {
+    justify-self: center !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .section-page-layout,
+  .home-page .section-page-layout {
+    grid-template-columns: minmax(0, 1fr);
+    width: calc(100% - 32px);
+  }
+
+  .section-sidebar {
+    justify-self: center;
+  }
+
+  .section-sidebar-lower-ads {
+    flex: none;
+    gap: 24px;
+  }
+}
+
+/* Use house promotions when a section's paid placement has not filled. */
+.house-ad {
+  display: none;
+}
+
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending),
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) {
+  position: relative !important;
+  display: flex !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 24px 0 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .ad-unit-frame,
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .ad-unit-frame {
+  position: absolute !important;
+  inset: 24px 0 auto !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending)::before,
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty)::before {
+  content: "Advertisement" !important;
+  position: absolute !important;
+  inset: 6px 0 auto !important;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 !important;
+  color: #777 !important;
+  font-size: 10px !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+}
+
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .house-ad,
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .house-ad {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 300px;
+  min-height: 250px;
+  padding: 18px;
+  box-sizing: border-box;
+  background: var(--house-ad-background, #17626b);
+  color: #fff;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.house-ad-image {
+  display: block;
+  width: 88px;
+  height: 160px;
+  object-fit: cover;
+}
+
+.house-ad--magazines .house-ad-image {
+  object-fit: contain;
+}
+
+.house-ad-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.house-ad-brand {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.house-ad-copy strong {
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.house-ad-description {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.house-ad-action {
+  padding-bottom: 3px;
+  border-bottom: 1px solid currentColor;
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.section-page-layout .ad-has-fallback > .house-ad--community {
+  --house-ad-background: #c3194d;
+}
+
+.section-page-layout .ad-has-fallback > .house-ad--education {
+  --house-ad-background: #254c40;
+}
+
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .house-ad--banner,
+.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .house-ad--banner {
+  grid-template-columns: 140px minmax(0, 1fr);
+  max-width: 970px;
+  min-height: 176px;
+  padding: 20px 28px;
+  gap: 28px;
+}
+
+.house-ad--banner .house-ad-image {
+  width: 140px;
+  height: 136px;
+}
+
+.house-ad--banner .house-ad-copy strong {
+  font-size: 28px;
+}
+
+.house-ad:hover .house-ad-action,
+.house-ad:focus-visible .house-ad-action {
+  border-bottom-width: 2px;
+}
+
+@media (max-width: 620px) {
+  .section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .house-ad--banner,
+  .section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .house-ad--banner {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 16px;
+    min-height: 250px;
+    padding: 18px;
+  }
+
+  .house-ad--banner .house-ad-image {
+    width: 88px;
+    height: 160px;
+  }
+
+  .house-ad--banner .house-ad-copy strong {
+    font-size: 22px;
+  }
 }

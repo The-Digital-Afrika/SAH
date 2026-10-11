@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   formatPostDate,
-  getFeaturedImage,
+  getArticleImage,
   getPostAuthor,
   getPostExcerpt,
   getPostTitle,
   getPrimaryCategory,
+  isMagazineArticle,
   type WPPost,
 } from "@/lib/wordpress";
 
@@ -17,10 +18,11 @@ type ArticleCardProps = {
 };
 
 export default function ArticleCard({ post, className = "education-archive-card", imagePriority = false }: ArticleCardProps) {
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
+  const articleClassName = isMagazineArticle(post) ? `${className} article-card--magazine` : className;
 
   return (
-    <Link className={className} href={`/articles/${post.slug}`}>
+    <Link className={articleClassName} href={`/articles/${post.slug}`}>
       <Image src={image.src} alt={image.alt} width={image.width} height={image.height} priority={imagePriority} />
       <span className="kicker">{getPrimaryCategory(post)}</span>
       <h3>{getPostTitle(post)}</h3>

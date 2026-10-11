@@ -1,7 +1,8 @@
 import { unstable_cache } from "next/cache";
 import fallbackPostsData from "@/data/wp-fallback-posts.json";
 
-const WP_API = process.env.NEXT_PUBLIC_WP_API_URL ?? "https://sahomeschooling.com/wp-json";
+const WORDPRESS_ORIGIN = "https://cms.homeandschool.co.za";
+const WP_API = process.env.NEXT_PUBLIC_WP_API_URL ?? `${WORDPRESS_ORIGIN}/wp-json`;
 
 export type WPAuthor = {
   id: number;
@@ -57,6 +58,8 @@ export type WPPost = {
   title: { rendered: string };
   excerpt: { rendered: string };
   content: { rendered: string };
+  aioseo_head?: string;
+  aioseo_head_json?: Record<string, unknown>;
   _embedded?: {
     author?: WPAuthor[];
     "wp:featuredmedia"?: WPMedia[];
@@ -89,6 +92,7 @@ export type MagazineIssue = {
   title: string;
   issueNumber?: string;
   description: string;
+  date?: string;
   pdfUrl?: string;
   embedUrl?: string;
   dflipId?: string;
@@ -118,6 +122,16 @@ export type DFlipOption = {
   title?: string;
   [key: string]: unknown;
 };
+
+export function getMagazinePdfReaderUrl(pdfUrl?: string) {
+  if (!pdfUrl) return undefined;
+
+  return pdfUrl.startsWith("/") ? pdfUrl : `/api/magazine-pdf?url=${encodeURIComponent(pdfUrl)}`;
+}
+
+export function getMagazineReaderUrl(issue: Pick<MagazineIssue, "pdfUrl" | "embedUrl" | "sourcePost">) {
+  return getMagazinePdfReaderUrl(issue.pdfUrl) || issue.embedUrl || issue.sourcePost?.link;
+}
 
 export type AdPlacement =
   | "home-top"
@@ -165,6 +179,10 @@ type GetPostsOptions = {
 
 const revalidate = 3600;
 const wpRequestTimeoutMs = 8000;
+const wordpressFetchHeaders = {
+  accept: "application/json",
+  "user-agent": "SA Home&School frontend (+https://homeandschool.co.za)",
+};
 const googleAdNetworkCode = process.env.NEXT_PUBLIC_GOOGLE_AD_NETWORK_CODE ?? "23298734611";
 
 const googleLeaderboardAd = {
@@ -197,7 +215,7 @@ const googleSidebarAdAlt = {
 
 const localMagazineCovers = {
   "sahab-june-2026": {
-    src: "https://sahomeschooling.com/wp-content/uploads/dflip-thumbs/6869.jpeg?1780466638",
+    src: `${WORDPRESS_ORIGIN}/wp-content/uploads/dflip-thumbs/6869.jpeg?1780466638`,
     alt: "SA Homeschooling & Beyond June 2026 cover",
     width: 893,
     height: 1263,
@@ -426,7 +444,7 @@ const localMagazineTitles: Partial<Record<(typeof localMagazineOrder)[number], s
 };
 
 const localMagazinePdfUrls: Partial<Record<(typeof localMagazineOrder)[number], string>> = {
-  "sahab-june-2026": "https://sahomeschooling.com/wp-content/uploads/2026/06/SAHAB_June-2026_Web_300dpi_Rasterized.pdf",
+  "sahab-june-2026": `${WORDPRESS_ORIGIN}/wp-content/uploads/2026/06/SAHAB_June-2026_Web_300dpi_Rasterized.pdf`,
 };
 
 const localMagazineIssues: MagazineIssue[] = localMagazineOrder.map((slug) => ({
@@ -819,6 +837,7 @@ function logWordPressError(context: string, error: unknown) {
 const fetchWordPressJson = unstable_cache(
   async (url: string) => {
     const res = await fetch(url, {
+      headers: wordpressFetchHeaders,
       signal: AbortSignal.timeout(wpRequestTimeoutMs),
     });
 
@@ -829,12 +848,13 @@ const fetchWordPressJson = unstable_cache(
     return res.json() as Promise<unknown>;
   },
   ["wordpress-json"],
-  { revalidate },
+  { revalidate, tags: ["wordpress-json"] },
 );
 
 const fetchWordPressPaginated = unstable_cache(
   async (url: string) => {
     const res = await fetch(url, {
+      headers: wordpressFetchHeaders,
       signal: AbortSignal.timeout(wpRequestTimeoutMs),
     });
 
@@ -849,7 +869,7 @@ const fetchWordPressPaginated = unstable_cache(
     };
   },
   ["wordpress-paginated"],
-  { revalidate },
+  { revalidate, tags: ["wordpress-paginated"] },
 );
 
 function createFallbackPost(seed: FallbackPostSeed, index: number): WPPost {
@@ -1334,13 +1354,48 @@ export async function getMagazineEmbedData() {
 }
 
 export async function getMagazinePosts() {
-  return localMagazineIssues;
+  const [embedResult, relatedPostResult] = await Promise.allSettled([
+    getMagazineEmbedData(),
+    getMagazineRelatedPosts(),
+  ]);
+  const embeddedIssues = embedResult.status === "fulfilled" ? embedResult.value : [];
+  const relatedPosts = relatedPostResult.status === "fulfilled" ? relatedPostResult.value : [];
+  const enrichedEmbeddedIssues = embeddedIssues.map((issue) => {
+    const post = findMagazinePost(issue, relatedPosts);
+
+    if (!post) return issue;
+
+    return {
+      ...issue,
+      title: getPostTitle(post) || issue.title,
+      description: getPostExcerpt(post, 260) || issue.description,
+      date: post.date,
+      sourcePost: post,
+      coverImage: getMagazineCoverImage(
+        getLocalMagazineCover(issue, post),
+        issue.coverImage,
+        getMagazineMetadataCover(post),
+        getFeaturedImage(post),
+      ),
+    };
+  });
+  const postIssues = relatedPosts.flatMap(getMagazineIssuesFromPost);
+  const issues = dedupeMagazineIssues([...postIssues, ...enrichedEmbeddedIssues, ...localMagazineIssues]);
+
+  return applyMagazineFallbackCovers(issues);
 }
 
 export async function getMagazineBySlug(slug: string) {
   const issues = await getMagazinePosts();
+  const exactIssue = issues.find((issue) => issue.slug === slug);
 
-  return issues.find((issue) => issue.slug === slug || issue.sourcePost?.slug === slug) ?? null;
+  if (exactIssue && (!hasMagazineSlugDate(slug) || matchesMagazineSlugDate(slug, exactIssue))) return exactIssue;
+
+  const dateMatchedIssue = issues.find((issue) => matchesMagazineSlugDate(slug, issue));
+
+  if (dateMatchedIssue) return dateMatchedIssue;
+
+  return issues.find((issue) => issue.sourcePost?.slug === slug) ?? null;
 }
 
 export async function getAds() {
@@ -1458,6 +1513,37 @@ export function getFeaturedImage(post: WPPost) {
     width: sizes?.large?.width ?? media?.media_details?.width ?? 1200,
     height: sizes?.large?.height ?? media?.media_details?.height ?? 800,
   };
+}
+
+export function getArticleImage(post: WPPost) {
+  const featuredImage = getFeaturedImage(post);
+
+  if (!isMagazineArticle(post)) return featuredImage;
+
+  const parsedIssue = parseDFlipIssues(post.content.rendered)[0];
+  const pdfUrl = parsedIssue?.pdfUrl ?? extractFirstPdfUrl(post.content.rendered);
+  const issueForCover: Pick<MagazineIssue, "slug" | "pdfUrl"> = {
+    slug: parsedIssue?.slug ?? (slugFromUrl(pdfUrl) || post.slug),
+    pdfUrl,
+  };
+
+  return (
+    getMagazineCoverImage(
+      getLocalMagazineCover(issueForCover, post),
+      parsedIssue?.coverImage,
+      getMagazineMetadataCover(post),
+      featuredImage,
+    ) ?? featuredImage
+  );
+}
+
+export function isMagazineArticle(post: WPPost) {
+  const rawText = `${post.slug} ${getPostTitle(post)} ${getPostExcerpt(post)} ${post.content.rendered}`.toLowerCase();
+  const postText = normalizeText(rawText);
+  const hasFlipbook = rawText.includes("_df_book") || rawText.includes("df_option_") || rawText.includes("dflip");
+  const hasMagazinePdf = rawText.includes(".pdf") && /\b(magazine|issue|sahab)\b/.test(postText);
+
+  return hasFlipbook || hasMagazinePdf;
 }
 
 function getMagazineCoverImage(...covers: Array<MagazineIssue["coverImage"] | undefined>) {
@@ -1635,6 +1721,82 @@ function parseDFlipIssues(content: string): MagazineIssue[] {
     .filter((issue) => issue.pdfUrl || issue.embedUrl);
 }
 
+function getMagazineIssuesFromPost(post: WPPost): MagazineIssue[] {
+  const postTitle = getPostTitle(post);
+  const postDescription = getPostExcerpt(post, 260);
+  const postCover = getFeaturedImage(post);
+  const metadataCover = getMagazineMetadataCover(post);
+  const parsedIssues = parseDFlipIssues(post.content.rendered);
+
+  if (parsedIssues.length) {
+    return parsedIssues.map((issue) => ({
+      ...issue,
+      id: `${post.id}-${issue.id}`,
+      title: postTitle || issue.title,
+      description: postDescription || issue.description,
+      date: post.date,
+      sourcePost: post,
+      coverImage: getMagazineCoverImage(getLocalMagazineCover(issue, post), issue.coverImage, metadataCover, postCover),
+    }));
+  }
+
+  const pdfUrl = extractFirstPdfUrl(post.content.rendered);
+
+  if (!pdfUrl) return [];
+
+  const slug = slugFromUrl(pdfUrl) || post.slug;
+  const issue: MagazineIssue = {
+    id: String(post.id),
+    slug,
+    title: postTitle || titleFromSlug(slug),
+    issueNumber: extractIssueNumber(`${postTitle} ${slug} ${pdfUrl}`),
+    description: postDescription || `${postTitle || titleFromSlug(slug)} is available to read online.`,
+    date: post.date,
+    pdfUrl,
+    embedUrl: `/magazines/embed/${slug}`,
+    sourcePost: post,
+  };
+
+  return [
+    {
+      ...issue,
+      coverImage: getMagazineCoverImage(getLocalMagazineCover(issue, post), metadataCover, postCover),
+    },
+  ];
+}
+
+function getMagazineMetadataCover(post: WPPost) {
+  const metadata = post.aioseo_head_json ?? {};
+  const candidates = [
+    metadata["twitter:image"],
+    metadata["og:image"],
+    extractMetaContent(post.aioseo_head, "twitter:image"),
+    extractMetaContent(post.aioseo_head, "og:image"),
+  ];
+  const src = candidates.map((candidate) => normalizePublicUrl(asString(candidate))).find(Boolean);
+
+  return src
+    ? {
+        src,
+        alt: `${getPostTitle(post)} cover`,
+        width: 900,
+        height: 1270,
+      }
+    : undefined;
+}
+
+function extractMetaContent(html: string | undefined, property: string) {
+  if (!html) return undefined;
+
+  const pattern = new RegExp(`<meta[^>]+(?:property|name)=["']${property}["'][^>]+content=["']([^"']+)["']`, "i");
+
+  return html.match(pattern)?.[1];
+}
+
+function asString(value: unknown) {
+  return typeof value === "string" ? value : undefined;
+}
+
 function parseDFlipOption(value: string) {
   try {
     return JSON.parse(value) as DFlipOption;
@@ -1644,7 +1806,7 @@ function parseDFlipOption(value: string) {
 }
 
 function findMagazinePost(issue: MagazineIssue, posts: WPPost[]) {
-  const issueText = normalizeText(`${issue.slug} ${issue.title} ${issue.pdfUrl ?? ""}`);
+  const issueText = normalizeText(`${issue.slug} ${issue.title} ${slugFromUrl(issue.pdfUrl)}`);
 
   return posts.find((post) => {
     const postText = normalizeText(`${post.slug} ${getPostTitle(post)} ${getPostExcerpt(post)} ${post.content.rendered}`);
@@ -1654,16 +1816,140 @@ function findMagazinePost(issue: MagazineIssue, posts: WPPost[]) {
 }
 
 function dedupeMagazineIssues(issues: MagazineIssue[]) {
-  const seen = new Set<string>();
+  const indexes = new Map<string, number>();
+  const deduped: MagazineIssue[] = [];
 
-  return issues.filter((issue) => {
-    const key = slugFromUrl(issue.pdfUrl) || issue.slug;
+  issues.forEach((issue) => {
+    const key = getMagazineIssueKey(issue);
+    const existingIndex = indexes.get(key);
 
-    if (seen.has(key)) return false;
+    if (existingIndex === undefined) {
+      indexes.set(key, deduped.length);
+      deduped.push(issue);
+      return;
+    }
 
-    seen.add(key);
-    return true;
+    const existing = deduped[existingIndex];
+
+    if (getMagazineIssueQualityScore(issue) > getMagazineIssueQualityScore(existing)) {
+      deduped[existingIndex] = mergeMagazineIssues(issue, existing);
+    } else {
+      deduped[existingIndex] = mergeMagazineIssues(existing, issue);
+    }
   });
+
+  return deduped;
+}
+
+const magazineDateWords = ["summer", "spring", "winter", "autumn", "march", "april", "february", "june", "december"];
+const magazineDateAliases: Partial<Record<(typeof magazineDateWords)[number], string>> = {
+  december: "summer",
+  june: "winter",
+};
+const magazineIssueNumberYearAliases: Record<string, string> = {
+  "2": "2021",
+  "3": "2021",
+  "4": "2021",
+  "5": "2021",
+  "6": "2021",
+  "7": "2021",
+  "8": "2022",
+  "9": "2022",
+};
+
+function getMagazineIssueKey(issue: MagazineIssue) {
+  const pdfSlug = slugFromUrl(issue.pdfUrl);
+  const identityText = normalizeText(`${issue.title} ${pdfSlug} ${issue.description}`);
+  const year = identityText.match(/20\d{2}/)?.[0];
+  const dateWord = getMagazineDateWord(identityText);
+  const issueNumber = extractIssueNumber(`${issue.title} ${issue.slug} ${issue.pdfUrl ?? ""} ${issue.description}`);
+  const issueYear = year ?? (issueNumber ? magazineIssueNumberYearAliases[issueNumber] : undefined);
+
+  if (year && dateWord) return `date:${dateWord}:${year}`;
+  if (issueYear && issueNumber) return `issue:${issueNumber}:${issueYear}`;
+  if (issueNumber) return `issue:${issueNumber}`;
+
+  return pdfSlug || issue.slug;
+}
+
+function getMagazineIssueQualityScore(issue: MagazineIssue) {
+  let score = 0;
+
+  if (issue.pdfUrl) score += issue.pdfUrl.startsWith("/magazines/") ? 14 : 20;
+  if (issue.sourcePost) score += 24;
+  if (issue.issueNumber) score += 4;
+  if (issue.description.length > 80) score += 10;
+  if (issue.coverImage && !isPlaceholderImage(issue.coverImage.src)) {
+    score += issue.coverImage.src.startsWith("/magazine-covers/") ? 22 : 14;
+  }
+  if (isUsefulMagazineTitle(issue.title)) score += issue.title.toLowerCase().includes("sa homeschooling") ? 28 : 18;
+  if (/^\d+$/.test(normalizeText(issue.title))) score -= 40;
+
+  return score;
+}
+
+function mergeMagazineIssues(primary: MagazineIssue, secondary: MagazineIssue): MagazineIssue {
+  return {
+    ...secondary,
+    ...primary,
+    title: getBestMagazineTitle(primary.title, secondary.title),
+    issueNumber: primary.issueNumber || secondary.issueNumber,
+    description: primary.description || secondary.description,
+    date: primary.date || secondary.date,
+    pdfUrl: primary.pdfUrl || secondary.pdfUrl,
+    embedUrl: primary.embedUrl || secondary.embedUrl,
+    dflipId: primary.dflipId || secondary.dflipId,
+    dflipOption: primary.dflipOption || secondary.dflipOption,
+    coverImage: getMagazineCoverImage(primary.coverImage, secondary.coverImage),
+    sourcePost: primary.sourcePost || secondary.sourcePost,
+  };
+}
+
+function getBestMagazineTitle(primaryTitle: string, secondaryTitle: string) {
+  return getMagazineTitleQualityScore(primaryTitle) >= getMagazineTitleQualityScore(secondaryTitle) ? primaryTitle : secondaryTitle;
+}
+
+function getMagazineTitleQualityScore(title: string) {
+  const normalizedTitle = normalizeText(title);
+  let score = Math.min(normalizedTitle.length, 80);
+
+  if (/^\d+$/.test(normalizedTitle)) score -= 80;
+  if (/^issue \d+$/.test(normalizedTitle)) score -= 50;
+  if (normalizedTitle.includes("sa homeschooling")) score += 30;
+  if (normalizedTitle.match(/20\d{2}/)) score += 16;
+  if (getMagazineDateWord(normalizedTitle)) score += 12;
+  if (normalizedTitle.includes("out now")) score += 8;
+
+  return score;
+}
+
+function isUsefulMagazineTitle(title: string) {
+  const normalizedTitle = normalizeText(title);
+
+  return normalizedTitle.length > 8 && !/^\d+$/.test(normalizedTitle) && !/^issue \d+$/.test(normalizedTitle);
+}
+
+function getMagazineDateWord(value: string) {
+  const dateWord = magazineDateWords.find((word) => value.includes(word));
+
+  return dateWord ? magazineDateAliases[dateWord] ?? dateWord : undefined;
+}
+
+function hasMagazineSlugDate(slug: string) {
+  const requestedText = normalizeText(slug);
+
+  return Boolean(requestedText.match(/20\d{2}/)?.[0]) && Boolean(getMagazineDateWord(requestedText));
+}
+
+function matchesMagazineSlugDate(slug: string, issue: MagazineIssue) {
+  const requestedText = normalizeText(slug);
+  const issueText = normalizeText(`${issue.title} ${slugFromUrl(issue.pdfUrl)}`);
+  const year = requestedText.match(/20\d{2}/)?.[0];
+  const dateWord = getMagazineDateWord(requestedText);
+
+  if (!year || !dateWord) return false;
+
+  return issueText.includes(year) && getMagazineDateWord(issueText) === dateWord;
 }
 
 function sharesMagazineDate(a: string, b: string) {
@@ -1671,9 +1957,9 @@ function sharesMagazineDate(a: string, b: string) {
 
   if (!year || !b.includes(year)) return false;
 
-  const seasons = ["summer", "spring", "winter", "autumn", "march", "april", "february", "june", "december"];
+  const dateWord = getMagazineDateWord(a);
 
-  return seasons.some((season) => a.includes(season) && b.includes(season));
+  return Boolean(dateWord) && getMagazineDateWord(b) === dateWord;
 }
 
 function extractFirstPdfUrl(value: string) {
@@ -1686,7 +1972,7 @@ function normalizePublicUrl(value?: string) {
   const cleaned = decodeHtml(value).replace(/\\\//g, "/").trim();
 
   try {
-    const url = new URL(cleaned, "https://sahomeschooling.com");
+    const url = new URL(cleaned, WORDPRESS_ORIGIN);
 
     if (url.protocol === "https:" || url.protocol === "http:") return url.toString();
   } catch {

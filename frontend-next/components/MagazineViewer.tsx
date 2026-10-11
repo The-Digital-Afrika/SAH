@@ -1,12 +1,12 @@
 import type { CSSProperties } from "react";
-import type { MagazineIssue } from "@/lib/wordpress";
+import { getMagazineReaderUrl, type MagazineIssue } from "@/lib/wordpress";
 
 type MagazineViewerProps = {
   issue: MagazineIssue;
 };
 
 export default function MagazineViewer({ issue }: MagazineViewerProps) {
-  const viewerUrl = issue.embedUrl || issue.pdfUrl;
+  const viewerUrl = getMagazineReaderUrl(issue);
   const cover = issue.coverImage;
   const coverStyle = cover
     ? ({

@@ -133,7 +133,7 @@ const resourceContent: Record<ResourceCardsContext, ResourceCardsContent> = {
         href: "/magazines",
         label: "Magazines",
         title: "Browse magazine issues",
-        description: "Open uploaded PDF issues in the built-in reader and move through pages from the website.",
+        description: "Open uploaded PDF issues directly from the website.",
         variant: "magazine",
       },
       {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId } from "react";
+import Script from "next/script";
 import type { SiteAd } from "@/lib/wordpress";
 
 type GoogleAdUnitProps = {
@@ -16,6 +17,13 @@ type GoogleSlot = {
   addService: (service: GooglePubAdsService) => GoogleSlot;
   defineSizeMapping?: (sizeMapping: unknown) => GoogleSlot;
   getSlotElementId?: () => string;
+  setConfig?: (config: GoogleSlotConfig) => GoogleSlot;
+  setTargeting?: (key: string, value: string | string[]) => GoogleSlot;
+};
+
+type GoogleSlotConfig = {
+  collapseDiv?: "BEFORE_FETCH" | "ON_NO_FILL" | "DISABLED" | null;
+  targeting?: Record<string, string | string[]>;
 };
 
 type GoogleSizeMapping = {
@@ -24,9 +32,9 @@ type GoogleSizeMapping = {
 };
 
 type GooglePubAdsService = {
-  collapseEmptyDivs: () => void;
+  collapseEmptyDivs?: () => void;
   addEventListener?: (eventName: "slotRenderEnded", listener: (event: GoogleSlotRenderEvent) => void) => void;
-  enableSingleRequest: () => void;
+  enableSingleRequest?: () => void;
 };
 
 type GoogleSlotRenderEvent = {
@@ -43,7 +51,13 @@ type GoogleTag = {
   display?: (divId: string) => void;
   enableServices?: () => void;
   pubads?: () => GooglePubAdsService;
+  setConfig?: (config: GooglePageConfig) => void;
   sizeMapping?: () => GoogleSizeMapping;
+};
+
+type GooglePageConfig = {
+  collapseDiv?: "BEFORE_FETCH" | "ON_NO_FILL" | "DISABLED" | null;
+  singleRequest?: boolean;
 };
 
 declare global {
@@ -56,16 +70,8 @@ declare global {
 
 const gptScriptId = "google-publisher-tag-script";
 
-function ensureGooglePublisherTag() {
+function ensureGooglePublisherTagQueue() {
   window.googletag = window.googletag ?? { cmd: [] };
-
-  if (document.getElementById(gptScriptId)) return;
-
-  const script = document.createElement("script");
-  script.id = gptScriptId;
-  script.async = true;
-  script.src = "https://securepubads.g.doubleclick.net/tag/js/gpt.js";
-  document.head.appendChild(script);
 }
 
 function clientId(baseId: string, generatedId: string, idSuffix?: string) {
@@ -107,6 +113,53 @@ function sizesForElement(sizes: GoogleSlotSize[], divId: string) {
   return fittingSizes.length ? fittingSizes : sizes.filter(([width]) => width <= 320);
 }
 
+function adUnitPath(networkCode: string, adUnitCode: string) {
+  return adUnitCode.startsWith("/") ? adUnitCode : `/${networkCode}/${adUnitCode}`;
+}
+
+function normalizedPathname() {
+  return window.location.pathname.replace(/^\/+|\/+$/g, "");
+}
+
+function commonTargeting() {
+  const path = normalizedPathname();
+  const [section, slug] = path.split("/");
+  const isHome = !path;
+
+  return {
+    site: ["homeandschool.co.za", "sahomeschooling.com"],
+    slug: isHome ? "home-2" : slug ?? section ?? "home-2",
+    template: isHome ? "single-wide" : section ?? "next",
+    post_type: isHome ? "page" : section === "articles" ? "post" : section || "page",
+  };
+}
+
+function applyTargeting(slot: GoogleSlot) {
+  const targeting = commonTargeting();
+
+  if (slot.setConfig) {
+    slot.setConfig({ targeting });
+    return;
+  }
+
+  Object.entries(targeting).forEach(([key, value]) => {
+    slot.setTargeting?.(key, value);
+  });
+}
+
+function configureGoogleTag(googleTag: GoogleTag, pubads: GooglePubAdsService) {
+  if (googleTag.setConfig) {
+    googleTag.setConfig({
+      collapseDiv: "ON_NO_FILL",
+      singleRequest: true,
+    });
+    return;
+  }
+
+  pubads.collapseEmptyDivs?.();
+  pubads.enableSingleRequest?.();
+}
+
 export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }: GoogleAdUnitProps) {
   const generatedId = useId();
   const divId = clientId(ad.id, generatedId, idSuffix);
@@ -119,9 +172,10 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
 
     if (!google) return undefined;
 
-    ensureGooglePublisherTag();
+    ensureGooglePublisherTagQueue();
 
     let slot: GoogleSlot | null = null;
+    let cancelled = false;
     const pendingTimeout = window.setTimeout(() => {
       const element = document.getElementById(divId);
       if (!element || element.classList.contains("google-ad-slot--loaded")) return;
@@ -129,11 +183,12 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
       element.classList.remove("google-ad-slot--pending");
       element.classList.add("google-ad-slot--empty");
     }, 3000);
-    const adUnitPath = `/${google.networkCode}/${google.adUnitCode}`;
+    const path = adUnitPath(google.networkCode, google.adUnitCode);
 
     window.googletag?.cmd.push(() => {
       const googleTag = window.googletag;
       if (!googleTag?.defineSlot || !googleTag.pubads || !googleTag.enableServices || !googleTag.display) return;
+      if (cancelled || !document.getElementById(divId)) return;
 
       window.saHomeschoolingAdSlots = window.saHomeschoolingAdSlots ?? {};
 
@@ -145,7 +200,7 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
 
       const slotSizes = sizesForElement(google.sizes, divId);
 
-      slot = googleTag.defineSlot(adUnitPath, slotSizes.length ? slotSizes : google.sizes, divId);
+      slot = googleTag.defineSlot(path, slotSizes.length ? slotSizes : google.sizes, divId);
       if (!slot) return;
 
       const sizeMapping = googleTag.sizeMapping?.();
@@ -164,11 +219,11 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
       window.saHomeschoolingAdSlots[divId] = slot;
       const pubads = googleTag.pubads();
 
+      applyTargeting(slot);
       slot.addService(pubads);
 
       if (!window.saHomeschoolingAdsConfigured) {
-        pubads.collapseEmptyDivs();
-        pubads.enableSingleRequest();
+        configureGoogleTag(googleTag, pubads);
         pubads.addEventListener?.("slotRenderEnded", (event) => {
           const element = document.getElementById(event.slot.getSlotElementId());
           if (!element) return;
@@ -185,6 +240,7 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
     });
 
     return () => {
+      cancelled = true;
       window.clearTimeout(pendingTimeout);
 
       if (!slot) return;
@@ -199,24 +255,29 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
   }, [ad.google, ad.html, divId]);
 
   return (
-    <figure className="ad-unit-frame">
-      <div
-        id={divId}
-        className={[
-          "google-ad-slot",
-          shouldUseGoogle ? "google-ad-slot--live" : "",
-          shouldUseGoogle ? "google-ad-slot--pending" : "",
-          hasHtmlAd ? "google-ad-slot--html" : "",
-          sizeClass,
-          className,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-        data-ad-unit={ad.dataUnit}
-        data-google-ad-unit={ad.google?.adUnitCode}
-        aria-label="Advertisement"
-        dangerouslySetInnerHTML={htmlAd ? { __html: htmlAd } : undefined}
-      />
-    </figure>
+    <>
+      {shouldUseGoogle ? (
+        <Script id={gptScriptId} src="https://securepubads.g.doubleclick.net/tag/js/gpt.js" strategy="afterInteractive" />
+      ) : null}
+      <figure className="ad-unit-frame">
+        <div
+          id={divId}
+          className={[
+            "google-ad-slot",
+            shouldUseGoogle ? "google-ad-slot--live" : "",
+            shouldUseGoogle ? "google-ad-slot--pending" : "",
+            hasHtmlAd ? "google-ad-slot--html" : "",
+            sizeClass,
+            className,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          data-ad-unit={ad.dataUnit}
+          data-google-ad-unit={ad.google?.adUnitCode}
+          aria-label="Advertisement"
+          dangerouslySetInnerHTML={htmlAd ? { __html: htmlAd } : undefined}
+        />
+      </figure>
+    </>
   );
 }
