@@ -10,6 +10,7 @@ import NewsletterForm from "@/components/NewsletterForm";
 import SectionPageLayout from "@/components/SectionPageLayout";
 import SectionIntro from "@/components/SectionIntro";
 import tileStyles from "@/components/ImageStoryTile.module.css";
+import magazineStyles from "@/components/HomeMagazineFeature.module.css";
 import {
   getArticleImage,
   getMagazinePosts,
@@ -109,7 +110,7 @@ export default async function Home() {
           <AdBanner placement="home-middle" wrapClassName="home-ad-row modern-ad-row" fallback />
 
           <section className="home-community-magazines" aria-label="Community signup and magazines">
-            <aside className="home-magazine-feature home-community-magazine">
+            <aside className={`home-magazine-feature home-community-magazine ${magazineStyles.feature}`}>
               {featuredMagazine ? (
                 <HomeMagazineFeature issue={featuredMagazine} />
               ) : (
@@ -294,7 +295,7 @@ function HomeMagazineFeature({ issue }: { issue: MagazineIssue }) {
   const cover = issue.coverImage;
 
   return (
-    <Link className="home-magazine-feature__card" href="/magazines">
+    <Link className={`home-magazine-feature__card ${magazineStyles.card}`} href="/magazines">
       <span className="kicker">Magazines</span>
       <h3>{issue.title}</h3>
       {cover ? (
