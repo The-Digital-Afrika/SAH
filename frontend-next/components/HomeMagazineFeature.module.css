@@ -1,0 +1,84 @@
+.feature {
+  container-type: inline-size;
+  container-name: home-magazine;
+}
+
+:global(.home-page.modern-home) :global(.home-community-magazine) a.card {
+  width: 100%;
+  min-width: 0;
+  padding: 24px !important;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas:
+    "kicker"
+    "title"
+    "cover"
+    "copy"
+    "action" !important;
+  gap: 16px !important;
+}
+
+:global(.home-page.modern-home) :global(.home-community-magazine) a.card > :global(.kicker) {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: anywhere;
+}
+
+:global(.home-page.modern-home) :global(.home-community-magazine) a.card > h3 {
+  min-width: 0;
+  max-width: 100% !important;
+  font-size: 32px !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: anywhere;
+}
+
+:global(.home-page.modern-home) :global(.home-community-magazine) a.card > img {
+  width: min(280px, 100%) !important;
+  max-width: 100%;
+  height: auto !important;
+  justify-self: center !important;
+  object-fit: contain !important;
+}
+
+:global(.home-page.modern-home) :global(.home-community-magazine) a.card > p {
+  min-width: 0;
+  max-width: 100% !important;
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+  overflow-wrap: anywhere;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+}
+
+:global(.home-page.modern-home) :global(.home-community-magazine) a.card > :global(.home-magazine-feature__cta) {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+@container home-magazine (min-width: 560px) {
+  :global(.home-page.modern-home) :global(.home-community-magazine) a.card {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+    grid-template-areas:
+      "cover kicker"
+      "cover title"
+      "cover copy"
+      "cover action" !important;
+    column-gap: 24px !important;
+  }
+}
+
+@container home-magazine (max-width: 359px) {
+  :global(.home-page.modern-home) :global(.home-community-magazine) a.card {
+    padding: 20px !important;
+  }
+
+  :global(.home-page.modern-home) :global(.home-community-magazine) a.card > h3 {
+    font-size: 28px !important;
+  }
+}
