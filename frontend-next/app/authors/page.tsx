@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdBanner from "@/components/AdBanner";
 import AuthorAvatar from "@/components/AuthorAvatar";
+import FeaturedMosaic from "@/components/FeaturedMosaic";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import { getAuthorBio, getAuthors } from "@/lib/wordpress";
+import { getAuthorBio, getAuthors, getPosts } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
   title: "Authors",
@@ -19,11 +21,13 @@ export const metadata: Metadata = {
 };
 
 export default async function AuthorsPage() {
-  const authors = await getAuthors();
+  const [authors, latestPosts] = await Promise.all([getAuthors(), getPosts({ perPage: 4 })]);
 
   return (
     <div className="directory-page">
       <Header />
+
+      <FeaturedMosaic posts={latestPosts} className="page-featured-mosaic" />
 
       <main className="newsletter-page">
         <section className="author-header">
@@ -49,6 +53,8 @@ export default async function AuthorsPage() {
             <p className="archive-loading">Author profiles are temporarily unavailable. Please check back soon.</p>
           )}
         </section>
+
+        <AdBanner placement="home-bottom" wrapClassName="archive-pagination-ad" variant="google-ad-slot--wide-banner" />
       </main>
 
       <Footer />

@@ -2,6 +2,8 @@
 
 import { FormEvent, useState } from "react";
 
+const SIGNUP_COMPLETE_KEY = "sa-home-school:community-signup-complete";
+
 type NewsletterFormProps = {
   idPrefix: string;
   className?: string;
@@ -13,7 +15,7 @@ type NewsletterFormProps = {
 export default function NewsletterForm({
   idPrefix,
   className = "sidebar-newsletter labeled",
-  title = "Newsletter",
+  title = "Join our community",
   showKicker = false,
   headingLevel = "h2",
 }: NewsletterFormProps) {
@@ -22,6 +24,11 @@ export default function NewsletterForm({
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    try {
+      window.localStorage.setItem(SIGNUP_COMPLETE_KEY, "true");
+    } catch {
+      // Keep the form usable even if browser storage is blocked.
+    }
     setSubmitted(true);
   }
 

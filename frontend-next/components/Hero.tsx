@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  getFeaturedImage,
+  getArticleImage,
   getPostAuthor,
   getPostExcerpt,
   getPostTitle,
   getPrimaryCategory,
+  isMagazineArticle,
   type WPPost,
 } from "@/lib/wordpress";
 
@@ -19,12 +20,12 @@ export default function Hero({ posts }: HeroProps) {
 
   if (!lead) return null;
 
-  const leadImage = getFeaturedImage(lead);
+  const leadImage = getArticleImage(lead);
 
   return (
     <section className="home-hero-band" aria-label="Featured stories">
       <div className="home-hero-layout">
-        <article className="home-lead-story">
+        <article className={isMagazineArticle(lead) ? "home-lead-story home-lead-story--magazine" : "home-lead-story"}>
           <Link href={`/articles/${lead.slug}`}>
             <Image
               src={leadImage.src}
@@ -46,10 +47,14 @@ export default function Hero({ posts }: HeroProps) {
           <div className="section-rule" />
           <h2 id="editor-picks-title">Top Stories</h2>
           {picks.map((post) => {
-            const image = getFeaturedImage(post);
+            const image = getArticleImage(post);
 
             return (
-              <Link className="pick-row" href={`/articles/${post.slug}`} key={post.id}>
+              <Link
+                className={isMagazineArticle(post) ? "pick-row pick-row--magazine" : "pick-row"}
+                href={`/articles/${post.slug}`}
+                key={post.id}
+              >
                 <Image src={image.src} alt="" width={180} height={120} />
                 <span>
                   <strong>{getPostTitle(post)}</strong>

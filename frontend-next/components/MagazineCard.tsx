@@ -1,4 +1,4 @@
-import type { MagazineIssue } from "@/lib/wordpress";
+import { getMagazineReaderUrl, type MagazineIssue } from "@/lib/wordpress";
 import MagazineViewer from "./MagazineViewer";
 import ReadMoreText from "./ReadMoreText";
 
@@ -7,7 +7,7 @@ type MagazineCardProps = {
 };
 
 export default function MagazineCard({ issue }: MagazineCardProps) {
-  const href = issue.embedUrl || issue.pdfUrl || issue.sourcePost?.link;
+  const href = getMagazineReaderUrl(issue);
 
   return (
     <article className="magazine-card">
@@ -16,7 +16,7 @@ export default function MagazineCard({ issue }: MagazineCardProps) {
       {href ? (
         <a className="magazine-toolbar magazine-open" href={href} target="_blank" rel="noreferrer">
           <span>{issue.issueNumber ? `Issue ${issue.issueNumber}` : "Read"}</span>
-          <span>{issue.dflipOption ? "Flip" : "PDF"}</span>
+          <span>PDF</span>
           <span>+</span>
           <span>-</span>
           <span>Full</span>

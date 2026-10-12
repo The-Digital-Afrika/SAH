@@ -7,9 +7,10 @@ type AdBannerProps = {
   idSuffix?: string;
   wrapClassName?: string;
   variant?: string;
+  fallback?: boolean;
 };
 
-export default function AdBanner({ placement, className, idSuffix, wrapClassName, variant }: AdBannerProps) {
+export default function AdBanner({ placement, className, idSuffix, wrapClassName, variant, fallback }: AdBannerProps) {
   return (
     <AdSlot
       placement={placement}
@@ -17,6 +18,7 @@ export default function AdBanner({ placement, className, idSuffix, wrapClassName
       idSuffix={idSuffix}
       wrapClassName={wrapClassName}
       variant={variant}
+      fallback={fallback}
     />
   );
 }

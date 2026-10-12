@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import AdBanner from "@/components/AdBanner";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import MagazineCard from "@/components/MagazineCard";
+import NewsletterAdStack from "@/components/NewsletterAdStack";
+import ResourceCards from "@/components/ResourceCards";
+import SectionPageLayout from "@/components/SectionPageLayout";
+import SectionIntro from "@/components/SectionIntro";
 import { getMagazinePosts } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
@@ -26,36 +28,36 @@ export default async function MagazinesPage() {
     <div className="magazines-page">
       <Header />
 
-      <section className="simple-hero magazines-hero-image">
-        <Image
-          src="/images/magazines-hero-real.png"
-          alt="Open notebook and pencils in a quiet study space"
-          width={1600}
-          height={900}
-          priority
-        />
-        <div>
-          <h1>Explore Our Magazines</h1>
-          <p>
-            Read SA Homeschooling &amp; Beyond issues directly from the website, with magazine previews and built-in page
-            controls.
-          </p>
-        </div>
-      </section>
-
       <main className="magazines-main">
-        <AdBanner placement="magazine-top" wrapClassName="magazine-bottom-ad" />
+        <SectionPageLayout idPrefix="magazines">
+          <SectionIntro section="magazines" />
+          <section className="magazine-grid" aria-label="Magazine library">
+            {magazines.length ? (
+              <>
+                {magazines.slice(0, 2).map((issue) => (
+                  <MagazineCard issue={issue} key={`${issue.id}-${issue.slug}`} />
+                ))}
 
-        <section className="magazine-grid" aria-label="Magazine library">
-          {magazines.length ? (
-            magazines.map((issue) => <MagazineCard issue={issue} key={`${issue.id}-${issue.slug}`} />)
-          ) : (
-            <p className="archive-loading">Magazine issues are temporarily unavailable.</p>
-          )}
-        </section>
+                {magazines.length > 2 ? (
+                  <div className="magazine-newsletter-break">
+                    <NewsletterAdStack idPrefix="magazines-inline" className="magazine-newsletter-stack" fallbackAds />
+                  </div>
+                ) : null}
+
+                {magazines.slice(2).map((issue) => (
+                  <MagazineCard issue={issue} key={`${issue.id}-${issue.slug}`} />
+                ))}
+              </>
+            ) : (
+              <p className="archive-loading">Magazine issues are temporarily unavailable.</p>
+            )}
+          </section>
+
+          <ResourceCards />
+        </SectionPageLayout>
       </main>
 
-      <Footer />
+      <Footer flush />
     </div>
   );
 }

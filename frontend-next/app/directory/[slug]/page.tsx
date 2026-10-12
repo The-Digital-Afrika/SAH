@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import AdSlot from "@/components/AdSlot";
+import type { CSSProperties } from "react";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import NewsletterForm from "@/components/NewsletterForm";
+import NewsletterAdStack from "@/components/NewsletterAdStack";
 import { getPartnerBySlug, partners } from "@/lib/partners";
 
 type PartnerPageProps = {
@@ -54,19 +54,13 @@ export default async function PartnerPage({ params }: PartnerPageProps) {
 
   if (!partner) notFound();
 
+  const pageBackgroundStyle = { "--page-bg-image": `url(${JSON.stringify(partner.logo)})` } as CSSProperties;
+
   return (
     <div className="directory-page partner-detail-page">
       <Header />
 
-      <section className="directory-hero partner-detail-hero">
-        <Image src={partner.logo} alt={`${partner.name} logo`} width={1600} height={900} priority />
-        <div>
-          <span className="kicker">Listings</span>
-          <h1>{partner.heroTitle}</h1>
-        </div>
-      </section>
-
-      <main className="directory-layout partner-detail-layout">
+      <main className="directory-layout partner-detail-layout" style={pageBackgroundStyle}>
         <article className="partner-detail-card">
           <Link className="partner-back-link" href="/directory">
             Back to partners
@@ -185,8 +179,7 @@ export default async function PartnerPage({ params }: PartnerPageProps) {
         </section>
 
         <aside className="directory-sidebar">
-          <AdSlot placement="directory-top" wrapClassName="directory-ad" />
-          <NewsletterForm idPrefix={`partner-${partner.slug}`} className="sidebar-newsletter labeled" />
+          <NewsletterAdStack idPrefix={`partner-${partner.slug}`} formClassName="sidebar-newsletter labeled" />
         </aside>
       </main>
 

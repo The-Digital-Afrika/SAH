@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdBanner from "@/components/AdBanner";
 import ArticleCard from "@/components/ArticleCard";
 import AuthorAvatar from "@/components/AuthorAvatar";
 import Footer from "@/components/Footer";
@@ -82,6 +83,13 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
             <p className="archive-loading">No published articles are available for this author yet.</p>
           )}
         </section>
+
+        <AdBanner
+          placement="home-bottom"
+          idSuffix={`author-bottom-${author.slug}`}
+          wrapClassName="archive-pagination-ad"
+          variant="google-ad-slot--wide-banner"
+        />
       </main>
 
       <Footer />
@@ -112,6 +120,13 @@ function AuthorUnavailable({ slug }: { slug: string }) {
           </div>
           <p className="archive-loading">Published articles for this author are temporarily unavailable.</p>
         </section>
+
+        <AdBanner
+          placement="home-bottom"
+          idSuffix={`author-unavailable-${slug}`}
+          wrapClassName="archive-pagination-ad"
+          variant="google-ad-slot--wide-banner"
+        />
       </main>
 
       <Footer />

@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 360" role="img" aria-label="Smiling learner ready for class">
-  <rect width="520" height="360" fill="#8f969b"/>
-  <circle cx="260" cy="104" r="74" fill="#2c1b18"/>
-  <circle cx="260" cy="142" r="58" fill="#7a4b32"/>
-  <rect x="172" y="215" width="176" height="145" rx="60" fill="#62b2d4"/>
-  <path d="M175 250h170M185 275h150M203 300h116" stroke="#1d6f95" stroke-width="14"/>
-  <path d="M224 156c18 18 55 18 72 0" fill="none" stroke="#2b1b17" stroke-width="7" stroke-linecap="round"/>
-</svg>

@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import AdBanner from "@/components/AdBanner";
 import AdSlot from "@/components/AdSlot";
 import ArticleCard from "@/components/ArticleCard";
 import AuthorAvatar from "@/components/AuthorAvatar";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
+import NewsletterAdStack from "@/components/NewsletterAdStack";
 import {
+  getArticleImage,
   getAuthorBio,
-  formatPostDate,
-  getFeaturedImage,
   getPostAuthor,
   getPostBySlug,
   getPostAuthorProfile,
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     };
   }
 
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
   const title = getPostTitle(post);
   const description = getPostExcerpt(post);
 
@@ -74,11 +74,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   if (!post) return <ArticleUnavailable slug={slug} />;
 
-  const image = getFeaturedImage(post);
+  const image = getArticleImage(post);
   const categories = getPostCategories(post);
   const author = getPostAuthorProfile(post);
   const authorSlug = getPostAuthorSlug(post);
   const authorHref = authorSlug ? `/authors/${authorSlug}` : "#";
+  const pageBackgroundStyle = { "--page-bg-image": `url(${JSON.stringify(image.src)})` } as CSSProperties;
   const related = await getPosts({
     perPage: 3,
     categories: categories[0]?.id,
@@ -89,31 +90,71 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     <div className="recipe-page article-page">
       <Header />
 
-      <AdBanner placement="article-top" wrapClassName="ad-strip top-ad" />
+      <main className="recipe-layout article-layout article-layout--feature" style={pageBackgroundStyle}>
+        <article className="recipe-article article-body article-feature-article">
+          <figure className="article-feature-image">
+            <Image src={image.src} alt={image.alt} width={image.width} height={image.height} priority />
+          </figure>
 
-      <section className="recipe-hero article-hero">
-        <Image src={image.src} alt={image.alt} width={image.width} height={image.height} priority />
-        <div className="recipe-hero-overlay">
-          <div className="section-rule" />
-          <p>{categories.map((category) => category.name).join(", ") || getPrimaryCategory(post)}</p>
-          <h1>{getPostTitle(post)}</h1>
-          <span>
-            by <Link href={authorHref}>{getPostAuthor(post)}</Link> &nbsp;&nbsp; {formatPostDate(post.date)}
-          </span>
-        </div>
-      </section>
+          <div className="article-feature-card article-content-card">
+            <header className="article-inline-heading">
+              <div className="section-rule" />
+              <p>{categories.map((category) => category.name).join(", ") || getPrimaryCategory(post)}</p>
+              <h1>{getPostTitle(post)}</h1>
+              <span className="article-byline">
+                by <Link href={authorHref}>{getPostAuthor(post)}</Link>
+              </span>
+            </header>
 
-      <main className="recipe-layout article-layout">
-        <article className="recipe-article article-body">
-          <div className="intro-box">
-            <p>{getPostExcerpt(post)}</p>
+            <div className="intro-box">
+              <p>
+                <em>{getPostExcerpt(post)}</em>
+              </p>
+            </div>
+
+            <div dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
+
+            <AdSlot
+              placement="article-inline"
+              className="article-inline-ad-slot"
+              wrapClassName="article-inline-ad"
+              variant="google-ad-slot--article-inline-fit"
+            />
           </div>
+        </article>
 
-          <div dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
+        <aside className="recipe-sidebar article-sidebar article-sidebar--restored" aria-label="Article sidebar">
+          <NewsletterForm
+            idPrefix="article-hero-sidebar"
+            className="sidebar-newsletter labeled article-hero-newsletter"
+            title="Join our community"
+          />
+          <AdSlot
+            placement="article-sidebar"
+            idSuffix={`${post.slug}-sidebar-top`}
+            className="article-side-ad-slot"
+            wrapClassName="article-side-ad"
+            variant="google-ad-slot--article-sidebar-fit"
+          />
+          <section className="latest-widget">
+            <h2>Latest Stories</h2>
+            {related.map((relatedPost) => (
+              <Link href={`/articles/${relatedPost.slug}`} key={relatedPost.id}>
+                {getPostTitle(relatedPost)}
+              </Link>
+            ))}
+          </section>
+          <AdSlot
+            placement="article-sidebar"
+            idSuffix={`${post.slug}-sidebar-bottom`}
+            className="article-side-ad-slot"
+            wrapClassName="article-side-ad"
+            variant="google-ad-slot--article-sidebar-fit"
+          />
+        </aside>
 
-          <AdSlot placement="article-inline" className="article-ad-slot" />
-
-          <section className="author-bio">
+        <section className="article-author-section" aria-label="Author">
+          <div className="author-bio">
             <AuthorAvatar author={author} />
             <div>
               <h2>
@@ -122,8 +163,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <p>{getAuthorBio(author)}</p>
               <Link href={authorHref}>More by {getPostAuthor(post)}</Link>
             </div>
-          </section>
+          </div>
+        </section>
 
+        <div className="article-feature-card article-related-card">
           {related.length ? (
             <section className="education-archive-section" aria-labelledby="related-title">
               <div className="section-heading">
@@ -137,23 +180,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </div>
             </section>
           ) : null}
-
-          <NewsletterForm idPrefix="article-bottom" className="sidebar-newsletter labeled" />
-        </article>
-
-        <aside className="recipe-sidebar article-sidebar">
-          <AdSlot placement="article-sidebar" className="article-side-ad" />
-          <section className="latest-widget">
-            <h2>Latest Stories</h2>
-            {related.map((relatedPost) => (
-              <Link href={`/articles/${relatedPost.slug}`} key={relatedPost.id}>
-                {getPostTitle(relatedPost)}
-              </Link>
-            ))}
-          </section>
-          <NewsletterForm idPrefix="article" className="sidebar-newsletter labeled" />
-          <AdSlot placement="article-sidebar" className="article-side-ad" />
-        </aside>
+        </div>
       </main>
 
       <Footer />
@@ -166,8 +193,6 @@ function ArticleUnavailable({ slug }: { slug: string }) {
     <div className="recipe-page article-page">
       <Header />
 
-      <AdBanner placement="article-top" wrapClassName="ad-strip top-ad" />
-
       <main className="recipe-layout article-layout">
         <article className="recipe-article article-body">
           <div className="intro-box">
@@ -177,7 +202,7 @@ function ArticleUnavailable({ slug }: { slug: string }) {
             </p>
           </div>
           <Link href="/articles">Back to articles</Link>
-          <NewsletterForm idPrefix={`article-unavailable-${slug}`} className="sidebar-newsletter labeled" />
+          <NewsletterAdStack idPrefix={`article-unavailable-${slug}`} formClassName="sidebar-newsletter labeled" />
         </article>
       </main>
 

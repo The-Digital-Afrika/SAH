@@ -20,6 +20,10 @@
 # production
 /build
 
+# local duplicate projects
+/frontend-web/
+/frontend-web-up1/
+
 # misc
 .DS_Store
 *.pem

@@ -41,13 +41,13 @@ export default function Header() {
     <>
       <header className="site-header">
         <div className="header-inner">
-          <Link className="brand" href="/" aria-label="SA Homeschooling home">
+          <Link className="brand" href="/" aria-label="Home&School home">
             <Image
               className="brand-logo"
-              src="/images/logo-transparent.png"
-              alt="SA Home & School"
-              width={1600}
-              height={533}
+              src="/images/hs-home-school-logo-2026.png"
+              alt="Home & School"
+              width={900}
+              height={454}
               priority
             />
           </Link>
@@ -102,10 +102,11 @@ export default function Header() {
             <Link className={pathname === "/subscribe" ? "active" : undefined} href="/subscribe" prefetch>
               Subscribe
             </Link>
-            <button className="search-link" type="button" aria-label="Search" onClick={() => setSearchOpen(true)}>
-              Search
-            </button>
           </nav>
+
+          <button className="search-link header-search-link" type="button" aria-label="Search" onClick={() => setSearchOpen(true)}>
+            Search
+          </button>
         </div>
       </header>
 
@@ -151,3 +152,5 @@ export default function Header() {
     </>
   );
 }
+
+

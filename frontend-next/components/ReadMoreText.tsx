@@ -48,7 +48,7 @@ export default function ReadMoreText({ children, className }: ReadMoreTextProps)
           aria-expanded={expanded}
           onClick={() => setExpanded((value) => !value)}
         >
-          {expanded ? "Show less" : "Read more"}
+          {expanded ? "Show less" : "View more"}
         </button>
       ) : null}
     </div>

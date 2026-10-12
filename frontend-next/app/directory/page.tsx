@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import AdSlot from "@/components/AdSlot";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import NewsletterForm from "@/components/NewsletterForm";
+import NewsletterAdStack from "@/components/NewsletterAdStack";
 import { partners } from "@/lib/partners";
 import { getPosts, getPostTitle } from "@/lib/wordpress";
 
@@ -28,23 +27,6 @@ export default async function DirectoryPage() {
     <div className="directory-page">
       <Header />
 
-      <section className="directory-hero">
-        <Image
-          src="/images/directory-hero-real.png"
-          alt="Children playing in a school courtyard with Table Mountain in the background"
-          width={1600}
-          height={900}
-          priority
-        />
-        <div>
-          <h1>Partners</h1>
-          <p className="directory-hero-subtitle">People we partner with</p>
-          <p className="directory-hero-copy">
-            Explore trusted education providers, learning resources, and support services for homeschool families.
-          </p>
-        </div>
-      </section>
-
       <main className="directory-layout">
         <section className="directory-list" aria-label="Partner listings">
           {partners.map((partner) => (
@@ -54,7 +36,7 @@ export default async function DirectoryPage() {
               <p>{partner.shortDescription}</p>
               <div className="directory-card-actions">
                 <Link className="directory-readmore-link" href={`/directory/${partner.slug}`}>
-                  Read more
+                  View more
                 </Link>
                 {partner.website ? (
                   <a
@@ -73,8 +55,6 @@ export default async function DirectoryPage() {
         </section>
 
         <aside className="directory-sidebar">
-          <AdSlot placement="directory-top" wrapClassName="directory-ad" />
-
           <section className="latest-widget">
             <h2>Latest Stories</h2>
             {latestPosts.length ? (
@@ -88,7 +68,7 @@ export default async function DirectoryPage() {
             )}
           </section>
 
-          <NewsletterForm idPrefix="directory" className="sidebar-newsletter labeled" />
+          <NewsletterAdStack idPrefix="directory" formClassName="sidebar-newsletter labeled" />
         </aside>
       </main>
 

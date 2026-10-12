@@ -1,4 +1,5 @@
 import { getAdByPlacement, type AdPlacement } from "@/lib/wordpress";
+import AdCreative from "./AdCreative";
 
 type AdSlotProps = {
   placement: AdPlacement;
@@ -6,27 +7,19 @@ type AdSlotProps = {
   idSuffix?: string;
   wrapClassName?: string;
   variant?: string;
+  fallback?: boolean;
 };
 
-export default async function AdSlot({ placement, className = "", idSuffix, wrapClassName, variant }: AdSlotProps) {
+export default async function AdSlot({ placement, className = "", idSuffix, wrapClassName, variant, fallback = false }: AdSlotProps) {
   const ad = await getAdByPlacement(placement);
-  const sizeClass = variant ?? ad.sizeClass;
-  const id = idSuffix ? `${ad.id}-${idSuffix}` : ad.id;
-  const slot = (
-    <div
-      id={id}
-      className={["google-ad-slot", sizeClass, className].filter(Boolean).join(" ")}
-      data-ad-unit={ad.dataUnit}
-      aria-label="Advertisement"
-      dangerouslySetInnerHTML={ad.html ? { __html: ad.html } : undefined}
-    />
-  );
-
-  if (!wrapClassName) return slot;
-
   return (
-    <div className={wrapClassName} aria-label="Advertisement">
-      {slot}
-    </div>
+    <AdCreative
+      ad={ad}
+      className={className}
+      idSuffix={idSuffix}
+      wrapClassName={wrapClassName}
+      variant={variant}
+      fallback={fallback}
+    />
   );
 }

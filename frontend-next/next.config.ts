@@ -2,11 +2,18 @@ import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+  },
   turbopack: {
     root: path.resolve(__dirname),
   },
   images: {
     remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cms.homeandschool.co.za",
+      },
       {
         protocol: "https",
         hostname: "sahomeschooling.com",
