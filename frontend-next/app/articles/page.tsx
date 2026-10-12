@@ -58,8 +58,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           <SectionIntro section="education" />
           <FeaturedMosaic posts={posts} className="page-featured-mosaic" />
 
-          <section className="weekly-section education-weekly-modern" aria-labelledby="weekly-title">
-            <h2 id="weekly-title">Weekly Stories</h2>
+          <section className="weekly-section education-weekly-modern" aria-label="More education stories">
             {weekly.length ? (
               weekly.map((post) => {
                 const image = getArticleImage(post);

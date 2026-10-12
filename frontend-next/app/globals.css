@@ -6433,16 +6433,9 @@ img[src$=".jpeg"] {
 .education-page .education-weekly-modern {
   width: min(1320px, calc(100% - 56px));
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
   margin: 54px auto 56px;
-}
-
-.education-page .education-weekly-modern h2 {
-  grid-column: 1 / -1;
-  margin: 0;
-  font-size: 32px;
-  line-height: 1;
 }
 
 .education-page .education-wide-story {
@@ -6507,12 +6500,6 @@ img[src$=".jpeg"] {
   font-family: var(--subtitle-font);
   font-size: 13px;
   font-weight: 900;
-}
-
-@media (max-width: 1040px) {
-  .education-page .education-weekly-modern {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 720px) {
@@ -8570,6 +8557,7 @@ body.search-open {
 
 .article-page .article-body {
   max-width: 760px;
+  font-size: 18px;
 }
 
 .article-page .article-body .intro-box {
@@ -17075,7 +17063,7 @@ form button,
 }
 
 .article-page .article-feature-card .intro-box p {
-  font-size: clamp(18px, 1.6vw, 22px) !important;
+  font-size: clamp(17px, 1.5vw, 20px) !important;
   line-height: 1.55 !important;
 }
 
@@ -19462,7 +19450,7 @@ form button,
   max-width: 100% !important;
   margin-bottom: 20px !important;
   font-family: var(--body-font, Arial, Helvetica, sans-serif) !important;
-  font-size: clamp(28px, 2.6vw, 42px) !important;
+  font-size: clamp(26px, 2.4vw, 39px) !important;
   font-weight: 600 !important;
   line-height: 1.18 !important;
 }
@@ -19480,7 +19468,7 @@ form button,
   }
 
   .article-page .article-feature-card .article-inline-heading h1 {
-    font-size: clamp(26px, 8vw, 36px) !important;
+    font-size: clamp(24px, 7.4vw, 33px) !important;
   }
 }
 
@@ -19902,14 +19890,15 @@ form button,
   container-type: inline-size;
 }
 
-.section-page-content > .page-featured-mosaic,
-.section-page-content > .weekly-section,
-.section-page-content > .education-content-grid,
-.section-page-content > .resource-card-section,
-.section-page-content > .magazine-grid,
+.section-page-layout .section-page-content > .page-featured-mosaic,
+.section-page-layout .section-page-content > .weekly-section,
+.section-page-layout .section-page-content > .education-content-grid,
+.section-page-layout .section-page-content > .resource-card-section,
+.section-page-layout .section-page-content > .magazine-grid,
 .home-page .section-page-content > .home-editorial-showcase {
   width: 100% !important;
   max-width: 100% !important;
+  margin-inline: 0 !important;
 }
 
 .section-page-content > .education-content-grid {
