@@ -3,6 +3,7 @@
 import { useEffect, useId } from "react";
 import Script from "next/script";
 import type { SiteAd } from "@/lib/wordpress";
+import { adRenderedEvent } from "@/lib/takeover";
 
 type GoogleAdUnitProps = {
   ad: SiteAd;
@@ -42,6 +43,8 @@ type GoogleSlotRenderEvent = {
     getSlotElementId: () => string;
   };
   isEmpty: boolean;
+  creativeId?: number | null;
+  lineItemId?: number | null;
 };
 
 type GoogleTag = {
@@ -182,6 +185,10 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
 
       element.classList.remove("google-ad-slot--pending");
       element.classList.add("google-ad-slot--empty");
+      element.dispatchEvent(new CustomEvent(adRenderedEvent, {
+        bubbles: true,
+        detail: { slotId: divId, isEmpty: true },
+      }));
     }, 3000);
     const path = adUnitPath(google.networkCode, google.adUnitCode);
 
@@ -231,6 +238,15 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
           element.classList.remove("google-ad-slot--pending");
           element.classList.toggle("google-ad-slot--loaded", !event.isEmpty);
           element.classList.toggle("google-ad-slot--empty", event.isEmpty);
+          element.dispatchEvent(new CustomEvent(adRenderedEvent, {
+            bubbles: true,
+            detail: {
+              slotId: element.id,
+              isEmpty: event.isEmpty,
+              creativeId: event.creativeId,
+              lineItemId: event.lineItemId,
+            },
+          }));
         });
         window.saHomeschoolingAdsConfigured = true;
       }

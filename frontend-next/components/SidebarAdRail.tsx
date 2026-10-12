@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, type ReactNode } from "react";
 import type { SiteAd } from "@/lib/wordpress";
 import AdCreative from "./AdCreative";
 
@@ -11,6 +11,7 @@ type SidebarAdRailProps = {
   idPrefix: string;
   sidebarAd: SiteAd;
   footerAd: SiteAd;
+  features?: ReactNode[];
 };
 
 function RailAd({ ad, idSuffix, footer = false }: { ad: SiteAd; idSuffix: string; footer?: boolean }) {
@@ -45,9 +46,10 @@ function RailAd({ ad, idSuffix, footer = false }: { ad: SiteAd; idSuffix: string
   );
 }
 
-export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd }: SidebarAdRailProps) {
+export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd, features = [] }: SidebarAdRailProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState({ count: 2, height: 0 });
+  const featureCount = features.length;
 
   useEffect(() => {
     const rail = ref.current;
@@ -67,11 +69,16 @@ export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd }: Sidebar
 
       if (desktop.matches) {
         rail.querySelectorAll<HTMLElement>(".section-sidebar-ad-cell").forEach((cell) => {
-          measuredHeights.set(cell.dataset.railSlot ?? "", Math.max(minimumAdHeight, cell.getBoundingClientRect().height));
+          const key = cell.dataset.railSlot ?? "";
+          const minimum = key.includes("-rail-feature-") ? 0 : minimumAdHeight;
+          measuredHeights.set(key, Math.max(minimum, cell.getBoundingClientRect().height));
         });
         // Read the content's intrinsic height, never the stretched grid/sidebar height.
         height = Math.max(0, Math.ceil(content.getBoundingClientRect().bottom - rail.getBoundingClientRect().top));
         let occupied = measuredHeights.get("footer") ?? minimumAdHeight;
+        for (let index = 0; index < featureCount; index += 1) {
+          occupied += adGap + (measuredHeights.get(`${idPrefix}-rail-feature-${index}`) ?? minimumAdHeight);
+        }
         count = 0;
 
         while (occupied < height) {
@@ -118,7 +125,7 @@ export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd }: Sidebar
       mutationObserver.disconnect();
       desktop.removeEventListener("change", scheduleMeasure);
     };
-  }, [idPrefix]);
+  }, [idPrefix, featureCount]);
 
   return (
     <div
@@ -126,8 +133,15 @@ export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd }: Sidebar
       className="section-sidebar-lower-ads section-sidebar-ad-rail"
       style={layout.height ? { minHeight: layout.height } : undefined}
     >
-      {Array.from({ length: layout.count }, (_, index) => (
-        <RailAd ad={sidebarAd} idSuffix={`${idPrefix}-rail-extra-${index + 1}`} key={`${idPrefix}-${index}`} />
+      {Array.from({ length: Math.max(layout.count, featureCount) }, (_, index) => (
+        <Fragment key={`${idPrefix}-${index}`}>
+          {index < featureCount ? (
+            <div className="section-sidebar-ad-cell" data-rail-slot={`${idPrefix}-rail-feature-${index}`}>
+              {features[index]}
+            </div>
+          ) : null}
+          {index < layout.count ? <RailAd ad={sidebarAd} idSuffix={`${idPrefix}-rail-extra-${index + 1}`} /> : null}
+        </Fragment>
       ))}
       <RailAd ad={footerAd} idSuffix={`${idPrefix}-rail-footer`} key={`${idPrefix}-footer`} footer />
     </div>

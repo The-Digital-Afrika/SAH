@@ -2,13 +2,12 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
-import FeaturedMosaic from "@/components/FeaturedMosaic";
+import FeaturedStoryCard from "@/components/FeaturedStoryCard";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import ResourceCards from "@/components/ResourceCards";
 import SectionPageLayout from "@/components/SectionPageLayout";
-import SectionIntro from "@/components/SectionIntro";
 import {
   getArticleImage,
   getPostAuthor,
@@ -55,8 +54,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           idPrefix="education"
           newsletter={<NewsletterAdStack idPrefix="education" formClassName="sidebar-newsletter labeled" fallbackAds />}
         >
-          <SectionIntro section="education" />
-          <FeaturedMosaic posts={posts} className="page-featured-mosaic" />
+          {posts[0] ? <FeaturedStoryCard post={posts[0]} /> : null}
 
           <section className="weekly-section education-weekly-modern" aria-label="More education stories">
             {weekly.length ? (

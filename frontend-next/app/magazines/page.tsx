@@ -5,7 +5,6 @@ import MagazineCard from "@/components/MagazineCard";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import ResourceCards from "@/components/ResourceCards";
 import SectionPageLayout from "@/components/SectionPageLayout";
-import SectionIntro from "@/components/SectionIntro";
 import { getMagazinePosts } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
@@ -30,7 +29,6 @@ export default async function MagazinesPage() {
 
       <main className="magazines-main">
         <SectionPageLayout idPrefix="magazines">
-          <SectionIntro section="magazines" />
           <section className="magazine-grid" aria-label="Magazine library">
             {magazines.length ? (
               <>

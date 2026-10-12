@@ -1,13 +1,14 @@
 @media (min-width: 1101px) {
   :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) {
-    grid-template-columns: minmax(0, 1fr) minmax(240px, 280px) !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: "heading" "articles" !important;
     column-gap: 24px !important;
   }
 }
 
 @media (min-width: 1101px) and (max-width: 1500px) {
   :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) {
-    grid-template-columns: minmax(0, 1fr) 260px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
 
@@ -25,12 +26,33 @@
 }
 
 :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-card-grid) {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)) !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 24px !important;
 }
 
 :global(.home-page.modern-home) .cardSection :global(.home-category-card) span {
   min-width: 0;
-  padding-inline: 16px !important;
+  padding: 20px !important;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.home-category-card) > span {
+  display: grid !important;
+  align-content: start !important;
+  gap: 14px !important;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.home-category-card) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto 1fr !important;
+  min-width: 0;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.home-category-card) img {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 10;
+  object-fit: cover !important;
 }
 
 :global(.home-page.modern-home) .cardSection :global(.home-category-card.article-row-modern--magazine) img {
@@ -42,26 +64,13 @@
   max-width: 100%;
   font-size: 22px !important;
   line-height: 1.2 !important;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
-:global(.home-page.modern-home) .cardSection :global(.category-resource-card) {
-  min-width: 0;
-  padding: 22px !important;
-}
-
-:global(.home-page.modern-home) .cardSection :global(.category-resource-card) h3 {
-  font-size: 26px !important;
-  line-height: 1.2;
-  overflow-wrap: anywhere;
-}
-
-:global(.home-page.modern-home) .cardSection :global(.category-resource-card) p,
-:global(.home-page.modern-home) .cardSection :global(.category-topic-grid) span,
-:global(.home-page.modern-home) .cardSection :global(.category-latest-list) a {
-  font-size: 14px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
+@container (max-width: 560px) {
+  :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-card-grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
 }
 
 @media (max-width: 760px) {
