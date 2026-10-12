@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
 import FeaturedMosaic from "@/components/FeaturedMosaic";
+import FeaturedStoryCard from "@/components/FeaturedStoryCard";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import ResourceCards from "@/components/ResourceCards";
 import SectionPageLayout from "@/components/SectionPageLayout";
-import SectionIntro from "@/components/SectionIntro";
 import { getCategoryBySlug, getPostsByCategory } from "@/lib/wordpress";
 
 type CategoryPageProps = {
@@ -75,6 +75,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     description: "",
   };
   const categoryKey = getCategoryKey(slug, pageCategory.name);
+  const useFeaturedCard = ["education", "development", "ask-dalena", "cooking-bonding", "parenting"].includes(categoryKey);
 
   return (
     <div className={`education-page category-index-page category-page--${categoryKey}`}>
@@ -91,8 +92,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             />
           }
         >
-          <SectionIntro section={categoryKey} />
-          <FeaturedMosaic posts={posts} className="page-featured-mosaic" />
+          {useFeaturedCard ? (
+            posts[0] ? <FeaturedStoryCard post={posts[0]} /> : null
+          ) : <FeaturedMosaic posts={posts} className="page-featured-mosaic" showSecondary={false} />}
 
           <section className="education-content-grid education-featured-modern">
             <section className="news-section education-featured-list" aria-labelledby="category-archive-title">

@@ -1,0 +1,126 @@
+.page:global(.home-page.modern-home) :global(.home-top-stories--expanded .home-top-stories-grid),
+.page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .home-guides-articles) {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 24px !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-top-stories--expanded .home-top-story-copy) {
+  min-width: 0;
+  padding: 20px !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-top-stories--expanded .home-top-story) {
+  grid-column: auto !important;
+  grid-row: auto !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-top-stories--expanded .home-top-story-copy strong) {
+  font-size: 28px !important;
+  line-height: 1.2 !important;
+  overflow-wrap: break-word !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-section--soft .home-guides-grid--articles-only) {
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas: "heading" "articles" !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .home-guides-articles > .article-row-modern) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto 1fr !important;
+  gap: 0 !important;
+  min-width: 0;
+}
+
+.page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .article-row-modern img) {
+  width: 100% !important;
+  height: auto !important;
+  aspect-ratio: 16 / 10;
+  object-fit: cover !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .article-row-modern--magazine img) {
+  object-fit: contain !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .article-row-modern > span) {
+  min-width: 0;
+  padding: 20px !important;
+}
+
+.page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .article-row-modern strong) {
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  overflow-wrap: break-word !important;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-resource-card) {
+  grid-area: auto !important;
+  width: 100% !important;
+  min-width: 0;
+  padding: 20px !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-resource-card)::after {
+  display: none !important;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-resource-card h3) {
+  font-size: 24px !important;
+  line-height: 1.2 !important;
+  overflow-wrap: break-word;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-resource-card p),
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-resource-card .category-topic-grid span),
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-resource-card .category-latest-list a) {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  overflow-wrap: break-word;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-card-block) {
+  margin-top: 20px;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .topic-list-label) {
+  display: block;
+  color: var(--brand-pink);
+  font-size: 11px !important;
+  font-weight: 700;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-topic-grid),
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-latest-list) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .category-latest-list a) {
+  display: block;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.page:global(.home-page.modern-home) :global(.section-sidebar .resource-card-action) {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--brand-pink);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@container (max-width: 560px) {
+  .page:global(.home-page.modern-home) :global(.home-top-stories--expanded .home-top-stories-grid),
+  .page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .home-guides-articles) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}

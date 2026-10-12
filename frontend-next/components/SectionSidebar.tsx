@@ -7,9 +7,10 @@ import SidebarAdRail from "./SidebarAdRail";
 type SectionSidebarProps = {
   idPrefix: string;
   children?: ReactNode;
+  features?: ReactNode[];
 };
 
-export default async function SectionSidebar({ idPrefix, children }: SectionSidebarProps) {
+export default async function SectionSidebar({ idPrefix, children, features }: SectionSidebarProps) {
   const [posts, sidebarAd, footerAd] = await Promise.all([
     getPosts({ perPage: 5 }),
     getAdByPlacement("article-sidebar"),
@@ -44,7 +45,7 @@ export default async function SectionSidebar({ idPrefix, children }: SectionSide
         />
       )}
 
-      <SidebarAdRail idPrefix={idPrefix} sidebarAd={sidebarAd} footerAd={footerAd} />
+      <SidebarAdRail idPrefix={idPrefix} sidebarAd={sidebarAd} footerAd={footerAd} features={features} />
     </aside>
   );
 }

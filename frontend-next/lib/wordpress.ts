@@ -1,5 +1,6 @@
 import { unstable_cache } from "next/cache";
 import fallbackPostsData from "@/data/wp-fallback-posts.json";
+import { parseTakeoverConfig, type TakeoverConfig } from "@/lib/takeover";
 
 const WORDPRESS_ORIGIN = "https://cms.homeandschool.co.za";
 const WP_API = process.env.NEXT_PUBLIC_WP_API_URL ?? `${WORDPRESS_ORIGIN}/wp-json`;
@@ -151,6 +152,7 @@ export type SiteAd = {
   dataUnit: string;
   sizeClass: string;
   html?: string;
+  takeover?: TakeoverConfig;
   google?: {
     networkCode: string;
     adUnitCode: string;
@@ -1417,6 +1419,7 @@ export async function getAds() {
         ...fallback,
         id: `wp-ad-${wpAd.id}`,
         html: sanitizeAdHtml(wpAd.content?.rendered ?? ""),
+        takeover: parseTakeoverConfig(wpAd.acf?.takeover ?? wpAd.meta?.takeover),
       };
     });
   } catch (error) {

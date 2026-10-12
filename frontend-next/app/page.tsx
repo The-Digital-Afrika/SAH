@@ -4,13 +4,14 @@ import Link from "next/link";
 import { Fragment } from "react";
 import AdBanner from "@/components/AdBanner";
 import CategorySection from "@/components/CategorySection";
+import CategoryResourceCard from "@/components/CategoryResourceCard";
+import FeaturedStoryCard from "@/components/FeaturedStoryCard";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
 import SectionPageLayout from "@/components/SectionPageLayout";
-import SectionIntro from "@/components/SectionIntro";
-import tileStyles from "@/components/ImageStoryTile.module.css";
 import magazineStyles from "@/components/HomeMagazineFeature.module.css";
+import homeStyles from "@/components/HomeArticleGrids.module.css";
 import {
   getArticleImage,
   getMagazinePosts,
@@ -66,38 +67,32 @@ export default async function Home() {
   const [posts, magazines, ...categorySections] = await Promise.all([
     getPosts({ perPage: 12 }),
     getMagazinePosts(),
-    ...categoryConfigs.map((category) => getPostsByCategory(category.slug, 1, 3)),
+    ...categoryConfigs.map((category) => getPostsByCategory(category.slug, 1, 4)),
   ]);
   const featuredMagazine = magazines[0];
+  const sidebarFeatures = categorySections.flatMap((section, index) => {
+    const config = categoryConfigs[index];
+    return section.category && section.posts.length ? [
+      <CategoryResourceCard category={{ ...section.category, ...config }} posts={section.posts} key={config.slug} />,
+    ] : [];
+  });
+  sidebarFeatures.push(<EducationPathwaysCard posts={posts.slice(8, 12)} key="education-pathways" />);
 
   return (
-    <div className="home-page modern-home">
-      <AdBanner
-        placement="home-top"
-        wrapClassName="ad-strip top-ad home-menu-ad"
-        variant="google-ad-slot--home-top-compact"
-      />
-
+    <div className={`home-page modern-home ${homeStyles.page}`}>
       <Header />
 
       <main>
-        <SectionPageLayout idPrefix="home">
-          <SectionIntro section="home" />
+        <SectionPageLayout idPrefix="home" sidebarFeatures={sidebarFeatures}>
           <section className="home-editorial-showcase" aria-label="Featured homeschool stories">
-            {posts[0] ? <HomeLeadStory post={posts[0]} /> : null}
-
-            <div className="home-card-row">
-              {posts.slice(1, 4).map((post) => (
-                <HomeImageTile post={post} key={post.id} />
-              ))}
-            </div>
+            {posts[0] ? <FeaturedStoryCard post={posts[0]} home /> : null}
 
             <section className="home-top-stories-panel home-top-stories--expanded" aria-labelledby="home-top-stories-title">
               <div className="section-rule" />
               <h2 id="home-top-stories-title">Top stories</h2>
               {posts.length ? (
                 <div className="home-top-stories-grid">
-                  {posts.slice(0, 3).map((post) => (
+                  {posts.slice(0, 4).map((post) => (
                     <HomeTopStory post={post} key={post.id} />
                   ))}
                 </div>
@@ -201,7 +196,6 @@ export default async function Home() {
                 )}
               </div>
 
-              <EducationPathwaysCard posts={posts.slice(8, 12)} />
             </div>
           </section>
 
@@ -238,47 +232,13 @@ export default async function Home() {
   );
 }
 
-function HomeLeadStory({ post }: { post: WPPost }) {
-  const image = getArticleImage(post);
-
-  return (
-    <article
-      className={
-        isMagazineArticle(post)
-          ? "home-lead-story home-lead-story--compact home-lead-story--magazine"
-          : "home-lead-story home-lead-story--compact"
-      }
-    >
-      <Link href={`/articles/${post.slug}`}>
-        <Image src={image.src} alt={image.alt} width={image.width} height={image.height} />
-        <div className="home-lead-copy">
-          <h2>{getPostTitle(post)}</h2>
-          <p>by {getPostAuthor(post)}</p>
-        </div>
-      </Link>
-    </article>
-  );
-}
-
-function HomeImageTile({ post }: { post: WPPost }) {
-  const image = getArticleImage(post);
-
-  return (
-    <Link className={`home-image-tile ${tileStyles.tile}${isMagazineArticle(post) ? " home-image-tile--magazine" : ""}`} href={`/articles/${post.slug}`}>
-      <Image src={image.src} alt={image.alt} width={image.width} height={image.height} />
-      <span className="home-image-tile-category">{getPrimaryCategory(post)}</span>
-      <h3>{getPostTitle(post)}</h3>
-    </Link>
-  );
-}
-
 function HomeTopStory({ post }: { post: WPPost }) {
   const image = getArticleImage(post);
 
   return (
     <Link className="home-top-story" href={`/articles/${post.slug}`}>
       <span className={isMagazineArticle(post) ? "home-top-story-media home-top-story-media--magazine" : "home-top-story-media"}>
-        <Image src={image.src} alt="" fill sizes="(max-width: 620px) 100vw, (max-width: 920px) 50vw, 33vw" />
+        <Image src={image.src} alt="" fill sizes="(max-width: 560px) 100vw, (max-width: 1100px) 50vw, 384px" />
       </span>
       <span className="home-top-story-copy">
         <strong>{getPostTitle(post)}</strong>

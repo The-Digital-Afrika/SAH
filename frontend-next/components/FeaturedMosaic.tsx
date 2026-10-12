@@ -13,9 +13,10 @@ import tileStyles from "./ImageStoryTile.module.css";
 type FeaturedMosaicProps = {
   posts: WPPost[];
   className?: string;
+  showSecondary?: boolean;
 };
 
-export default function FeaturedMosaic({ posts, className = "" }: FeaturedMosaicProps) {
+export default function FeaturedMosaic({ posts, className = "", showSecondary = true }: FeaturedMosaicProps) {
   const [lead, ...secondary] = posts.slice(0, 4);
 
   if (!lead) return null;
@@ -34,7 +35,7 @@ export default function FeaturedMosaic({ posts, className = "" }: FeaturedMosaic
         </Link>
       </article>
 
-      {secondary.length ? (
+      {showSecondary && secondary.length ? (
         <div className="site-featured-row">
           {secondary.map((post) => {
             const image = getArticleImage(post);
