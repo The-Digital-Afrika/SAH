@@ -19889,14 +19889,15 @@ form button,
   container-type: inline-size;
 }
 
-.section-page-content > .page-featured-mosaic,
-.section-page-content > .weekly-section,
-.section-page-content > .education-content-grid,
-.section-page-content > .resource-card-section,
-.section-page-content > .magazine-grid,
+.section-page-layout .section-page-content > .page-featured-mosaic,
+.section-page-layout .section-page-content > .weekly-section,
+.section-page-layout .section-page-content > .education-content-grid,
+.section-page-layout .section-page-content > .resource-card-section,
+.section-page-layout .section-page-content > .magazine-grid,
 .home-page .section-page-content > .home-editorial-showcase {
   width: 100% !important;
   max-width: 100% !important;
+  margin-inline: 0 !important;
 }
 
 .section-page-content > .education-content-grid {
