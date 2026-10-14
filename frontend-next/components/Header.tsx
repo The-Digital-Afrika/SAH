@@ -8,9 +8,11 @@ import { FormEvent, useMemo, useState } from "react";
 const searchItems = [
   { title: "Education articles", url: "/articles", category: "Education" },
   { title: "Development", url: "/category/development", category: "Development" },
+  { title: "Ask Dalena", url: "/category/ask-dalena", category: "Development" },
   { title: "Parenting", url: "/category/parenting", category: "Parenting" },
   { title: "Cooking & Bonding", url: "/category/cooking-bonding", category: "Parenting" },
-  { title: "Partners", url: "/directory", category: "Partners" },
+  { title: "Directory", url: "/directory", category: "Directory" },
+  { title: "Partners", url: "/category/partner-2", category: "Partners" },
   { title: "Magazines", url: "/magazines", category: "Magazines" },
   { title: "Newsletter Subscribe", url: "/subscribe", category: "Subscribe" },
 ];
@@ -69,31 +71,16 @@ export default function Header() {
             <Link className={pathname.startsWith("/articles") ? "active" : undefined} href="/articles" prefetch>
               Education
             </Link>
-            <div className="nav-dropdown">
-              <Link
-                className={`nav-parent${pathname.includes("/category/development") ? " active" : ""}`}
-                href="/category/development"
-                prefetch
-              >
-                Development
-              </Link>
-              <div className="nav-dropdown-menu">
-                <Link href="/category/ask-dalena" prefetch>Ask Dalena</Link>
-              </div>
-            </div>
-            <div className="nav-dropdown">
-              <Link
-                className={`nav-parent${pathname.includes("/category/parenting") ? " active" : ""}`}
-                href="/category/parenting"
-                prefetch
-              >
-                Parenting
-              </Link>
-              <div className="nav-dropdown-menu">
-                <Link href="/category/cooking-bonding" prefetch>Cooking &amp; Bonding</Link>
-              </div>
-            </div>
+            <Link className={pathname.startsWith("/category/development") ? "active" : undefined} href="/category/development" prefetch>
+              Development
+            </Link>
+            <Link className={pathname.startsWith("/category/parenting") ? "active" : undefined} href="/category/parenting" prefetch>
+              Parenting
+            </Link>
             <Link className={pathname === "/directory" ? "active" : undefined} href="/directory" prefetch>
+              Directory
+            </Link>
+            <Link className={pathname.startsWith("/category/partner-2") ? "active" : undefined} href="/category/partner-2" prefetch>
               Partners
             </Link>
             <Link className={pathname === "/magazines" ? "active" : undefined} href="/magazines" prefetch>

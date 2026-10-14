@@ -1,9 +1,18 @@
 export type TakeoverColors = [string, string, string];
 
+export type TakeoverCreative = {
+  imageUrl: string;
+  href: string;
+  alt: string;
+  width: number;
+  height: number;
+};
+
 export type TakeoverCampaign = {
   creativeIds: number[];
   lineItemIds: number[];
   colors: TakeoverColors;
+  creative?: TakeoverCreative;
 };
 
 export type TakeoverConfig = {
@@ -55,6 +64,19 @@ function publicUrl(value: unknown): string | undefined {
   } catch { return undefined; }
 }
 
+function creative(value: unknown): TakeoverCreative | undefined {
+  const data = object(value);
+  const imageUrl = publicUrl(data?.imageUrl);
+  const href = publicUrl(data?.href);
+  const width = data?.width;
+  const height = data?.height;
+  if (!imageUrl || !href || typeof data?.alt !== "string" || !data.alt.trim()
+    || typeof width !== "number" || typeof height !== "number"
+    || !Number.isSafeInteger(width) || !Number.isSafeInteger(height)
+    || width <= 0 || height <= 0 || width > 10000 || height > 10000) return undefined;
+  return { imageUrl, href, width, height, alt: data.alt.trim() };
+}
+
 export function parseTakeoverConfig(value: unknown): TakeoverConfig | undefined {
   if (typeof value === "string") {
     try { value = JSON.parse(value); } catch { return undefined; }
@@ -66,8 +88,9 @@ export function parseTakeoverConfig(value: unknown): TakeoverConfig | undefined 
     const palette = colors(campaign?.colors);
     const creativeIds = ids(campaign?.creativeIds);
     const lineItemIds = ids(campaign?.lineItemIds);
+    const artwork = creative(campaign?.creative);
     return palette && (creativeIds.length || lineItemIds.length)
-      ? [{ creativeIds, lineItemIds, colors: palette }]
+      ? [{ creativeIds, lineItemIds, colors: palette, ...(artwork ? { creative: artwork } : {}) }]
       : [];
   }) : [];
   const banner = object(config.banner);
@@ -84,12 +107,19 @@ export function parseTakeoverConfig(value: unknown): TakeoverConfig | undefined 
   return campaigns.length ? { campaigns } : undefined;
 }
 
-export function colorsForAd(config: TakeoverConfig | undefined, ad: AdRenderedDetail): TakeoverColors {
-  if (ad.isEmpty) return fallbackTakeoverColors;
-  const campaign = config?.campaigns.find(campaign =>
+function campaignForAd(config: TakeoverConfig | undefined, ad: AdRenderedDetail): TakeoverCampaign | undefined {
+  if (ad.isEmpty) return undefined;
+  return config?.campaigns.find(campaign =>
     ad.creativeId != null && campaign.creativeIds.includes(ad.creativeId),
   ) ?? config?.campaigns.find(campaign =>
     ad.lineItemId != null && campaign.lineItemIds.includes(ad.lineItemId),
   );
-  return campaign?.colors ?? fallbackTakeoverColors;
+}
+
+export function colorsForAd(config: TakeoverConfig | undefined, ad: AdRenderedDetail): TakeoverColors {
+  return campaignForAd(config, ad)?.colors ?? fallbackTakeoverColors;
+}
+
+export function creativeForAd(config: TakeoverConfig | undefined, ad: AdRenderedDetail): TakeoverCreative | undefined {
+  return campaignForAd(config, ad)?.creative;
 }

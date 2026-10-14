@@ -43,7 +43,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
     getPostsByCategory("education", 1, 12),
     getPostsByCategory("education", page, 4),
   ]);
-  const weekly = posts.slice(9, 12);
+  const weekly = posts.slice(8, 12);
 
   return (
     <div className="education-page education-index-page">
@@ -52,6 +52,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
       <main>
         <SectionPageLayout
           idPrefix="education"
+          showFooterAd={false}
           newsletter={<NewsletterAdStack idPrefix="education" formClassName="sidebar-newsletter labeled" fallbackAds />}
         >
           {posts[0] ? <FeaturedStoryCard post={posts[0]} /> : null}

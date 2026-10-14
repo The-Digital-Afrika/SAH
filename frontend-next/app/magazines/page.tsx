@@ -28,7 +28,7 @@ export default async function MagazinesPage() {
       <Header />
 
       <main className="magazines-main">
-        <SectionPageLayout idPrefix="magazines">
+        <SectionPageLayout idPrefix="magazines" showFooterAd={false}>
           <section className="magazine-grid" aria-label="Magazine library">
             {magazines.length ? (
               <>

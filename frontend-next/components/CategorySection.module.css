@@ -56,7 +56,8 @@
 }
 
 :global(.home-page.modern-home) .cardSection :global(.home-category-card.article-row-modern--magazine) img {
-  object-fit: contain !important;
+  object-fit: cover !important;
+  object-position: center top !important;
 }
 
 :global(.home-page.modern-home) .cardSection :global(.home-category-card) strong {

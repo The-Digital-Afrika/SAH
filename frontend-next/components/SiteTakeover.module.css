@@ -119,9 +119,6 @@
     height: auto;
   }
 
-  .sideTitle { overflow-wrap: anywhere; }
-  .sideAction { text-decoration: underline; text-underline-offset: 4px; }
-
   .sideAd a:focus-visible {
     outline: 3px solid #fff;
     outline-offset: 4px;

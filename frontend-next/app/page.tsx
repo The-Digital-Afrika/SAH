@@ -11,10 +11,13 @@ import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
 import SectionPageLayout from "@/components/SectionPageLayout";
 import magazineStyles from "@/components/HomeMagazineFeature.module.css";
+import communityStyles from "@/components/HomeCommunitySignup.module.css";
 import homeStyles from "@/components/HomeArticleGrids.module.css";
+import resourceStyles from "@/components/ResourceCards.module.css";
 import {
   getArticleImage,
   getMagazinePosts,
+  getMagazineReaderUrl,
   getPostAuthor,
   getPostExcerpt,
   getPostTitle,
@@ -77,6 +80,7 @@ export default async function Home() {
     ] : [];
   });
   sidebarFeatures.push(<EducationPathwaysCard posts={posts.slice(8, 12)} key="education-pathways" />);
+  sidebarFeatures.unshift(<HomeMagazineFeature issue={featuredMagazine} key="latest-magazine" />);
 
   return (
     <div className={`home-page modern-home ${homeStyles.page}`}>
@@ -104,26 +108,12 @@ export default async function Home() {
 
           <AdBanner placement="home-middle" wrapClassName="home-ad-row modern-ad-row" fallback />
 
-          <section className="home-community-magazines" aria-label="Community signup and magazines">
-            <aside className={`home-magazine-feature home-community-magazine ${magazineStyles.feature}`}>
-              {featuredMagazine ? (
-                <HomeMagazineFeature issue={featuredMagazine} />
-              ) : (
-                <Link className="home-magazine-feature__card" href="/magazines">
-                  <span className="kicker">Magazines</span>
-                  <h3>Browse the SA Homeschooling magazine archive</h3>
-                  <p>Open uploaded PDF issues directly from the website.</p>
-                </Link>
-              )}
-            </aside>
-
-            <aside className="newsletter-card home-community-card">
-              <NewsletterForm
-                idPrefix="home-community"
-                className="newsletter-card-form"
-                title="Join our community"
-              />
-            </aside>
+          <section className={communityStyles.section} data-home-community-signup aria-label="Community signup">
+            <NewsletterForm
+              idPrefix="home-community"
+              className={`compact-form ${communityStyles.form}`}
+              title="Join our community"
+            />
           </section>
 
           <AdBanner
@@ -166,12 +156,8 @@ export default async function Home() {
             wrapClassName="home-ad-row modern-ad-row home-category-ad home-before-resources-ad"
           />
 
-          <section className="home-section home-section--soft" aria-labelledby="guides-title">
+          <section className="home-section home-section--soft" aria-label="Education guides">
             <div className="home-split home-guides-grid home-guides-grid--articles-only">
-              <div className="section-heading home-guides-heading">
-                <h2 id="guides-title">Education pathways, learning support, and future planning</h2>
-              </div>
-
               <div className="article-stack home-guides-articles">
                 {posts.length ? (
                   posts.slice(8, 12).map((post) => {
@@ -199,7 +185,7 @@ export default async function Home() {
             </div>
           </section>
 
-          <section className="home-section home-section--white" aria-labelledby="resources-title">
+          <section className={`home-section home-section--white ${resourceStyles.section}`} data-resource-cards aria-labelledby="resources-title">
             <div className="section-heading">
               <span className="kicker">Resources</span>
               <h2 id="resources-title">Magazines, partners, and family activities</h2>
@@ -251,25 +237,27 @@ function HomeTopStory({ post }: { post: WPPost }) {
   );
 }
 
-function HomeMagazineFeature({ issue }: { issue: MagazineIssue }) {
-  const cover = issue.coverImage;
+function HomeMagazineFeature({ issue }: { issue?: MagazineIssue }) {
+  const cover = issue?.coverImage;
+  const href = issue ? getMagazineReaderUrl(issue) ?? "/magazines" : "/magazines";
+  const target = href === "/magazines" ? undefined : "_blank";
 
   return (
-    <Link className={`home-magazine-feature__card ${magazineStyles.card}`} href="/magazines">
-      <span className="kicker">Magazines</span>
-      <h3>{issue.title}</h3>
+    <section className={magazineStyles.feature} data-home-sidebar-magazine aria-labelledby="home-latest-magazine-title">
+      <div className={magazineStyles.heading}>
+        <h3 id="home-latest-magazine-title">Latest Home &amp; School</h3>
+        <p>Read your favourite magazine in a convenient PDF form.</p>
+      </div>
       {cover ? (
-        <Image
-          className="home-magazine-feature__cover"
-          src={cover.src}
-          alt={cover.alt}
-          width={cover.width}
-          height={cover.height}
-        />
+        <Link className={magazineStyles.cover} href={href} target={target} rel={target ? "noopener noreferrer" : undefined}>
+          <Image src={cover.src} alt={cover.alt} width={cover.width} height={cover.height}
+            sizes="(max-width: 1100px) calc(100vw - 32px), 300px" />
+        </Link>
       ) : null}
-      <p>{issue.description}</p>
-      <span className="home-magazine-feature__cta">Browse magazines</span>
-    </Link>
+      <div className={magazineStyles.action}>
+        <Link className={magazineStyles.read} href={href} target={target} rel={target ? "noopener noreferrer" : undefined}>Read now</Link>
+      </div>
+    </section>
   );
 }
 

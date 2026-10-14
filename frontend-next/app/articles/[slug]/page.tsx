@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
+import readingStyles from "@/components/ArticleReading.module.css";
 import {
   getArticleImage,
   getAuthorBio,
@@ -96,7 +97,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <Image src={image.src} alt={image.alt} width={image.width} height={image.height} priority />
           </figure>
 
-          <div className="article-feature-card article-content-card">
+          <div className={`article-feature-card article-content-card ${readingStyles.reading}`}>
             <header className="article-inline-heading">
               <div className="section-rule" />
               <p>{categories.map((category) => category.name).join(", ") || getPrimaryCategory(post)}</p>
@@ -112,7 +113,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               </p>
             </div>
 
-            <div dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
+            <div className={readingStyles.body} dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
 
             <AdSlot
               placement="article-inline"

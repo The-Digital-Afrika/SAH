@@ -10,7 +10,7 @@ const adGap = 24;
 type SidebarAdRailProps = {
   idPrefix: string;
   sidebarAd: SiteAd;
-  footerAd: SiteAd;
+  footerAd: SiteAd | null;
   features?: ReactNode[];
 };
 
@@ -50,6 +50,7 @@ export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd, features 
   const ref = useRef<HTMLDivElement>(null);
   const [layout, setLayout] = useState({ count: 2, height: 0 });
   const featureCount = features.length;
+  const hasFooterAd = footerAd !== null;
 
   useEffect(() => {
     const rail = ref.current;
@@ -75,7 +76,9 @@ export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd, features 
         });
         // Read the content's intrinsic height, never the stretched grid/sidebar height.
         height = Math.max(0, Math.ceil(content.getBoundingClientRect().bottom - rail.getBoundingClientRect().top));
-        let occupied = measuredHeights.get("footer") ?? minimumAdHeight;
+        // Leave out the final slot without replacing it with another repeating ad.
+        if (!hasFooterAd) height = Math.max(0, height - minimumAdHeight - adGap);
+        let occupied = hasFooterAd ? (measuredHeights.get("footer") ?? minimumAdHeight) : 0;
         for (let index = 0; index < featureCount; index += 1) {
           occupied += adGap + (measuredHeights.get(`${idPrefix}-rail-feature-${index}`) ?? minimumAdHeight);
         }
@@ -125,7 +128,7 @@ export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd, features 
       mutationObserver.disconnect();
       desktop.removeEventListener("change", scheduleMeasure);
     };
-  }, [idPrefix, featureCount]);
+  }, [idPrefix, featureCount, hasFooterAd]);
 
   return (
     <div
@@ -143,7 +146,7 @@ export default function SidebarAdRail({ idPrefix, sidebarAd, footerAd, features 
           {index < layout.count ? <RailAd ad={sidebarAd} idSuffix={`${idPrefix}-rail-extra-${index + 1}`} /> : null}
         </Fragment>
       ))}
-      <RailAd ad={footerAd} idSuffix={`${idPrefix}-rail-footer`} key={`${idPrefix}-footer`} footer />
+      {footerAd ? <RailAd ad={footerAd} idSuffix={`${idPrefix}-rail-footer`} key={`${idPrefix}-footer`} footer /> : null}
     </div>
   );
 }

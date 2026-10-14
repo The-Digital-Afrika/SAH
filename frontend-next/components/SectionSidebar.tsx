@@ -8,13 +8,14 @@ type SectionSidebarProps = {
   idPrefix: string;
   children?: ReactNode;
   features?: ReactNode[];
+  showFooterAd?: boolean;
 };
 
-export default async function SectionSidebar({ idPrefix, children, features }: SectionSidebarProps) {
+export default async function SectionSidebar({ idPrefix, children, features, showFooterAd = true }: SectionSidebarProps) {
   const [posts, sidebarAd, footerAd] = await Promise.all([
     getPosts({ perPage: 5 }),
     getAdByPlacement("article-sidebar"),
-    getAdByPlacement("home-bottom"),
+    showFooterAd ? getAdByPlacement("home-bottom") : Promise.resolve(null),
   ]);
   const titleId = `${idPrefix}-most-recent-title`;
 

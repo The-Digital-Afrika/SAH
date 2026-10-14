@@ -26,6 +26,7 @@ function titleFromSlug(slug: string) {
 function getCategoryKey(slug: string, name: string) {
   const normalizedName = name.toLowerCase();
 
+  if (slug === "partner-2" || normalizedName === "partner" || normalizedName === "partners") return "partners";
   if (slug === "ask-dalena" || normalizedName.includes("dalena")) return "ask-dalena";
   if (slug === "parenting" || normalizedName.includes("parenting")) return "parenting";
   if (slug === "development" || normalizedName.includes("development")) return "development";
@@ -75,7 +76,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     description: "",
   };
   const categoryKey = getCategoryKey(slug, pageCategory.name);
-  const useFeaturedCard = ["education", "development", "ask-dalena", "cooking-bonding", "parenting"].includes(categoryKey);
+  const useFeaturedCard = ["education", "development", "ask-dalena", "cooking-bonding", "parenting", "partners"].includes(categoryKey);
 
   return (
     <div className={`education-page category-index-page category-page--${categoryKey}`}>
@@ -84,6 +85,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
       <main>
         <SectionPageLayout
           idPrefix={`category-${pageCategory.slug}`}
+          showFooterAd={categoryKey !== "education"}
           newsletter={
             <NewsletterAdStack
               idPrefix={`category-${pageCategory.slug}`}

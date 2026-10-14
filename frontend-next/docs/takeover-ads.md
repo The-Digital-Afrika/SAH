@@ -5,10 +5,11 @@ Page gutters use the matching campaign gradient. Existing in-content and sidebar
 ads are unchanged. No magazine advert is used as a takeover fallback.
 
 The desktop content frame is capped at 1152px so the coloured gutters are visible
-at normal browser zoom. At viewport widths of 1400px and above, small magazine
-promotions appear in both outer gutters using the latest available WordPress
-cover and reader link. They stay outside the content and are hidden on smaller
-screens. They do not add another top banner or replace the existing sidebar ads.
+at normal browser zoom. At viewport widths of 1400px and above, the outer gutter
+ads use the same supplied banner, or side artwork explicitly matched to the
+currently rendered top Google campaign. Until campaign artwork is available,
+both sides use the requested temporary EduXplore placeholder. Side artwork is
+hidden on smaller screens and does not replace in-content sidebar ads.
 
 ## Configuration
 
@@ -50,7 +51,14 @@ Register each campaign's actual creative ID or line-item ID and colours:
     {
       "creativeIds": [123456789],
       "lineItemIds": [],
-      "colors": ["#101c2b", "#24a6bf", "#74a844"]
+      "colors": ["#101c2b", "#24a6bf", "#74a844"],
+      "creative": {
+        "imageUrl": "/ads/eduxplore-side.jpg",
+        "href": "https://www.eduxplore.co.za/",
+        "alt": "EduXplore education events, 2026",
+        "width": 160,
+        "height": 600
+      }
     }
   ]
 }
@@ -62,6 +70,19 @@ Creative matches take precedence over line-item matches. Sidebar ads cannot
 change the takeover. Unconfigured or empty ads use a visible blue/teal/gold
 fallback gradient rather than white. Configured campaign colours still override it.
 Client navigation refreshes the top slot with the new page's targeting.
+
+The optional `creative` is the side artwork for that top campaign, not an
+independent rotating slot. Both gutters use its image and advertiser link.
+Unknown campaigns, empty top slots, missing artwork, or failed campaign images
+use the temporary EduXplore placeholder. A failed placeholder image hides the
+outer ads. When using a supplied `banner`, both sides repeat that exact banner
+and click-through URL instead of the placeholder.
+
+The placeholder is the original EduXplore 2026 advertisement from the
+[WordPress media library](https://sahomeschooling.com/wp-content/uploads/2026/06/EduXplore-Algemene-Advertenseis-2026_Social-Media-1080x1080-1-scaled.jpg),
+stored locally as `public/ads/eduxplore-side-placeholder.jpg` so it does not
+depend on a remote image request. It is temporary artwork, not a claim that
+EduXplore is the advertiser in an unconfigured top slot.
 
 Google creatives are cross-origin iframes, so the site does not try to read their
 image pixels. Campaign colours must be supplied alongside the campaign. This

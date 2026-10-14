@@ -1,0 +1,104 @@
+.section {
+  width: 100%;
+  margin: 28px auto;
+}
+
+:global(.home-page.modern-home) .form:global(.compact-form) {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 20px !important;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  padding: 32px !important;
+  border: 1px solid #ffb6ca !important;
+  border-radius: 8px !important;
+  background: #fffcfd !important;
+  box-shadow: none;
+}
+
+:global(.home-page.modern-home) .form :global(.section-rule),
+:global(.home-page.modern-home) .form h2,
+:global(.home-page.modern-home) .form :global(.field-row--email),
+:global(.home-page.modern-home) .form :global(.signup-button),
+:global(.home-page.modern-home) .form :global(.form-message) {
+  grid-column: 1 / -1 !important;
+}
+
+:global(.home-page.modern-home) .form :global(.section-rule) {
+  width: 44px !important;
+  height: 4px !important;
+  margin: 0 0 4px !important;
+  background: var(--brand-pink) !important;
+}
+
+:global(.home-page.modern-home) .form h2 {
+  margin: 0 0 4px !important;
+  color: var(--brand-pink) !important;
+  font-family: var(--heading-font, Georgia, "Times New Roman", serif) !important;
+  font-size: 40px !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: break-word;
+}
+
+:global(.home-page.modern-home) .form :global(.field-row) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  min-width: 0;
+}
+
+:global(.home-page.modern-home) .form label {
+  color: #171b22 !important;
+  font: 700 16px/1.4 var(--body-font, Arial, Helvetica, sans-serif) !important;
+}
+
+:global(.home-page.modern-home) .form input {
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0;
+  height: 48px !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border: 1px solid #d8d8d8 !important;
+  border-radius: 6px !important;
+  background: #fff !important;
+  color: #171b22 !important;
+  font: 400 15px/1.4 var(--body-font, Arial, Helvetica, sans-serif) !important;
+}
+
+:global(.home-page.modern-home) .form :global(.signup-button) {
+  width: min(200px, 100%) !important;
+  min-height: 48px !important;
+  margin: 0 !important;
+  padding: 10px 20px !important;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: #243244 !important;
+  color: #fff !important;
+  font: 700 14px/1.4 var(--body-font, Arial, Helvetica, sans-serif) !important;
+  box-shadow: 0 12px 24px rgb(20 24 32 / 14%);
+}
+
+:global(.home-page.modern-home) .form :global(.signup-button):hover {
+  background: var(--brand-pink) !important;
+}
+
+:global(.home-page.modern-home) .form :global(.form-message) {
+  margin: 0 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+@container (max-width: 560px) {
+  :global(.home-page.modern-home) .form:global(.compact-form) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 24px 20px !important;
+  }
+
+  :global(.home-page.modern-home) .form h2 { font-size: 32px !important; }
+}

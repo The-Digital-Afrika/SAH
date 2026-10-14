@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./ResourceCards.module.css";
 
 type ResourceCard = {
   href: string;
@@ -170,7 +171,7 @@ export default function ResourceCards({ context }: ResourceCardsProps) {
   const content = resourceContent[resolveContext(context)];
 
   return (
-    <section className="resource-card-section" aria-label="More SA Homeschooling resources">
+    <section className={`resource-card-section ${styles.section}`} data-resource-cards aria-label="More SA Homeschooling resources">
       <div className="section-heading resource-card-heading">
         <span className="kicker">{content.kicker}</span>
         <h2>{content.title}</h2>

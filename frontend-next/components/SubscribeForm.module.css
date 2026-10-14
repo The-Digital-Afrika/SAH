@@ -1,0 +1,55 @@
+.page:global(.subscribe-page) :global(main.newsletter-page) {
+  width: min(960px, calc(100% - 28px)) !important;
+  max-width: 960px !important;
+  margin-inline: auto !important;
+  padding-top: 32px !important;
+}
+
+.page:global(.subscribe-page) :global(.newsletter-panel) .form:global(.compact-form) {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 18px 20px !important;
+  min-height: 0 !important;
+  padding: 32px !important;
+}
+
+.page:global(.subscribe-page) .form:global(.compact-form) :global(.section-rule) {
+  margin-bottom: 8px !important;
+}
+
+.page:global(.subscribe-page) .form:global(.compact-form) h1 {
+  margin: 0 0 8px !important;
+  font-size: 48px !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: break-word;
+}
+
+.page:global(.subscribe-page) .form:global(.compact-form) label {
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+}
+
+.page.page:global(.subscribe-page) .form.form:global(.compact-form) input {
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 10px 14px !important;
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+}
+
+.page:global(.subscribe-page) .form:global(.compact-form) :global(.signup-button) {
+  width: min(200px, 100%) !important;
+  min-height: 48px !important;
+  padding: 10px 20px !important;
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+}
+
+@media (max-width: 760px) {
+  .page:global(.subscribe-page) :global(.newsletter-panel) .form:global(.compact-form) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 24px 20px !important;
+  }
+
+  .page:global(.subscribe-page) .form:global(.compact-form) h1 { font-size: 32px !important; }
+}

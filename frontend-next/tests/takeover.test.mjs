@@ -8,7 +8,7 @@ const source = readFileSync(new URL('../lib/takeover.ts', import.meta.url), 'utf
 const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
 const exported = {};
 vm.runInNewContext(compiled.outputText, { exports: exported, URL });
-const { parseTakeoverConfig, colorsForAd, fallbackTakeoverColors } = exported;
+const { parseTakeoverConfig, colorsForAd, creativeForAd, fallbackTakeoverColors } = exported;
 const palette = ['#101c2b', '#24a6bf', '#74a844'];
 const banner = { imageUrl: '/ads/eduxplore.jpg', href: 'https://eduxplore.co.za/', alt: 'EduXplore', width: 798, height: 204, colors: palette };
 const detail = { slotId: 'top', isEmpty: false, creativeId: 12, lineItemId: 34 };
@@ -60,4 +60,32 @@ test('unconfigured or empty refreshed ads reset the previous campaign colours', 
 
 test('fallback remains visibly colourful without campaign settings or ad fill', () => {
   assert.deepEqual(plain(fallbackTakeoverColors), ['#12536e', '#329fb0', '#b7ac54']);
+});
+
+test('side artwork follows the rendered top campaign and clears on unknown or empty ads', () => {
+  const artwork = { imageUrl: '/ads/eduxplore-side.jpg', href: 'https://eduxplore.co.za/',
+    alt: 'EduXplore', width: 160, height: 600 };
+  const config = parseTakeoverConfig({ campaigns: [{ creativeIds: [12], colors: palette, creative: artwork }] });
+  assert.deepEqual(plain(creativeForAd(config, detail)), artwork);
+  assert.equal(creativeForAd(config, { ...detail, creativeId: 99 }), undefined);
+  assert.equal(creativeForAd(config, { ...detail, isEmpty: true }), undefined);
+  assert.equal(creativeForAd(undefined, detail), undefined);
+});
+
+test('a matching creative without artwork never borrows another campaign artwork', () => {
+  const config = parseTakeoverConfig({ campaigns: [
+    { lineItemIds: [34], colors: palette, creative: { ...banner } },
+    { creativeIds: [12], colors: palette },
+  ] });
+  assert.equal(creativeForAd(config, detail), undefined);
+  assert.equal(creativeForAd(config, { ...detail, creativeId: 98 }).imageUrl, banner.imageUrl);
+});
+
+test('unsafe side artwork is rejected without disabling the campaign palette', () => {
+  for (const artwork of [{ ...banner, href: 'javascript:alert(1)' }, { ...banner, imageUrl: '//evil.example/a.jpg' },
+    { ...banner, width: -1 }, { ...banner, alt: ' ' }]) {
+    const config = parseTakeoverConfig({ campaigns: [{ creativeIds: [12], colors: palette, creative: artwork }] });
+    assert.equal(creativeForAd(config, detail), undefined);
+    assert.deepEqual(plain(colorsForAd(config, detail)), palette);
+  }
 });

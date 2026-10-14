@@ -23,7 +23,7 @@
 
 .page:global(.home-page.modern-home) :global(.home-section--soft .home-guides-grid--articles-only) {
   grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-areas: "heading" "articles" !important;
+  grid-template-areas: "articles" !important;
 }
 
 .page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .home-guides-articles > .article-row-modern) {
@@ -42,7 +42,8 @@
 }
 
 .page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .article-row-modern--magazine img) {
-  object-fit: contain !important;
+  object-fit: cover !important;
+  object-position: center top !important;
 }
 
 .page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .article-row-modern > span) {
