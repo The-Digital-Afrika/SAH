@@ -9,10 +9,11 @@ export default function Footer({ flush = false }: { flush?: boolean }) {
           <Link className="footer-logo-link" href="/" aria-label="Home & School home">
             <Image
               className="footer-logo"
-              src="/images/hs-home-school-footer-logo-white-2026.png"
+              src="/images/home-school-flourish-logo.png"
               alt="Home & School"
-              width={1774}
-              height={887}
+              width={2169}
+              height={725}
+              sizes="260px"
             />
           </Link>
           <h2>Our Office</h2>

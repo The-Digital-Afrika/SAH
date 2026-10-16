@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import MagazineCard from "@/components/MagazineCard";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
-import ResourceCards from "@/components/ResourceCards";
 import SectionPageLayout from "@/components/SectionPageLayout";
 import { getMagazinePosts } from "@/lib/wordpress";
 
@@ -51,7 +50,6 @@ export default async function MagazinesPage() {
             )}
           </section>
 
-          <ResourceCards />
         </SectionPageLayout>
       </main>
 

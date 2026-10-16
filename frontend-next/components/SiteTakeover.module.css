@@ -5,7 +5,7 @@
   background-attachment: fixed;
 }
 
-/* Avoid a hidden horizontal scroll container trapping the sticky side ads. */
+/* Avoid a hidden horizontal scroll container trapping the sticky header. */
 :global(html):has(.takeover),
 :global(body):has(.takeover) {
   overflow-x: clip !important;
@@ -75,54 +75,6 @@
   width: min(100%, 1152px);
   margin: 0 auto;
   background: #fff;
-}
-
-.sideAd {
-  display: none;
-}
-
-@media (min-width: 1400px) {
-  .frame {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 1152px minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .site { grid-column: 2; grid-row: 1; }
-
-  .sideAd {
-    position: sticky;
-    top: 24px;
-    grid-row: 1;
-    display: block;
-    width: min(160px, calc(100% - 24px));
-    margin: 24px auto;
-  }
-
-  .left { grid-column: 1; }
-  .right { grid-column: 3; }
-
-  .sideAd a {
-    display: grid;
-    gap: 12px;
-    min-width: 0;
-    color: #fff;
-    font: 700 12px/1.4 Arial, Helvetica, sans-serif;
-    text-align: center;
-    text-decoration: none;
-    text-shadow: 0 1px 3px #333;
-  }
-
-  .sideAd img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .sideAd a:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 4px;
-  }
 }
 
 @media (min-width: 1241px) {

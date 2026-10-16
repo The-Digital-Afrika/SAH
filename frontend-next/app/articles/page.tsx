@@ -6,7 +6,6 @@ import FeaturedStoryCard from "@/components/FeaturedStoryCard";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
-import ResourceCards from "@/components/ResourceCards";
 import SectionPageLayout from "@/components/SectionPageLayout";
 import {
   getArticleImage,
@@ -107,7 +106,6 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             </section>
           </section>
 
-          <ResourceCards context="education" />
         </SectionPageLayout>
       </main>
 

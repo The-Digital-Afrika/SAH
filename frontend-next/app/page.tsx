@@ -13,17 +13,14 @@ import SectionPageLayout from "@/components/SectionPageLayout";
 import magazineStyles from "@/components/HomeMagazineFeature.module.css";
 import communityStyles from "@/components/HomeCommunitySignup.module.css";
 import homeStyles from "@/components/HomeArticleGrids.module.css";
-import resourceStyles from "@/components/ResourceCards.module.css";
 import {
   getArticleImage,
   getMagazinePosts,
   getMagazineReaderUrl,
-  getPostAuthor,
   getPostExcerpt,
   getPostTitle,
   getPosts,
   getPostsByCategory,
-  getPrimaryCategory,
   isMagazineArticle,
   type MagazineIssue,
   type WPPost,
@@ -67,9 +64,10 @@ export default async function Home() {
       description: "Cooking and bonding stories",
     },
   ];
-  const [posts, magazines, ...categorySections] = await Promise.all([
+  const [posts, magazines, partnerSection, ...categorySections] = await Promise.all([
     getPosts({ perPage: 12 }),
     getMagazinePosts(),
+    getPostsByCategory("partner-2", 1, 4),
     ...categoryConfigs.map((category) => getPostsByCategory(category.slug, 1, 4)),
   ]);
   const featuredMagazine = magazines[0];
@@ -91,19 +89,11 @@ export default async function Home() {
           <section className="home-editorial-showcase" aria-label="Featured homeschool stories">
             {posts[0] ? <FeaturedStoryCard post={posts[0]} home /> : null}
 
-            <section className="home-top-stories-panel home-top-stories--expanded" aria-labelledby="home-top-stories-title">
-              <div className="section-rule" />
-              <h2 id="home-top-stories-title">Top stories</h2>
-              {posts.length ? (
-                <div className="home-top-stories-grid">
-                  {posts.slice(0, 4).map((post) => (
-                    <HomeTopStory post={post} key={post.id} />
-                  ))}
-                </div>
-              ) : (
-                <p className="archive-loading">Latest stories are temporarily unavailable. Please check back soon.</p>
-              )}
-            </section>
+            <CategorySection category={{ name: "Partners" }} posts={partnerSection.posts} />
+            <CategorySection category={{ name: "Top stories" }} posts={posts.slice(0, 4)} />
+            {!posts.length ? (
+              <p className="archive-loading">Latest stories are temporarily unavailable. Please check back soon.</p>
+            ) : null}
           </section>
 
           <AdBanner placement="home-middle" wrapClassName="home-ad-row modern-ad-row" fallback />
@@ -185,55 +175,11 @@ export default async function Home() {
             </div>
           </section>
 
-          <section className={`home-section home-section--white ${resourceStyles.section}`} data-resource-cards aria-labelledby="resources-title">
-            <div className="section-heading">
-              <span className="kicker">Resources</span>
-              <h2 id="resources-title">Magazines, partners, and family activities</h2>
-            </div>
-
-            <div className="resource-grid">
-              <Link className="resource-card resource-card--magazine" href="/magazines">
-                <span className="kicker">Magazines</span>
-                <h3>Browse the SA Homeschooling magazine archive</h3>
-                <p>Open uploaded PDF issues directly from the website.</p>
-              </Link>
-              <Link className="resource-card resource-card--directory" href="/directory">
-                <span className="kicker">Partners</span>
-                <h3>Find learning providers and education partners</h3>
-                <p>Explore schools, resource centres, olympiads, study guides, and curriculum support partners.</p>
-              </Link>
-              <Link className="resource-card resource-card--recipes" href="/category/cooking-bonding">
-                <span className="kicker">Parenting</span>
-                <h3>Cook, connect, and learn together</h3>
-                <p>Family-friendly recipes that double as practical homeschool activities.</p>
-              </Link>
-            </div>
-          </section>
-
         </SectionPageLayout>
       </main>
 
       <Footer flush />
     </div>
-  );
-}
-
-function HomeTopStory({ post }: { post: WPPost }) {
-  const image = getArticleImage(post);
-
-  return (
-    <Link className="home-top-story" href={`/articles/${post.slug}`}>
-      <span className={isMagazineArticle(post) ? "home-top-story-media home-top-story-media--magazine" : "home-top-story-media"}>
-        <Image src={image.src} alt="" fill sizes="(max-width: 560px) 100vw, (max-width: 1100px) 50vw, 384px" />
-      </span>
-      <span className="home-top-story-copy">
-        <strong>{getPostTitle(post)}</strong>
-        <em>
-          {getPrimaryCategory(post)} / by {getPostAuthor(post)}
-        </em>
-        <p>{getPostExcerpt(post)}</p>
-      </span>
-    </Link>
   );
 }
 

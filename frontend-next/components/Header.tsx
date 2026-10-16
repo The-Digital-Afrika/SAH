@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import brandStyles from "./HeaderBrand.module.css";
 
 const searchItems = [
   { title: "Education articles", url: "/articles", category: "Education" },
@@ -41,16 +42,17 @@ export default function Header() {
 
   return (
     <>
-      <header className="site-header">
+      <header className={`site-header ${brandStyles.header}`}>
         <div className="header-inner">
           <Link className="brand" href="/" aria-label="Home&School home">
             <Image
-              className="brand-logo"
-              src="/images/hs-home-school-logo-2026.png"
+              className={`brand-logo ${brandStyles.logo}`}
+              src="/images/home-school-flourish-logo.png"
               alt="Home & School"
-              width={900}
-              height={454}
-              priority
+              width={2169}
+              height={725}
+              sizes="150px"
+              preload
             />
           </Link>
 

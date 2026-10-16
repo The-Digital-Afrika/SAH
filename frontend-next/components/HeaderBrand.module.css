@@ -1,0 +1,16 @@
+.header.header:global(.site-header) :global(.brand) {
+  width: 150px !important;
+  max-width: 150px !important;
+  min-width: 0 !important;
+  flex: 0 0 150px !important;
+}
+
+.header:global(.site-header) :global(.brand) .logo:global(.brand-logo) {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 52px !important;
+  object-fit: contain !important;
+  filter: brightness(0) invert(1);
+}

@@ -4,7 +4,7 @@ import { getArticleImage, getPostExcerpt, getPostTitle, isMagazineArticle, type 
 import styles from "./CategorySection.module.css";
 
 type CategorySectionProps = {
-  category: WPCategory;
+  category: Pick<WPCategory, "name"> & Partial<WPCategory>;
   posts: WPPost[];
 };
 
