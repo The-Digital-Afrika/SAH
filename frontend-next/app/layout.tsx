@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
+import { Bebas_Neue, Lato } from "next/font/google";
 import SignupPopup from "@/components/SignupPopup";
 import SiteTakeover from "@/components/SiteTakeover";
 import { getAdByPlacement } from "@/lib/wordpress";
 import { parseTakeoverConfig } from "@/lib/takeover";
 import "./globals.css";
+import "./brand.css";
+
+const headingFont = Bebas_Neue({ weight: "400", subsets: ["latin"], variable: "--font-bebas", display: "swap" });
+const bodyFont = Lato({ weight: ["400", "700", "900"], style: ["normal", "italic"], subsets: ["latin"], variable: "--font-lato", display: "swap" });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://homeandschool.co.za";
 
@@ -41,7 +46,7 @@ export default async function RootLayout({
   const takeover = parseTakeoverConfig(process.env.SITE_TAKEOVER_CONFIG) ?? ad.takeover;
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${headingFont.variable} ${bodyFont.variable}`}>
       <body>
         <SiteTakeover ad={{ ...ad, takeover }}>{children}</SiteTakeover>
         <SignupPopup />

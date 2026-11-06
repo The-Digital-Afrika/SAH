@@ -5,6 +5,23 @@
   flex: 0 0 150px !important;
 }
 
+.header.header:global(.site-header) :global(.site-nav) a {
+  background: transparent !important;
+}
+
+.header.header:global(.site-header) :global(.site-nav) a:hover,
+.header.header:global(.site-header) :global(.site-nav) a:focus-visible,
+.header.header:global(.site-header) :global(.site-nav) a[aria-current="page"] {
+  color: #333 !important;
+  background: transparent !important;
+}
+
+.header.header:global(.site-header) :global(.site-nav) a[aria-current="page"] {
+  text-decoration: underline !important;
+  text-decoration-thickness: 2px !important;
+  text-underline-offset: 6px;
+}
+
 .header:global(.site-header) :global(.brand) .logo:global(.brand-logo) {
   display: block !important;
   width: 100% !important;
@@ -12,5 +29,6 @@
   max-width: 100% !important;
   max-height: 52px !important;
   object-fit: contain !important;
-  filter: brightness(0) invert(1);
+  /* Original asset has white lettering and a pink ampersand. */
+  filter: invert(1) grayscale(1) contrast(20);
 }

@@ -1,4 +1,5 @@
 .takeover {
+  --site-width: 970px;
   min-height: 100vh;
   background: linear-gradient(115deg, var(--takeover-start), var(--takeover-middle) 48%, var(--takeover-end));
   background-size: 100vw 100vh;
@@ -13,7 +14,9 @@
 }
 
 .masthead {
-  padding: 12px 16px 20px;
+  width: min(100%, var(--site-width));
+  margin: 0 auto;
+  padding: 12px 0 0;
 }
 
 .masthead:has(.topAd :global(.google-ad-slot--empty)) {
@@ -24,7 +27,7 @@
   display: block;
   margin-bottom: 8px;
   color: #fff;
-  font: 10px/1.4 Arial, Helvetica, sans-serif;
+  font: 10px/1.4 var(--font-lato);
   text-align: center;
   text-shadow: 0 1px 3px #333;
   text-transform: uppercase;
@@ -32,7 +35,7 @@
 
 .banner {
   display: block;
-  width: min(100%, 970px);
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -49,7 +52,7 @@
 }
 
 .topAd {
-  width: min(100%, 970px);
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -72,7 +75,7 @@
 
 .site {
   position: relative;
-  width: min(100%, 1152px);
+  width: min(100%, var(--site-width));
   margin: 0 auto;
   background: #fff;
 }
@@ -98,14 +101,23 @@
   .site :global(.site-header .nav-dropdown > a) {
     min-height: 66px !important;
     padding-inline: 3px !important;
-    font-size: 11px !important;
+    font-size: 16px !important;
   }
 
   .site :global(.site-header button.search-link.header-search-link) {
-    width: 40px !important;
-    min-width: 40px !important;
-    height: 40px !important;
-    min-height: 40px !important;
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    color: var(--brand-pink) !important;
+  }
+
+  .site :global(.site-header button.search-link.header-search-link)::before,
+  .site :global(.site-header button.search-link.header-search-link)::after {
+    content: none !important;
+    display: none !important;
   }
 
   .site :global(.home-page .home-editorial-showcase > .home-lead-story--compact h2) {

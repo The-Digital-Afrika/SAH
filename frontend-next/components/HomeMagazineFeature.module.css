@@ -1,60 +1,67 @@
-.feature {
+.feature.feature {
   width: 100%;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid #e5e7eb;
-  border-radius: 4px;
+  border: 0;
+  border-radius: 0 !important;
   background: #fff;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+  box-shadow: none;
 }
 
-.heading { padding: 18px; }
+.heading { padding: 14px 16px 10px; text-align: center; }
 
-:global(.home-page.modern-home) .feature .heading h3 {
-  margin: 0 0 12px !important;
-  color: #171b22 !important;
-  font-family: var(--body-font, Arial, Helvetica, sans-serif) !important;
+.feature .heading h3 {
+  margin: 0 0 6px !important;
+  color: var(--brand-pink) !important;
+  font-family: var(--heading-font) !important;
   font-size: 20px !important;
-  font-weight: 700 !important;
+  font-weight: 400 !important;
   line-height: 1.3 !important;
   letter-spacing: 0 !important;
   text-transform: uppercase;
   overflow-wrap: break-word;
 }
 
-:global(.home-page.modern-home) .feature .heading p {
+.feature .heading p {
   margin: 0 !important;
   color: #171b22 !important;
-  font-size: 15px !important;
-  line-height: 1.5 !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
   letter-spacing: 0 !important;
 }
 
-.cover { display: block; }
+.feature .cover {
+  display: block;
+  margin: 0 20px;
+  overflow: hidden;
+  border-radius: 12px !important;
+}
 
-:global(.home-page.modern-home) .feature .cover img {
+.feature .cover img {
   display: block;
   width: 100% !important;
   height: auto !important;
   object-fit: contain !important;
-  border-radius: 0 !important;
+  border-radius: 12px !important;
 }
 
-.action { padding: 16px 18px; }
+.action { padding: 12px 18px 16px; }
 
 .read {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  min-height: 44px;
-  padding: 10px 14px;
+  width: fit-content;
+  min-width: 118px;
+  margin: 0 auto;
+  min-height: 32px;
+  padding: 6px 20px;
   border-radius: 999px;
-  background: #222;
+  background: var(--brand-pink);
   color: #fff;
-  font: 700 14px/1.4 Arial, Helvetica, sans-serif;
+  font: 400 13px/1.4 var(--body-font);
   text-decoration: none;
 }
 
-.read:hover { background: var(--brand-pink); }
+.read:hover { background: var(--brand-pink-dark); }
 .read:focus-visible, .cover:focus-visible { outline: 2px solid var(--brand-pink); outline-offset: -2px; }

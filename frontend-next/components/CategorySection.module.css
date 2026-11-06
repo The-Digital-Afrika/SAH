@@ -1,3 +1,38 @@
+:global(.home-page.modern-home) :global(.section-page-content) .cardSection {
+  padding: 20px !important;
+  margin-block: 0 !important;
+  background: #fff !important;
+}
+
+:global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) {
+  row-gap: 18px !important;
+  padding: 0 !important;
+}
+
+:global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-heading) {
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+:global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-heading .kicker) {
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: var(--brand-pink) !important;
+  font-family: var(--heading-font) !important;
+  font-size: clamp(32px, 5cqi, 42px) !important;
+  font-weight: 400 !important;
+  line-height: 1.05 !important;
+  letter-spacing: 0 !important;
+  white-space: normal !important;
+}
+
+:global(.home-page.modern-home) .cardSection :global(.home-category-heading .kicker)::before {
+  display: none !important;
+  content: none !important;
+}
+
 @media (min-width: 1101px) {
   :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-grid) {
     grid-template-columns: minmax(0, 1fr) !important;
@@ -61,6 +96,7 @@
 }
 
 :global(.home-page.modern-home) .cardSection :global(.home-category-card) strong {
+  color: #999 !important;
   min-width: 0;
   max-width: 100%;
   font-size: 22px !important;

@@ -1,0 +1,6 @@
+.card { width: 100%; min-width: 0; border-radius: 6px; background: transparent; }
+.creative { width: 100%; }
+.card .creative .ad { position: relative; width: 100% !important; height: auto !important; margin: 0 !important; padding: 0 !important; }
+.card .ad :global(.ad-unit-frame) { width: 100% !important; height: auto !important; margin: 0 !important; }
+.card .ad :global(.google-ad-slot) { width: 100% !important; max-width: 100% !important; height: auto !important; min-height: 0 !important; display: flex !important; align-items: center; justify-content: center; }
+.card .ad > :global(.house-ad) { width: 100% !important; height: auto !important; min-height: 250px !important; margin: 0 !important; }

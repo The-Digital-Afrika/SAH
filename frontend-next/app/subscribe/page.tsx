@@ -31,8 +31,9 @@ export default function SubscribePage() {
         <AdBanner
           placement="subscribe-bottom"
           idSuffix="subscribe-before-resources"
-          wrapClassName="archive-pagination-ad"
+          wrapClassName={`archive-pagination-ad ${styles.ad}`}
           variant="google-ad-slot--wide-banner"
+          fallback
         />
 
       </main>

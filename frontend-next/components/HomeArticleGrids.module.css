@@ -52,6 +52,7 @@
 }
 
 .page:global(.home-page.modern-home) :global(.home-guides-grid--articles-only .article-row-modern strong) {
+  color: #999 !important;
   font-size: 24px !important;
   line-height: 1.2 !important;
   overflow-wrap: break-word !important;

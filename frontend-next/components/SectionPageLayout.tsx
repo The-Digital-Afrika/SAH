@@ -8,13 +8,14 @@ type SectionPageLayoutProps = {
   newsletter?: ReactNode;
   sidebarFeatures?: ReactNode[];
   showFooterAd?: boolean;
+  featureAdCount?: number;
 };
 
-export default function SectionPageLayout({ idPrefix, children, newsletter, sidebarFeatures, showFooterAd = true }: SectionPageLayoutProps) {
+export default function SectionPageLayout({ idPrefix, children, newsletter, sidebarFeatures, showFooterAd = true, featureAdCount = 0 }: SectionPageLayoutProps) {
   return (
     <div className={`section-page-layout ${styles.layout}`}>
       <div className={`section-page-content ${styles.content}`}>{children}</div>
-      <SectionSidebar idPrefix={idPrefix} features={sidebarFeatures} showFooterAd={showFooterAd}>{newsletter}</SectionSidebar>
+      <SectionSidebar idPrefix={idPrefix} features={sidebarFeatures} showFooterAd={showFooterAd} featureAdCount={featureAdCount}>{newsletter}</SectionSidebar>
     </div>
   );
 }

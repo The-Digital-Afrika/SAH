@@ -3,9 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
-import NewsletterAdStack from "@/components/NewsletterAdStack";
+import SectionPageLayout from "@/components/SectionPageLayout";
+import MoreStories from "@/components/MoreStories";
 import { partners } from "@/lib/partners";
-import { getPosts, getPostTitle } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
   title: "Partners",
@@ -21,13 +21,13 @@ export const metadata: Metadata = {
 };
 
 export default async function DirectoryPage() {
-  const latestPosts = await getPosts({ perPage: 5 });
 
   return (
     <div className="directory-page">
       <Header />
 
-      <main className="directory-layout">
+      <main className="directory-section-page">
+        <SectionPageLayout idPrefix="directory">
         <section className="directory-list" aria-label="Partner listings">
           {partners.map((partner) => (
             <article className="directory-card" key={partner.slug}>
@@ -54,22 +54,8 @@ export default async function DirectoryPage() {
           ))}
         </section>
 
-        <aside className="directory-sidebar">
-          <section className="latest-widget">
-            <h2>Latest Stories</h2>
-            {latestPosts.length ? (
-              latestPosts.map((post) => (
-                <Link href={`/articles/${post.slug}`} key={post.id}>
-                  {getPostTitle(post)}
-                </Link>
-              ))
-            ) : (
-              <p>Latest stories are temporarily unavailable.</p>
-            )}
-          </section>
-
-          <NewsletterAdStack idPrefix="directory" formClassName="sidebar-newsletter labeled" />
-        </aside>
+          <MoreStories />
+        </SectionPageLayout>
       </main>
 
       <Footer />

@@ -1,36 +1,17 @@
 import { getMagazineReaderUrl, type MagazineIssue } from "@/lib/wordpress";
-import MagazineViewer from "./MagazineViewer";
-import ReadMoreText from "./ReadMoreText";
+import Link from "next/link";
+import styles from "./MagazineLibrary.module.css";
 
-type MagazineCardProps = {
-  issue: MagazineIssue;
-};
-
-export default function MagazineCard({ issue }: MagazineCardProps) {
-  const href = getMagazineReaderUrl(issue);
-
-  return (
-    <article className="magazine-card">
-      <MagazineViewer issue={issue} />
-
-      {href ? (
-        <a className="magazine-toolbar magazine-open" href={href} target="_blank" rel="noreferrer">
-          <span>{issue.issueNumber ? `Issue ${issue.issueNumber}` : "Read"}</span>
-          <span>PDF</span>
-          <span>+</span>
-          <span>-</span>
-          <span>Full</span>
-          <span>Share</span>
-        </a>
-      ) : (
-        <div className="magazine-toolbar" aria-label={`${issue.title} viewer unavailable`}>
-          <span>{issue.issueNumber ? `Issue ${issue.issueNumber}` : "Archive"}</span>
-          <span>PDF unavailable</span>
-        </div>
-      )}
-
-      <h2>{issue.title}</h2>
-      <ReadMoreText className="magazine-description">{issue.description}</ReadMoreText>
-    </article>
-  );
+export default function MagazineCard({ issue }: { issue: MagazineIssue }) {
+ const href = getMagazineReaderUrl(issue);
+ const cover = issue.coverImage ? <img src={issue.coverImage.src} alt={issue.coverImage.alt || issue.title} loading="lazy" /> : <span>{issue.title}</span>;
+ return <article className={styles.issue}>
+  <h2>{issue.title}</h2>
+  <p>{issue.description}</p>
+  {href ? <a className={styles.cover} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Read ${issue.title}`}>{cover}</a> : <div className={styles.cover}>{cover}</div>}
+  <div className={styles.actions}>
+   {href ? <a href={href} target="_blank" rel="noopener noreferrer">Read magazine</a> : null}
+   {issue.sourcePost ? <Link href={`/articles/${issue.sourcePost.slug}`}>Read the magazine article</Link> : null}
+  </div>
+ </article>;
 }

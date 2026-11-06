@@ -5,10 +5,10 @@
   margin: 0 !important;
   padding: 16px;
   overflow: visible !important;
-  border: 1px solid #e5e7eb !important;
-  border-radius: 4px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
   background: #fff !important;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 6%) !important;
+  box-shadow: none !important;
 }
 
 .card[data-featured-story-card] .link {
@@ -28,9 +28,10 @@
 .media {
   position: relative;
   width: 100%;
-  aspect-ratio: 7 / 5;
+  aspect-ratio: 1.82;
   overflow: hidden;
-  border-radius: 6px;
+  border: 1px solid var(--brand-pink);
+  border-radius: 16px;
   background: #f3f5f6;
 }
 
@@ -64,7 +65,7 @@
   gap: 8px 16px;
   margin-bottom: 10px;
   color: #15191f;
-  font: 11px/1.4 Arial, Helvetica, sans-serif;
+  font: 20px/1.2 var(--heading-font);
 }
 
 .category {
@@ -73,7 +74,7 @@
   border: 0;
   border-radius: 0;
   color: var(--brand-pink);
-  font-weight: 700;
+  font-weight: 400;
   text-transform: uppercase;
   overflow-wrap: anywhere;
 }
@@ -81,11 +82,11 @@
 .card[data-featured-story-card] .content h2 {
   max-width: 100% !important;
   margin: 0 !important;
-  color: #15191f !important;
-  font-family: var(--body-font, Arial, Helvetica, sans-serif) !important;
-  font-size: 28px !important;
-  font-weight: 700 !important;
-  line-height: 1.3 !important;
+  color: #777 !important;
+  font-family: var(--heading-font) !important;
+  font-size: clamp(32px, 4.5cqi, 52px) !important;
+  font-weight: 400 !important;
+  line-height: 1.05 !important;
   letter-spacing: 0 !important;
   text-shadow: none !important;
   overflow-wrap: break-word;
@@ -94,7 +95,7 @@
 .card[data-featured-story-card] .content .excerpt {
   margin: 12px 0 0 !important;
   color: #252b33 !important;
-  font-family: var(--body-font, Arial, Helvetica, sans-serif) !important;
+  font-family: var(--body-font, var(--font-lato)) !important;
   font-size: 16px !important;
   font-weight: 400 !important;
   line-height: 1.55 !important;
@@ -103,7 +104,7 @@
 .card[data-featured-story-card] .content .author {
   margin: 12px 0 0 !important;
   color: var(--brand-pink) !important;
-  font: 700 12px/1.5 Arial, Helvetica, sans-serif !important;
+  font: 400 14px/1.5 var(--body-font) !important;
 }
 
 .card[data-featured-story-card] .link:hover h2 {

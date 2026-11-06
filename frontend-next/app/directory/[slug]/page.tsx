@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
+import SectionSidebar from "@/components/SectionSidebar";
 import { getPartnerBySlug, partners } from "@/lib/partners";
 
 type PartnerPageProps = {
@@ -158,19 +159,19 @@ export default async function PartnerPage({ params }: PartnerPageProps) {
               >
                 <label>
                   <span>Name</span>
-                  <input name="name" type="text" placeholder="Name" />
+                  <input name="name" type="text" />
                 </label>
                 <label>
                   <span>Email</span>
-                  <input name="email" type="email" placeholder="Email" />
+                  <input name="email" type="email" />
                 </label>
                 <label>
                   <span>Subject</span>
-                  <input name="subject" type="text" placeholder="Subject" />
+                  <input name="subject" type="text" />
                 </label>
                 <label>
                   <span>Message</span>
-                  <textarea name="message" placeholder="Message" rows={5} />
+                  <textarea name="message" rows={5} />
                 </label>
                 <button type="submit">Send Message</button>
               </form>
@@ -178,9 +179,9 @@ export default async function PartnerPage({ params }: PartnerPageProps) {
           </div>
         </section>
 
-        <aside className="directory-sidebar">
-          <NewsletterAdStack idPrefix={`partner-${partner.slug}`} formClassName="sidebar-newsletter labeled" />
-        </aside>
+        <SectionSidebar idPrefix={`partner-${partner.slug}`} className="directory-sidebar">
+          <NewsletterAdStack idPrefix={`partner-${partner.slug}`} formClassName="sidebar-newsletter labeled" showAds={false} />
+        </SectionSidebar>
       </main>
 
       <Footer />

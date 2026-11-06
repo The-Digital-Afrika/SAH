@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
 import FeaturedStoryCard from "@/components/FeaturedStoryCard";
@@ -7,14 +6,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import SectionPageLayout from "@/components/SectionPageLayout";
-import {
-  getArticleImage,
-  getPostAuthor,
-  getPostTitle,
-  getPostsByCategory,
-  getPrimaryCategory,
-  isMagazineArticle,
-} from "@/lib/wordpress";
+import { getPostsByCategory } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
   title: "Education Articles",
@@ -38,11 +30,9 @@ type ArticlesPageProps = {
 export default async function ArticlesPage({ searchParams }: ArticlesPageProps) {
   const { page: pageParam } = await searchParams;
   const page = Math.max(Number(pageParam ?? "1"), 1);
-  const [{ posts }, { posts: archivePosts, totalPages }] = await Promise.all([
-    getPostsByCategory("education", 1, 12),
-    getPostsByCategory("education", page, 4),
-  ]);
-  const weekly = posts.slice(8, 12);
+  const { posts, totalPages } = await getPostsByCategory("education", page, 40);
+  const weekly = posts.slice(1, 5);
+  const archivePosts = posts.slice(5);
 
   return (
     <div className="education-page education-index-page">
@@ -52,34 +42,13 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
         <SectionPageLayout
           idPrefix="education"
           showFooterAd={false}
-          newsletter={<NewsletterAdStack idPrefix="education" formClassName="sidebar-newsletter labeled" fallbackAds />}
+          newsletter={<NewsletterAdStack idPrefix="education" formClassName="sidebar-newsletter labeled" fallbackAds showAds={false} />}
         >
           {posts[0] ? <FeaturedStoryCard post={posts[0]} /> : null}
 
           <section className="weekly-section education-weekly-modern" aria-label="More education stories">
             {weekly.length ? (
-              weekly.map((post) => {
-                const image = getArticleImage(post);
-
-                return (
-                  <Link
-                    className={
-                      isMagazineArticle(post)
-                        ? "wide-story education-wide-story wide-story--magazine"
-                        : "wide-story education-wide-story"
-                    }
-                    href={`/articles/${post.slug}`}
-                    key={post.id}
-                  >
-                    <Image src={image.src} alt={image.alt} width={360} height={220} />
-                    <div>
-                      <span>{getPrimaryCategory(post)}</span>
-                      <h3>{getPostTitle(post)}</h3>
-                      <p>by {getPostAuthor(post)}</p>
-                    </div>
-                  </Link>
-                );
-              })
+              weekly.map((post) => <ArticleCard post={post} key={post.id} editorial />)
             ) : (
               <p className="archive-loading">Weekly stories are temporarily unavailable. Please check back soon.</p>
             )}
@@ -93,7 +62,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
               </div>
               <div className="education-archive-grid">
                 {archivePosts.map((post) => (
-                  <ArticleCard post={post} key={post.id} />
+                  <ArticleCard post={post} key={post.id} editorial />
                 ))}
               </div>
               {!archivePosts.length ? (

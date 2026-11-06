@@ -1,8 +1,90 @@
 .page:global(.subscribe-page) :global(main.newsletter-page) {
-  width: min(960px, calc(100% - 28px)) !important;
-  max-width: 960px !important;
+  width: calc(100% - 40px) !important;
+  max-width: 100% !important;
   margin-inline: auto !important;
-  padding-top: 32px !important;
+  padding: 24px 0 32px !important;
+  box-sizing: border-box !important;
+  min-width: 0;
+}
+
+.page:global(.subscribe-page) { background: var(--page) !important; }
+
+.page:global(.subscribe-page) :global(.newsletter-panel),
+.page:global(.subscribe-page) :global(.archive-pagination-ad),
+.page:global(.subscribe-page) :global(.archive-pagination-ad .ad-unit-frame),
+.page:global(.subscribe-page) :global(.archive-pagination-ad .google-ad-slot) {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.page:global(.subscribe-page) :global(.archive-pagination-ad) {
+  margin: 24px 0 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.page:global(.subscribe-page) :global(.archive-pagination-ad img) {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.page .ad.ad:has(:global(.google-ad-slot--pending)),
+.page .ad.ad:has(:global(.google-ad-slot--empty)) {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 24px 0 0 !important;
+  padding: 24px 0 0 !important;
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+.page .ad:has(:global(.google-ad-slot--pending)) > :global(.ad-unit-frame),
+.page .ad:has(:global(.google-ad-slot--empty)) > :global(.ad-unit-frame) {
+  position: absolute !important;
+  inset: 24px 0 auto;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.page .ad:has(:global(.google-ad-slot--pending))::before,
+.page .ad:has(:global(.google-ad-slot--empty))::before {
+  content: "Advertisement" !important;
+  position: absolute;
+  inset: 0 0 auto;
+  color: #777;
+  font: 400 10px/1.4 var(--body-font);
+  text-align: center;
+}
+
+.page .ad:has(:global(.google-ad-slot--pending)) > :global(.house-ad),
+.page .ad:has(:global(.google-ad-slot--empty)) > :global(.house-ad) {
+  display: flex !important;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  min-height: 176px;
+  padding: 20px 28px;
+  background: #17626b;
+  color: #fff;
+  text-decoration: none;
+}
+
+.page .ad :global(.house-ad-image) {
+  width: 140px !important;
+  height: 136px !important;
+  flex: 0 0 140px;
+  object-fit: cover;
+}
+
+@media (max-width: 560px) {
+  .page .ad:has(:global(.google-ad-slot--pending)) > :global(.house-ad),
+  .page .ad:has(:global(.google-ad-slot--empty)) > :global(.house-ad) { padding: 18px; gap: 16px; }
+  .page .ad :global(.house-ad-image) { width: 88px !important; height: 140px !important; flex-basis: 88px; }
 }
 
 .page:global(.subscribe-page) :global(.newsletter-panel) .form:global(.compact-form) {
@@ -10,10 +92,20 @@
   gap: 18px 20px !important;
   min-height: 0 !important;
   padding: 32px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.page:global(.subscribe-page) .form:global(.compact-form)::before,
+.page:global(.subscribe-page) .form:global(.compact-form)::after {
+  content: none !important;
+  display: none !important;
 }
 
 .page:global(.subscribe-page) .form:global(.compact-form) :global(.section-rule) {
-  margin-bottom: 8px !important;
+  display: none !important;
 }
 
 .page:global(.subscribe-page) .form:global(.compact-form) h1 {
@@ -38,6 +130,9 @@
 }
 
 .page:global(.subscribe-page) .form:global(.compact-form) :global(.signup-button) {
+  background: var(--brand-pink) !important;
+  color: #fff !important;
+  box-shadow: none !important;
   width: min(200px, 100%) !important;
   min-height: 48px !important;
   padding: 10px 20px !important;
@@ -51,5 +146,13 @@
     padding: 24px 20px !important;
   }
 
+  .page:global(.subscribe-page) .form:global(.compact-form) h1 { font-size: 32px !important; }
+}
+
+@container (max-width: 560px) {
+  .page:global(.subscribe-page) :global(.newsletter-panel) .form:global(.compact-form) {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 24px 20px !important;
+  }
   .page:global(.subscribe-page) .form:global(.compact-form) h1 { font-size: 32px !important; }
 }

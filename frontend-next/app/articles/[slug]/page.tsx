@@ -1,17 +1,26 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import AdSlot from "@/components/AdSlot";
 import ArticleCard from "@/components/ArticleCard";
 import AuthorAvatar from "@/components/AuthorAvatar";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
-import readingStyles from "@/components/ArticleReading.module.css";
+import SectionSidebar from "@/components/SectionSidebar";
+import ResourceCardAd from "@/components/ResourceCardAd";
+import ArticleContentAds from "@/components/ArticleContentAds";
+import AdBanner from "@/components/AdBanner";
+import LatestMagazine from "@/components/LatestMagazine";
+import CommentForm from "@/components/CommentForm";
+import MagazineArticleReader from "@/components/MagazineArticleReader";
+import { magazineArticleContent } from "@/lib/magazine-content";
+import styles from "@/components/ArticlePage.module.css";
 import {
   getArticleImage,
+  getAdjacentPosts,
+  getMagazinePosts,
+  getMagazineIssueForPost,
   getAuthorBio,
   getPostAuthor,
   getPostBySlug,
@@ -72,118 +81,73 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
-
   if (!post) return <ArticleUnavailable slug={slug} />;
-
   const image = getArticleImage(post);
-  const categories = getPostCategories(post);
+  const category = getPrimaryCategory(post);
+  const magazineIssue = getMagazineIssueForPost(post);
   const author = getPostAuthorProfile(post);
   const authorSlug = getPostAuthorSlug(post);
-  const authorHref = authorSlug ? `/authors/${authorSlug}` : "#";
-  const pageBackgroundStyle = { "--page-bg-image": `url(${JSON.stringify(image.src)})` } as CSSProperties;
-  const related = await getPosts({
-    perPage: 3,
-    categories: categories[0]?.id,
-    exclude: post.id,
-  });
-
+  const authorHref = authorSlug ? `/authors/${authorSlug}` : "/authors";
+  const [related, magazines, adjacent] = await Promise.all([
+    getPosts({ perPage: 4, categories: getPostCategories(post)[0]?.id, exclude: post.id }),
+    getMagazinePosts(),
+    getAdjacentPosts(post),
+  ]);
+  const inlineAds = [0, 1, 2].map(index => (
+    <ResourceCardAd key={index} id={`${post.slug}-inline-${index}`} tall={false} />
+  ));
   return (
-    <div className="recipe-page article-page">
+    <div className={`article-redesign ${styles.page}`}>
       <Header />
-
-      <main className="recipe-layout article-layout article-layout--feature" style={pageBackgroundStyle}>
-        <article className="recipe-article article-body article-feature-article">
-          <figure className="article-feature-image">
-            <Image src={image.src} alt={image.alt} width={image.width} height={image.height} priority />
-          </figure>
-
-          <div className={`article-feature-card article-content-card ${readingStyles.reading}`}>
-            <header className="article-inline-heading">
-              <div className="section-rule" />
-              <p>{categories.map((category) => category.name).join(", ") || getPrimaryCategory(post)}</p>
-              <h1>{getPostTitle(post)}</h1>
-              <span className="article-byline">
-                by <Link href={authorHref}>{getPostAuthor(post)}</Link>
-              </span>
-            </header>
-
-            <div className="intro-box">
-              <p>
-                <em>{getPostExcerpt(post)}</em>
-              </p>
+      <main className={`section-page-layout ${styles.layout}`}>
+        <div className={styles.column}>
+          <article className={styles.article}>
+            <Image className={styles.hero} src={image.src} alt={image.alt} width={image.width} height={image.height}
+              sizes="(max-width: 760px) 100vw, 620px" preload />
+            <div className={styles.copy}>
+              <header className={styles.heading}>
+                <p className={styles.category}>{category}</p>
+                <h1>{getPostTitle(post)}</h1>
+              </header>
+              {magazineIssue ? <MagazineArticleReader issue={magazineIssue} /> : null}
+              <p className={styles.intro}><em>{getPostExcerpt(post)}</em></p>
+              <ArticleContentAds html={magazineIssue ? magazineArticleContent(post.content.rendered) : post.content.rendered} ads={inlineAds} className={styles.body} />
+              <nav className={styles.navigation} aria-label="Previous and next articles">
+                {adjacent.previous ? <Link href={`/articles/${adjacent.previous.slug}`} title={getPostTitle(adjacent.previous)}>Previous article</Link> : <span />}
+                {adjacent.next ? <Link href={`/articles/${adjacent.next.slug}`} title={getPostTitle(adjacent.next)}>Next article</Link> : <span />}
+              </nav>
+              <section className={styles.author} aria-label="About the author">
+                <AuthorAvatar author={author} size={96} />
+                <div>
+                  <h2>{getPostAuthor(post)}</h2>
+                  <em>Author</em>
+                  <p>{getAuthorBio(author)}</p>
+                  <Link href={authorHref}>More by {getPostAuthor(post)}</Link>
+                </div>
+              </section>
             </div>
-
-            <div className={readingStyles.body} dangerouslySetInnerHTML={{ __html: post.content.rendered }} />
-
-            <AdSlot
-              placement="article-inline"
-              className="article-inline-ad-slot"
-              wrapClassName="article-inline-ad"
-              variant="google-ad-slot--article-inline-fit"
-            />
-          </div>
-        </article>
-
-        <aside className="recipe-sidebar article-sidebar article-sidebar--restored" aria-label="Article sidebar">
-          <NewsletterForm
-            idPrefix="article-hero-sidebar"
-            className="sidebar-newsletter labeled article-hero-newsletter"
-            title="Join our community"
-          />
-          <AdSlot
-            placement="article-sidebar"
-            idSuffix={`${post.slug}-sidebar-top`}
-            className="article-side-ad-slot"
-            wrapClassName="article-side-ad"
-            variant="google-ad-slot--article-sidebar-fit"
-          />
-          <section className="latest-widget">
-            <h2>Latest Stories</h2>
-            {related.map((relatedPost) => (
-              <Link href={`/articles/${relatedPost.slug}`} key={relatedPost.id}>
-                {getPostTitle(relatedPost)}
-              </Link>
-            ))}
-          </section>
-          <AdSlot
-            placement="article-sidebar"
-            idSuffix={`${post.slug}-sidebar-bottom`}
-            className="article-side-ad-slot"
-            wrapClassName="article-side-ad"
-            variant="google-ad-slot--article-sidebar-fit"
-          />
-        </aside>
-
-        <section className="article-author-section" aria-label="Author">
-          <div className="author-bio">
-            <AuthorAvatar author={author} />
-            <div>
-              <h2>
-                {getPostAuthor(post)} <span>Author</span>
-              </h2>
-              <p>{getAuthorBio(author)}</p>
-              <Link href={authorHref}>More by {getPostAuthor(post)}</Link>
-            </div>
-          </div>
-        </section>
-
-        <div className="article-feature-card article-related-card">
+          </article>
           {related.length ? (
-            <section className="education-archive-section" aria-labelledby="related-title">
-              <div className="section-heading">
-                <span className="kicker">Related Articles</span>
-                <h2 id="related-title">More stories for you</h2>
-              </div>
-              <div className="education-archive-grid">
-                {related.map((relatedPost) => (
-                  <ArticleCard post={relatedPost} key={relatedPost.id} />
-                ))}
-              </div>
+            <section className={styles.related} aria-labelledby="related-title">
+              <h2 id="related-title">Related articles</h2>
+              <div className={styles.relatedGrid}>{related.map(relatedPost => <ArticleCard post={relatedPost} key={relatedPost.id} className="related-editorial-card" editorial />)}</div>
             </section>
           ) : null}
+          {!post.source_origin ? <>
+            <AdBanner
+              placement="article-inline"
+              idSuffix={`${post.slug}-before-comments`}
+              wrapClassName="article-comments-banner"
+              variant="google-ad-slot--leaderboard-sm"
+            />
+            <CommentForm postId={post.id} />
+          </> : null}
         </div>
+        <SectionSidebar idPrefix={`article-${post.slug}`} className={styles.sidebar} independentScroll={Boolean(magazineIssue)} totalAds={magazineIssue ? 7 : 12}
+          features={[<LatestMagazine issue={magazines[0]} key="magazine" />]}>
+          <NewsletterForm idPrefix={`article-${post.id}`} className={styles.newsletter} title="Join our community" />
+        </SectionSidebar>
       </main>
-
       <Footer />
     </div>
   );
@@ -191,22 +155,16 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
 function ArticleUnavailable({ slug }: { slug: string }) {
   return (
-    <div className="recipe-page article-page">
+    <div className={`article-redesign ${styles.page}`}>
       <Header />
-
-      <main className="recipe-layout article-layout">
-        <article className="recipe-article article-body">
-          <div className="intro-box">
-            <p>
-              This article is temporarily unavailable while the WordPress connection catches up. Please refresh shortly
-              or browse the latest articles.
-            </p>
-          </div>
-          <Link href="/articles">Back to articles</Link>
-          <NewsletterAdStack idPrefix={`article-unavailable-${slug}`} formClassName="sidebar-newsletter labeled" />
+      <main className={`section-page-layout ${styles.layout}`}>
+        <article className={styles.article}>
+          <div className={styles.copy}><h1>Article temporarily unavailable</h1><p>This article could not be loaded from WordPress. Please refresh shortly.</p><Link href="/articles">Browse education articles</Link></div>
         </article>
+        <SectionSidebar idPrefix={`article-unavailable-${slug}`}>
+          <NewsletterAdStack idPrefix={`article-unavailable-${slug}`} formClassName={styles.newsletter} showAds={false} />
+        </SectionSidebar>
       </main>
-
       <Footer />
     </div>
   );

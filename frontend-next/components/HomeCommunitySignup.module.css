@@ -35,7 +35,7 @@
 :global(.home-page.modern-home) .form h2 {
   margin: 0 0 4px !important;
   color: var(--brand-pink) !important;
-  font-family: var(--heading-font, Georgia, "Times New Roman", serif) !important;
+  font-family: var(--heading-font, var(--font-bebas)) !important;
   font-size: 40px !important;
   font-weight: 700 !important;
   line-height: 1.15 !important;
@@ -53,7 +53,7 @@
 
 :global(.home-page.modern-home) .form label {
   color: #171b22 !important;
-  font: 700 16px/1.4 var(--body-font, Arial, Helvetica, sans-serif) !important;
+  font: 700 16px/1.4 var(--body-font, var(--font-lato)) !important;
 }
 
 :global(.home-page.modern-home) .form input {
@@ -68,7 +68,7 @@
   border-radius: 6px !important;
   background: #fff !important;
   color: #171b22 !important;
-  font: 400 15px/1.4 var(--body-font, Arial, Helvetica, sans-serif) !important;
+  font: 400 15px/1.4 var(--body-font, var(--font-lato)) !important;
 }
 
 :global(.home-page.modern-home) .form :global(.signup-button) {
@@ -80,7 +80,7 @@
   border-radius: 6px !important;
   background: #243244 !important;
   color: #fff !important;
-  font: 700 14px/1.4 var(--body-font, Arial, Helvetica, sans-serif) !important;
+  font: 700 14px/1.4 var(--body-font, var(--font-lato)) !important;
   box-shadow: 0 12px 24px rgb(20 24 32 / 14%);
 }
 

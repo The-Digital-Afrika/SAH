@@ -46,7 +46,7 @@ export default function SiteTakeover({ ad, children }: {
         {showBanner ? (
           <a className={styles.banner} href={banner.href} target="_blank" rel="noopener noreferrer">
             <Image src={banner.imageUrl} alt={banner.alt} width={banner.width} height={banner.height}
-              sizes="(max-width: 1002px) calc(100vw - 32px), 970px" unoptimized preload
+              sizes="(max-width: 970px) 100vw, 970px" unoptimized preload
               onError={() => setFailedBanner(banner.imageUrl)} />
           </a>
         ) : (

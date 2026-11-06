@@ -1,5 +1,8 @@
 import { unstable_cache } from "next/cache";
 import fallbackPostsData from "@/data/wp-fallback-posts.json";
+import legacyMagazinePostsData from "@/data/legacy-magazine-posts.json";
+import { filterMagazinePosts, mergeMagazinePosts } from "@/lib/magazine-posts";
+import { prepareWordPressCacheValue, resolveWordPressCacheValue } from "@/lib/wordpress-payload";
 import { parseTakeoverConfig, type TakeoverConfig } from "@/lib/takeover";
 
 const WORDPRESS_ORIGIN = "https://cms.homeandschool.co.za";
@@ -47,6 +50,7 @@ export type WPMedia = {
 };
 
 export type WPPost = {
+  source_origin?: string;
   id: number;
   date: string;
   modified: string;
@@ -836,43 +840,44 @@ function logWordPressError(context: string, error: unknown) {
   console.warn(`[wordpress] ${context}: ${getErrorMessage(error)}`);
 }
 
-const fetchWordPressJson = unstable_cache(
-  async (url: string) => {
+async function loadWordPressResponse(url: string, paginated = false) {
     const res = await fetch(url, {
       headers: wordpressFetchHeaders,
       signal: AbortSignal.timeout(wpRequestTimeoutMs),
+      cache: "no-store",
     });
 
     if (!res.ok) {
       throw new Error(`WordPress request failed (${res.status} ${res.statusText}): ${url}`);
     }
 
-    return res.json() as Promise<unknown>;
-  },
-  ["wordpress-json"],
+    const value = await res.json();
+    return paginated ? {
+      posts: value,
+      total: Number(res.headers.get("x-wp-total") ?? 0),
+      totalPages: Number(res.headers.get("x-wp-totalpages") ?? 0),
+    } : value;
+}
+
+const cachedWordPressJson = unstable_cache(
+  async (url: string) => prepareWordPressCacheValue(await loadWordPressResponse(url)),
+  ["wordpress-json-compact-v1"],
   { revalidate, tags: ["wordpress-json"] },
 );
 
-const fetchWordPressPaginated = unstable_cache(
-  async (url: string) => {
-    const res = await fetch(url, {
-      headers: wordpressFetchHeaders,
-      signal: AbortSignal.timeout(wpRequestTimeoutMs),
-    });
-
-    if (!res.ok) {
-      throw new Error(`WordPress request failed (${res.status} ${res.statusText}): ${url}`);
-    }
-
-    return {
-      posts: (await res.json()) as WPPost[],
-      total: Number(res.headers.get("x-wp-total") ?? 0),
-      totalPages: Number(res.headers.get("x-wp-totalpages") ?? 0),
-    };
-  },
-  ["wordpress-paginated"],
+const cachedWordPressPaginated = unstable_cache(
+  async (url: string) => prepareWordPressCacheValue(await loadWordPressResponse(url, true)),
+  ["wordpress-paginated-compact-v1"],
   { revalidate, tags: ["wordpress-paginated"] },
 );
+
+async function fetchWordPressJson(url: string) {
+  return resolveWordPressCacheValue(await cachedWordPressJson(url), () => loadWordPressResponse(url));
+}
+
+async function fetchWordPressPaginated(url: string) {
+  return await resolveWordPressCacheValue(await cachedWordPressPaginated(url), () => loadWordPressResponse(url, true)) as PaginatedPosts;
+}
 
 function createFallbackPost(seed: FallbackPostSeed, index: number): WPPost {
   const category = fallbackCategories[seed.category];
@@ -1081,6 +1086,7 @@ const exportedFallbackPosts = (fallbackPostsData as unknown as WPPost[]).map(loc
 const fallbackPosts: WPPost[] = exportedFallbackPosts.length
   ? exportedFallbackPosts
   : fallbackPostSeeds.map((seed, index) => createFallbackPost(seed, index));
+const legacyMagazinePosts = legacyMagazinePostsData as unknown as WPPost[];
 
 function getFallbackCategory(slug: string) {
   const canonicalSlug = Object.entries(categoryAliases).find(([, alias]) => alias === slug)?.[0] ?? slug;
@@ -1111,7 +1117,7 @@ function getFallbackPosts(options: GetPostsOptions = {}) {
   const page = Math.max(options.page ?? 1, 1);
   const perPage = options.perPage ?? 10;
 
-  const filteredPosts = fallbackPosts.filter((post) => {
+  const filteredPosts = mergeMagazinePosts(fallbackPosts, legacyMagazinePosts).filter((post) => {
     if (excludedIds.has(post.id)) return false;
     if (categoryIds.size && !post.categories.some((categoryId) => categoryIds.has(categoryId))) return false;
     if (tagIds.size && !post.tags?.some((tagId) => tagIds.has(tagId))) return false;
@@ -1130,7 +1136,7 @@ function getFallbackPosts(options: GetPostsOptions = {}) {
 function getFallbackPaginatedPosts(options: GetPostsOptions = {}): PaginatedPosts {
   const page = Math.max(options.page ?? 1, 1);
   const perPage = options.perPage ?? 10;
-  const allMatchingPosts = getFallbackPosts({ ...options, page: 1, perPage: fallbackPosts.length });
+  const allMatchingPosts = getFallbackPosts({ ...options, page: 1, perPage: fallbackPosts.length + legacyMagazinePosts.length });
 
   return {
     posts: allMatchingPosts.slice((page - 1) * perPage, page * perPage),
@@ -1166,17 +1172,42 @@ function listParam(value?: number | number[]) {
   return Array.isArray(value) ? value.join(",") : value;
 }
 
+async function getMissingMagazinePosts() {
+  try {
+    const existing = await wpFetch<Array<{ slug: string }>>("/wp/v2/posts", {
+      slug: legacyMagazinePosts.map(post => post.slug).join(","), per_page: 100, _fields: "slug",
+    });
+    const slugs = new Set(existing.map(post => post.slug));
+    return legacyMagazinePosts.filter(post => !slugs.has(post.slug));
+  } catch {
+    const slugs = new Set(fallbackPosts.map(post => post.slug));
+    return legacyMagazinePosts.filter(post => !slugs.has(post.slug));
+  }
+}
+
+async function getSupplementedPosts(options: GetPostsOptions): Promise<PaginatedPosts> {
+  const perPage = Math.min(100, Math.max(1, options.perPage ?? 10));
+  const page = Number.isSafeInteger(options.page) && (options.page ?? 0) > 0 ? options.page! : 1;
+  const imported = filterMagazinePosts(await getMissingMagazinePosts(), options);
+  const params = { _embed: options.embed ?? 1, categories: listParam(options.categories), tags: listParam(options.tags), exclude: listParam(options.exclude), search: options.search };
+  if (!imported.length) return wpFetchPaginated("/wp/v2/posts", { ...params, per_page: perPage, page });
+  // Fetch the prefix needed for a stable combined page; imports must not repeat on page two.
+  const prefix = page * perPage;
+  const batchSize = Math.min(100, prefix);
+  const first = await wpFetchPaginated("/wp/v2/posts", { ...params, per_page: batchSize, page: 1 });
+  const batchCount = Math.ceil(Math.min(prefix, first.total) / batchSize);
+  const remaining = await Promise.all(Array.from({ length: Math.max(0, batchCount - 1) }, (_, index) =>
+    wpFetchPaginated("/wp/v2/posts", { ...params, per_page: batchSize, page: index + 2 })));
+  const primary = [...first.posts, ...remaining.flatMap(result => result.posts)];
+  const combined = mergeMagazinePosts(primary, imported);
+  const duplicateCount = imported.filter(post => primary.some(candidate => candidate.slug === post.slug)).length;
+  const total = first.total + imported.length - duplicateCount;
+  return { posts: combined.slice((page - 1) * perPage, page * perPage), total, totalPages: Math.max(1, Math.ceil(total / perPage)) };
+}
+
 export async function getPosts(options: GetPostsOptions = {}) {
   try {
-    return await wpFetch<WPPost[]>("/wp/v2/posts", {
-      _embed: options.embed ?? 1,
-      per_page: options.perPage ?? 10,
-      page: options.page ?? 1,
-      categories: listParam(options.categories),
-      tags: listParam(options.tags),
-      exclude: listParam(options.exclude),
-      search: options.search,
-    });
+    return (await getSupplementedPosts(options)).posts;
   } catch (error) {
     logWordPressError("getPosts failed", error);
     return getFallbackPosts(options);
@@ -1185,15 +1216,7 @@ export async function getPosts(options: GetPostsOptions = {}) {
 
 export async function getPaginatedPosts(options: GetPostsOptions = {}) {
   try {
-    return await wpFetchPaginated("/wp/v2/posts", {
-      _embed: 1,
-      per_page: options.perPage ?? 10,
-      page: options.page ?? 1,
-      categories: listParam(options.categories),
-      tags: listParam(options.tags),
-      exclude: listParam(options.exclude),
-      search: options.search,
-    });
+    return await getSupplementedPosts(options);
   } catch (error) {
     logWordPressError("getPaginatedPosts failed", error);
     return getFallbackPaginatedPosts(options);
@@ -1208,11 +1231,34 @@ export async function getPostBySlug(slug: string) {
       per_page: 1,
     });
 
-    return posts[0] ?? null;
+    return posts[0] ?? legacyMagazinePosts.find(post => post.slug === slug) ?? null;
   } catch (error) {
     logWordPressError(`getPostBySlug failed for "${slug}"`, error);
-    return fallbackPosts.find((post) => post.slug === slug) ?? null;
+    return fallbackPosts.find((post) => post.slug === slug) ?? legacyMagazinePosts.find(post => post.slug === slug) ?? null;
   }
+}
+
+export async function getAdjacentPosts(post: WPPost) {
+  function choose(posts: WPPost[], direction: "before" | "after") {
+    return mergeMagazinePosts(posts, legacyMagazinePosts)
+      .filter(candidate => candidate.slug !== post.slug && (direction === "before" ? candidate.date < post.date : candidate.date > post.date))
+      .sort((a, b) => direction === "before" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date))[0] ?? null;
+  }
+  async function find(direction: "before" | "after") {
+    try {
+      const posts = await wpFetch<WPPost[]>("/wp/v2/posts", {
+        per_page: 1, _embed: 1, exclude: post.id,
+        [direction]: post.date,
+        order: direction === "before" ? "desc" : "asc",
+        orderby: "date",
+      });
+      return choose(posts, direction);
+    } catch {
+      return choose(fallbackPosts, direction);
+    }
+  }
+  const [previous, next] = await Promise.all([find("before"), find("after")]);
+  return { previous, next };
 }
 
 export async function getCategories() {
@@ -1336,11 +1382,12 @@ export async function getAuthorBySlug(slug: string) {
 
 export async function getPostsByAuthor(authorId: number, perPage = 12) {
   try {
-    return await wpFetch<WPPost[]>("/wp/v2/posts", {
+    const posts = await wpFetch<WPPost[]>("/wp/v2/posts", {
       _embed: 1,
       author: authorId,
       per_page: perPage,
     });
+    return mergeMagazinePosts(posts, legacyMagazinePosts.filter(post => post.author === authorId)).slice(0, perPage);
   } catch (error) {
     logWordPressError(`getPostsByAuthor failed for "${authorId}"`, error);
     return [];
@@ -1384,7 +1431,15 @@ export async function getMagazinePosts() {
   const postIssues = relatedPosts.flatMap(getMagazineIssuesFromPost);
   const issues = dedupeMagazineIssues([...postIssues, ...enrichedEmbeddedIssues, ...localMagazineIssues]);
 
-  return applyMagazineFallbackCovers(issues);
+  return applyMagazineFallbackCovers(issues.map((issue) => ({
+    ...issue,
+    // Embedded archive entries can carry a landscape promotional thumbnail.
+    // Prefer the verified full cover even when no announcement post was matched.
+    coverImage: getMagazineCoverImage(getLocalMagazineCover(issue, issue.sourcePost), issue.coverImage),
+    description: /september[-\s_]*2026/i.test(`${issue.title} ${issue.slug}`)
+      ? issue.description.replace(/August 2026/gi, "September 2026")
+      : issue.description,
+  }))).sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 }
 
 export async function getMagazineBySlug(slug: string) {
@@ -1554,6 +1609,10 @@ function getMagazineCoverImage(...covers: Array<MagazineIssue["coverImage"] | un
 }
 
 function getLocalMagazineCover(issue: Pick<MagazineIssue, "slug" | "pdfUrl">, post?: WPPost) {
+  const coverAliases: Record<string, keyof typeof localMagazineCovers> = {
+    "sahab-december-2025": "sa-homeschooling-december-2025",
+    "sa-homeschooling-summer-2025-issue-is-here": "sa-homeschooling-december-2025",
+  };
   const candidates = [
     slugFromUrl(issue.pdfUrl),
     issue.slug,
@@ -1561,7 +1620,11 @@ function getLocalMagazineCover(issue: Pick<MagazineIssue, "slug" | "pdfUrl">, po
     post ? slugFromUrl(extractFirstPdfUrl(post.content.rendered)) : "",
   ].filter(Boolean);
 
-  return candidates.map((candidate) => localMagazineCovers[candidate as keyof typeof localMagazineCovers]).find(Boolean);
+  return candidates.map((candidate) => {
+    if (!candidate) return undefined;
+    const key = coverAliases[candidate] ?? candidate as keyof typeof localMagazineCovers;
+    return localMagazineCovers[key];
+  }).find(Boolean);
 }
 
 function isPlaceholderImage(src?: string) {
@@ -1695,7 +1758,7 @@ function parseDFlipIssues(content: string): MagazineIssue[] {
     .map((match, index) => {
       const option = parseDFlipOption(match[2]);
       const pdfUrl = normalizePublicUrl(option?.source);
-      const slug = option?.slug || slugFromUrl(pdfUrl) || `magazine-${option?.id ?? index + 1}`;
+      const slug = slugFromUrl(pdfUrl) || option?.slug || `magazine-${option?.id ?? index + 1}`;
       const title = option?.title && option.title !== slug ? decodeHtml(option.title) : titleFromSlug(slug);
       const description =
         paragraphs[index] || `${title} is available to read online as part of the SA Homeschooling & Beyond archive.`;
@@ -1722,6 +1785,11 @@ function parseDFlipIssues(content: string): MagazineIssue[] {
       };
     })
     .filter((issue) => issue.pdfUrl || issue.embedUrl);
+}
+
+export function getMagazineIssueForPost(post: WPPost) {
+  if (!isMagazineArticle(post)) return null;
+  return getMagazineIssuesFromPost(post)[0] ?? null;
 }
 
 function getMagazineIssuesFromPost(post: WPPost): MagazineIssue[] {
@@ -1844,7 +1912,7 @@ function dedupeMagazineIssues(issues: MagazineIssue[]) {
   return deduped;
 }
 
-const magazineDateWords = ["summer", "spring", "winter", "autumn", "march", "april", "february", "june", "december"];
+const magazineDateWords = ["summer", "spring", "winter", "autumn", "january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 const magazineDateAliases: Partial<Record<(typeof magazineDateWords)[number], string>> = {
   december: "summer",
   june: "winter",

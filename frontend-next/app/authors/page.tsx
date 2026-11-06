@@ -5,6 +5,7 @@ import AuthorAvatar from "@/components/AuthorAvatar";
 import FeaturedMosaic from "@/components/FeaturedMosaic";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import SectionPageLayout from "@/components/SectionPageLayout";
 import { getAuthorBio, getAuthors, getPosts } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
@@ -24,12 +25,13 @@ export default async function AuthorsPage() {
   const [authors, latestPosts] = await Promise.all([getAuthors(), getPosts({ perPage: 4 })]);
 
   return (
-    <div className="directory-page">
+    <div className="directory-page shared-sidebar-page">
       <Header />
 
       <FeaturedMosaic posts={latestPosts} className="page-featured-mosaic" />
 
       <main className="newsletter-page">
+        <SectionPageLayout idPrefix="authors">
         <section className="author-header">
           <div className="author-avatar" aria-hidden="true" />
           <div>
@@ -55,6 +57,7 @@ export default async function AuthorsPage() {
         </section>
 
         <AdBanner placement="home-bottom" wrapClassName="archive-pagination-ad" variant="google-ad-slot--wide-banner" />
+        </SectionPageLayout>
       </main>
 
       <Footer />

@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import SectionPageLayout from "@/components/SectionPageLayout";
+import MoreStories from "@/components/MoreStories";
 import { getCategoryBySlug, getPostsByCategory } from "@/lib/wordpress";
 
 type CategoryPageProps = {
@@ -66,7 +67,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const [{ slug }, { page: pageParam }] = await Promise.all([params, searchParams]);
   const page = Math.max(Number(pageParam ?? "1"), 1);
-  const { category, posts, totalPages } = await getPostsByCategory(slug, page, 4);
+  const { category, posts, totalPages } = await getPostsByCategory(slug, page, 40);
   const pageCategory = category ?? {
     id: 0,
     count: 0,
@@ -90,6 +91,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               idPrefix={`category-${pageCategory.slug}`}
               formClassName="sidebar-newsletter labeled"
               fallbackAds
+              showAds={false}
             />
           }
         >
@@ -102,8 +104,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
               <div className="section-rule" />
               <h2 id="category-archive-title">Latest {pageCategory.name} Articles</h2>
               <div className="education-archive-grid">
-                {posts.map((post) => (
-                  <ArticleCard post={post} key={post.id} />
+                {(useFeaturedCard ? posts.slice(1) : posts).map((post) => (
+                  <ArticleCard post={post} key={post.id} editorial />
                 ))}
               </div>
               {!posts.length ? (
@@ -122,6 +124,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             </section>
           </section>
 
+          {posts.length < 40 ? <MoreStories exclude={posts.map(post => post.id)} count={40 - posts.length} /> : null}
         </SectionPageLayout>
       </main>
 
