@@ -1,3 +1,4 @@
+import { getArticlePath } from "@/lib/article-path";
 import Image from "next/image";
 import Link from "next/link";
 import { getArticleImage, getPostExcerpt, getPostTitle, getPrimaryCategory, isMagazineArticle, type WPPost } from "@/lib/wordpress";
@@ -22,7 +23,7 @@ export default function FeaturedPosts({ posts }: FeaturedPostsProps) {
               className={`topic-card${index === 0 ? " topic-card--wide" : ""}${isMagazineArticle(post) ? " topic-card--magazine" : ""}`}
               key={post.id}
             >
-              <Link href={`/articles/${post.slug}`}>
+              <Link href={getArticlePath(post)}>
                 <Image src={image.src} alt={image.alt} width={image.width} height={image.height} />
                 <span className="kicker">{getPrimaryCategory(post)}</span>
                 <h3>{getPostTitle(post)}</h3>

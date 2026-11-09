@@ -1,3 +1,4 @@
+import { getArticlePath } from "@/lib/article-path";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./EditorialCard.module.css";
@@ -25,7 +26,7 @@ export default function ArticleCard({ post, className = "education-archive-card"
 
   if (editorial) {
     return (
-      <Link className={`${articleClassName} ${styles.card}`} href={`/articles/${post.slug}`}>
+      <Link className={`${articleClassName} ${styles.card}`} href={getArticlePath(post)}>
         <Image src={image.src} alt={image.alt} width={image.width} height={image.height} priority={imagePriority}
           sizes="(max-width: 560px) 100vw, (max-width: 1100px) 50vw, 384px" />
         <div className={styles.copy}>
@@ -38,7 +39,7 @@ export default function ArticleCard({ post, className = "education-archive-card"
   }
 
   return (
-    <Link className={articleClassName} href={`/articles/${post.slug}`}>
+    <Link className={articleClassName} href={getArticlePath(post)}>
       <Image src={image.src} alt={image.alt} width={image.width} height={image.height} priority={imagePriority} />
       <span className="kicker">{getPrimaryCategory(post)}</span>
       <h3>{getPostTitle(post)}</h3>

@@ -1,3 +1,4 @@
+import { getArticlePath } from "@/lib/article-path";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -26,7 +27,7 @@ export default function Hero({ posts }: HeroProps) {
     <section className="home-hero-band" aria-label="Featured stories">
       <div className="home-hero-layout">
         <article className={isMagazineArticle(lead) ? "home-lead-story home-lead-story--magazine" : "home-lead-story"}>
-          <Link href={`/articles/${lead.slug}`}>
+          <Link href={getArticlePath(lead)}>
             <Image
               src={leadImage.src}
               alt={leadImage.alt}
@@ -52,7 +53,7 @@ export default function Hero({ posts }: HeroProps) {
             return (
               <Link
                 className={isMagazineArticle(post) ? "pick-row pick-row--magazine" : "pick-row"}
-                href={`/articles/${post.slug}`}
+                href={getArticlePath(post)}
                 key={post.id}
               >
                 <Image src={image.src} alt="" width={180} height={120} />

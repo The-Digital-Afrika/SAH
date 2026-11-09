@@ -1,3 +1,5 @@
+import { getArticlePath } from "@/lib/article-path";
+import { getCategoryPath } from "@/lib/category-path";
 import Link from "next/link";
 import { getPostTitle, type WPCategory, type WPPost } from "@/lib/wordpress";
 
@@ -26,11 +28,11 @@ export default function CategoryResourceCard({ category, posts }: { category: WP
         <span className="topic-list-label">Latest in this section</span>
         <div className="category-latest-list">
           {posts.slice(0, 2).map(post => (
-            <Link href={`/articles/${post.slug}`} key={post.id}>{getPostTitle(post)}</Link>
+            <Link href={getArticlePath(post)} key={post.id}>{getPostTitle(post)}</Link>
           ))}
         </div>
       </div>
-      <Link className="resource-card-action" href={`/category/${category.slug}`}>
+      <Link className="resource-card-action" href={getCategoryPath(category.slug)}>
         View all {category.name} articles
       </Link>
     </aside>

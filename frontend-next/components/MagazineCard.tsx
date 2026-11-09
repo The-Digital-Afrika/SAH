@@ -1,3 +1,4 @@
+import { getArticlePath } from "@/lib/article-path";
 import { getMagazineReaderUrl, type MagazineIssue } from "@/lib/wordpress";
 import Link from "next/link";
 import styles from "./MagazineLibrary.module.css";
@@ -11,7 +12,7 @@ export default function MagazineCard({ issue }: { issue: MagazineIssue }) {
   {href ? <a className={styles.cover} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Read ${issue.title}`}>{cover}</a> : <div className={styles.cover}>{cover}</div>}
   <div className={styles.actions}>
    {href ? <a href={href} target="_blank" rel="noopener noreferrer">Read magazine</a> : null}
-   {issue.sourcePost ? <Link href={`/articles/${issue.sourcePost.slug}`}>Read the magazine article</Link> : null}
+   {issue.sourcePost ? <Link href={getArticlePath(issue.sourcePost)}>Read the magazine article</Link> : null}
   </div>
  </article>;
 }

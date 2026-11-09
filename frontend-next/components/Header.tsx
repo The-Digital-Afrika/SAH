@@ -7,22 +7,22 @@ import { FormEvent, useMemo, useState } from "react";
 import brandStyles from "./HeaderBrand.module.css";
 
 const searchItems = [
-  { title: "Education", url: "/articles", category: "Education" },
-  { title: "Development", url: "/category/development", category: "Development" },
-  { title: "Parenting", url: "/category/parenting", category: "Parenting" },
+  { title: "Education", url: "/education", category: "Education" },
+  { title: "Development", url: "/development", category: "Development" },
+  { title: "Parenting", url: "/parenting", category: "Parenting" },
   { title: "Directory", url: "/directory", category: "Directory" },
-  { title: "Partners", url: "/category/partner-2", category: "Partners" },
+  { title: "Partners", url: "/partners", category: "Partners" },
   { title: "Magazines", url: "/magazines", category: "Magazines" },
   { title: "Newsletter Subscribe", url: "/subscribe", category: "Subscribe" },
 ];
 
 const navigationItems = [
   { label: "Home", href: "/", paths: ["/"] },
-  { label: "Education", href: "/articles", paths: ["/articles", "/category/education"] },
-  { label: "Development", href: "/category/development", paths: ["/category/development", "/category/ask-dalena"] },
-  { label: "Parenting", href: "/category/parenting", paths: ["/category/parenting", "/category/cooking-bonding", "/category/cooking-and-bonding"] },
+  { label: "Education", href: "/education", paths: ["/education", "/articles"] },
+  { label: "Development", href: "/development", paths: ["/development", "/ask-dalena"] },
+  { label: "Parenting", href: "/parenting", paths: ["/parenting", "/cooking-bonding"] },
   { label: "Directory", href: "/directory", paths: ["/directory"] },
-  { label: "Partners", href: "/category/partner-2", paths: ["/category/partner-2"] },
+  { label: "Partners", href: "/partners", paths: ["/partners"] },
   { label: "Magazine", href: "/magazines", paths: ["/magazines"] },
   { label: "Subscribe", href: "/subscribe", paths: ["/subscribe"] },
 ];

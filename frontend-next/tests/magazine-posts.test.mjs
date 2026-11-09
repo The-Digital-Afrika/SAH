@@ -48,7 +48,7 @@ test('replaces obsolete flipbook scripts without changing article paragraphs', (
   assert.deepEqual(cleaned.match(/<p\b[^>]*>[\s\S]*?<\/p>/g), html.match(/<p\b[^>]*>[\s\S]*?<\/p>/g));
 });
 
-test('combined pagination does not repeat imported issues, and the October reader uses its actual PDF', async () => {
+test('CMS pagination excludes saved issues, while the magazine reader preserves CMS PDF metadata', async () => {
   const primary = Array.from({ length: 8 }, (_, index) => ({ ...legacy[2], id: 10000 + index, slug: `cms-post-${index}`, date: `2026-08-${String(20 - index).padStart(2, '0')}T10:00:00`, title: { rendered: `CMS post ${index}` } }));
   const fetchMock = async input => {
     const url = new URL(String(input));
@@ -72,12 +72,13 @@ test('combined pagination does not repeat imported issues, and the October reade
   }, { fetch: fetchMock, process: { env: {} } });
   const first = await wp.getPaginatedPosts({ perPage: 4, page: 1 });
   const second = await wp.getPaginatedPosts({ perPage: 4, page: 2 });
-  const expected = helpers.mergeMagazinePosts(primary, legacy);
+  const expected = primary;
   assert.deepEqual(plain(first.posts.map(post => post.slug)), plain(expected.slice(0, 4).map(post => post.slug)));
   assert.deepEqual(plain(second.posts.map(post => post.slug)), plain(expected.slice(4, 8).map(post => post.slug)));
-  assert.equal(first.total, primary.length + legacy.length);
+  assert.equal(first.total, primary.length);
   const october = await wp.getPostBySlug(legacy[0].slug);
-  const issue = wp.getMagazineIssueForPost(october);
+  assert.equal(october, null);
+  const issue = wp.getMagazineIssueForPost(legacy[0]);
   assert.match(issue.pdfUrl, /October-2026\.pdf$/);
   assert.equal(issue.slug, 'sa-homeschooling-magazine-october-2026');
   assert.equal(wp.getMagazineIssueForPost({ ...primary[0], content: { rendered: '<p>A normal article.</p>' } }), null);

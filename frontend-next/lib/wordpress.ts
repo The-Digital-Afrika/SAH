@@ -1,7 +1,4 @@
 import { unstable_cache } from "next/cache";
-import fallbackPostsData from "@/data/wp-fallback-posts.json";
-import legacyMagazinePostsData from "@/data/legacy-magazine-posts.json";
-import { filterMagazinePosts, mergeMagazinePosts } from "@/lib/magazine-posts";
 import { prepareWordPressCacheValue, resolveWordPressCacheValue } from "@/lib/wordpress-payload";
 import { parseTakeoverConfig, type TakeoverConfig } from "@/lib/takeover";
 
@@ -184,7 +181,7 @@ type GetPostsOptions = {
 };
 
 const revalidate = 3600;
-const wpRequestTimeoutMs = 8000;
+const wpRequestTimeoutMs = 25000;
 const wordpressFetchHeaders = {
   accept: "application/json",
   "user-agent": "SA Home&School frontend (+https://homeandschool.co.za)",
@@ -453,17 +450,6 @@ const localMagazinePdfUrls: Partial<Record<(typeof localMagazineOrder)[number], 
   "sahab-june-2026": `${WORDPRESS_ORIGIN}/wp-content/uploads/2026/06/SAHAB_June-2026_Web_300dpi_Rasterized.pdf`,
 };
 
-const localMagazineIssues: MagazineIssue[] = localMagazineOrder.map((slug) => ({
-  id: slug,
-  slug,
-  title: localMagazineTitles[slug] ?? titleFromSlug(slug),
-  issueNumber: extractIssueNumber(slug),
-  description: localMagazineDescriptions[slug],
-  pdfUrl: localMagazinePdfUrls[slug] ?? `/magazines/${slug}.pdf`,
-  embedUrl: `/magazines/embed/${slug}`,
-  coverImage: localMagazineCovers[slug],
-}));
-
 const magazineFallbackCovers = [
   {
     src: "/images/photo-homeschool-family-table.png",
@@ -558,175 +544,6 @@ const categoryAliases: Record<string, string> = {
   "cooking-bonding": "cooking-and-bonding",
 };
 
-const fallbackCategories: Record<string, WPCategory> = {
-  education: {
-    id: 9001,
-    count: 8,
-    name: "Education",
-    slug: "education",
-    taxonomy: "category",
-    description: "Education stories and guides",
-    link: "/category/education",
-  },
-  parenting: {
-    id: 9002,
-    count: 4,
-    name: "Parenting",
-    slug: "parenting",
-    taxonomy: "category",
-    description: "Parenting stories and support",
-    link: "/category/parenting",
-  },
-  development: {
-    id: 9003,
-    count: 4,
-    name: "Development",
-    slug: "development",
-    taxonomy: "category",
-    description: "Development stories and guides",
-    link: "/category/development",
-  },
-  "cooking-bonding": {
-    id: 9004,
-    count: 3,
-    name: "Cooking & Bonding",
-    slug: "cooking-bonding",
-    taxonomy: "category",
-    description: "Cooking and bonding stories",
-    link: "/category/cooking-bonding",
-  },
-  "ask-dalena": {
-    id: 9005,
-    count: 2,
-    name: "Ask Dalena",
-    slug: "ask-dalena",
-    taxonomy: "category",
-    description: "Practical learning support answers",
-    link: "/category/ask-dalena",
-  },
-};
-
-const fallbackAuthor: WPAuthor = {
-  id: 9001,
-  name: "SA Homeschooling",
-  slug: "sa-homeschooling",
-  description: "SA Homeschooling contributor.",
-};
-
-type FallbackPostSeed = {
-  title: string;
-  slug: string;
-  excerpt: string;
-  category: keyof typeof fallbackCategories;
-  image: (typeof magazineFallbackCovers)[number];
-  date: string;
-};
-
-const fallbackPostSeeds: FallbackPostSeed[] = [
-  {
-    title: "Homeschool Planning In South Africa For 2026",
-    slug: "homeschool-planning-in-sa-2026",
-    excerpt: "Build a steady homeschool year with practical planning, realistic rhythms, and space for your child's pace.",
-    category: "education",
-    image: magazineFallbackCovers[9],
-    date: "2026-06-24T08:00:00+02:00",
-  },
-  {
-    title: "Create A Homeschool Routine That Actually Works",
-    slug: "create-homeschool-routine-south-africa",
-    excerpt: "A flexible routine can bring calm to learning days without turning home education into a rigid timetable.",
-    category: "education",
-    image: magazineFallbackCovers[0],
-    date: "2026-06-20T08:00:00+02:00",
-  },
-  {
-    title: "Online Schools In South Africa: What Families Should Compare",
-    slug: "online-schools-south-africa",
-    excerpt: "Compare structure, support, assessment paths, and costs before choosing an online learning provider.",
-    category: "education",
-    image: magazineFallbackCovers[1],
-    date: "2026-06-17T08:00:00+02:00",
-  },
-  {
-    title: "Supporting A Child With Learning Differences At Home",
-    slug: "learning-disabilities-south-africa-homeschool-guide",
-    excerpt: "Small adaptations can make reading, writing, and concentration easier for learners who need extra support.",
-    category: "development",
-    image: magazineFallbackCovers[7],
-    date: "2026-06-14T08:00:00+02:00",
-  },
-  {
-    title: "Future-Ready Skills For Homeschool Learners",
-    slug: "future-ready-skills-homeschooling-south-africa",
-    excerpt: "Communication, curiosity, and problem solving belong beside academic work in a future-focused education.",
-    category: "education",
-    image: magazineFallbackCovers[10],
-    date: "2026-06-11T08:00:00+02:00",
-  },
-  {
-    title: "Helping Children Build Confidence Before Big School",
-    slug: "big-school-confidence",
-    excerpt: "Confidence grows through gentle preparation, predictable routines, and chances to practise independence.",
-    category: "parenting",
-    image: magazineFallbackCovers[8],
-    date: "2026-06-08T08:00:00+02:00",
-  },
-  {
-    title: "Practical Study Space Ideas For Homeschool Teens",
-    slug: "create-homeschool-study-space-tips-for-teens",
-    excerpt: "A thoughtful study corner can reduce friction and make independent work easier to begin.",
-    category: "education",
-    image: magazineFallbackCovers[3],
-    date: "2026-06-04T08:00:00+02:00",
-  },
-  {
-    title: "Executive Function Skills For Children",
-    slug: "executive-function-skills-for-children-guide",
-    excerpt: "Planning, working memory, and self-monitoring can be taught through everyday homeschool routines.",
-    category: "development",
-    image: magazineFallbackCovers[2],
-    date: "2026-05-30T08:00:00+02:00",
-  },
-  {
-    title: "Classic Books For A Rich Homeschool Reading List",
-    slug: "classic-books-for-children-homeschool-list",
-    excerpt: "A balanced reading list helps children meet memorable stories, strong language, and new ideas.",
-    category: "education",
-    image: magazineFallbackCovers[4],
-    date: "2026-05-26T08:00:00+02:00",
-  },
-  {
-    title: "Healthy Lunch Ideas For Busy Homeschool Days",
-    slug: "healthy-lunch-ideas-kids-tuna-mango-salad",
-    excerpt: "Simple meals keep the day moving and can invite children into practical kitchen learning.",
-    category: "cooking-bonding",
-    image: {
-      src: "/images/recipe-smoothie.jpg",
-      alt: "Fresh homeschool lunch and smoothie ingredients",
-      width: 1200,
-      height: 800,
-      keywords: ["recipe", "lunch", "food"],
-    },
-    date: "2026-05-21T08:00:00+02:00",
-  },
-  {
-    title: "Managing Exam Stress With Calm Habits",
-    slug: "exam-stress-management-sa-student-tips",
-    excerpt: "Preparation, sleep, movement, and encouragement can help learners approach exams with steadier nerves.",
-    category: "development",
-    image: magazineFallbackCovers[5],
-    date: "2026-05-17T08:00:00+02:00",
-  },
-  {
-    title: "Financial Literacy For Young Homeschoolers",
-    slug: "financial-literacy-for-kids-sa-homeschooling",
-    excerpt: "Money conversations can become practical lessons in planning, responsibility, and long-term thinking.",
-    category: "parenting",
-    image: magazineFallbackCovers[6],
-    date: "2026-05-12T08:00:00+02:00",
-  },
-];
-
 const fallbackAds: Record<AdPlacement, SiteAd> = {
   "home-top": {
     id: "ad-home-above-menu",
@@ -820,8 +637,13 @@ function normalizeTag(tag: WPTag): WPTag {
   };
 }
 
+// Keep embedded images, authors and categories without the full SEO schema payload.
+const postResponseFields = "id,date,modified,slug,link,author,featured_media,categories,tags,title,excerpt,content,_links,_embedded,aioseo_head_json.twitter:image,aioseo_head_json.og:image";
+
 function apiUrl(path: string, params: Record<string, string | number | undefined> = {}) {
   const url = new URL(`${WP_API.replace(/\/$/, "")}${path}`);
+
+  if (path === "/wp/v2/posts") url.searchParams.set("_fields", postResponseFields);
 
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== "") {
@@ -861,288 +683,24 @@ async function loadWordPressResponse(url: string, paginated = false) {
 
 const cachedWordPressJson = unstable_cache(
   async (url: string) => prepareWordPressCacheValue(await loadWordPressResponse(url)),
-  ["wordpress-json-compact-v1"],
+  ["wordpress-json-cms-only-v2"],
   { revalidate, tags: ["wordpress-json"] },
 );
 
 const cachedWordPressPaginated = unstable_cache(
   async (url: string) => prepareWordPressCacheValue(await loadWordPressResponse(url, true)),
-  ["wordpress-paginated-compact-v1"],
+  ["wordpress-paginated-cms-only-v2"],
   { revalidate, tags: ["wordpress-paginated"] },
 );
 
 async function fetchWordPressJson(url: string) {
+  if (process.env.NODE_ENV === "development") return loadWordPressResponse(url);
   return resolveWordPressCacheValue(await cachedWordPressJson(url), () => loadWordPressResponse(url));
 }
 
 async function fetchWordPressPaginated(url: string) {
+  if (process.env.NODE_ENV === "development") return await loadWordPressResponse(url, true) as PaginatedPosts;
   return await resolveWordPressCacheValue(await cachedWordPressPaginated(url), () => loadWordPressResponse(url, true)) as PaginatedPosts;
-}
-
-function createFallbackPost(seed: FallbackPostSeed, index: number): WPPost {
-  const category = fallbackCategories[seed.category];
-
-  return {
-    id: 9100 + index,
-    date: seed.date,
-    modified: seed.date,
-    slug: seed.slug,
-    link: `/articles/${seed.slug}`,
-    author: fallbackAuthor.id,
-    featured_media: 9200 + index,
-    categories: [category.id],
-    tags: [],
-    title: { rendered: seed.title },
-    excerpt: { rendered: `<p>${seed.excerpt}</p>` },
-    content: { rendered: `<p>${seed.excerpt}</p>` },
-    _embedded: {
-      author: [fallbackAuthor],
-      "wp:featuredmedia": [
-        {
-          id: 9200 + index,
-          source_url: seed.image.src,
-          alt_text: seed.image.alt,
-          media_details: {
-            width: seed.image.width,
-            height: seed.image.height,
-            sizes: {
-              large: {
-                source_url: seed.image.src,
-                width: seed.image.width,
-                height: seed.image.height,
-              },
-            },
-          },
-        },
-      ],
-      "wp:term": [[category], []],
-    },
-  };
-}
-
-function fallbackImageForPost(post: WPPost, index: number) {
-  const terms = post._embedded?.["wp:term"]?.flat() ?? [];
-  const haystack = `${post.slug} ${post.title.rendered} ${post.excerpt.rendered} ${terms
-    .map((term) => `${term.name} ${term.slug}`)
-    .join(" ")}`
-    .replace(/<[^>]*>/g, " ")
-    .toLowerCase();
-
-  if (haystack.includes("ask dalena") || haystack.includes("ask-dalena") || haystack.includes("newspack-ask-dalena")) {
-    if (haystack.includes("adhd")) return magazineFallbackCovers[8];
-    if (haystack.includes("dyslexia")) return magazineFallbackCovers[3];
-    if (haystack.includes("auditory")) return magazineFallbackCovers[7];
-    if (haystack.includes("motivat") || haystack.includes("unmotivated")) return magazineFallbackCovers[10];
-    if (haystack.includes("mother tongue") || haystack.includes("bilingual")) return magazineFallbackCovers[4];
-    if (haystack.includes("workload") || haystack.includes("schoolwork")) return magazineFallbackCovers[2];
-    if (haystack.includes("study space")) return magazineFallbackCovers[9];
-    if (haystack.includes("focus") || haystack.includes("concentration")) return magazineFallbackCovers[5];
-    if (haystack.includes("technology") || haystack.includes("self-directed")) return magazineFallbackCovers[5];
-
-    const askDalenaImages = [
-      magazineFallbackCovers[7],
-      magazineFallbackCovers[5],
-      magazineFallbackCovers[4],
-      magazineFallbackCovers[8],
-      magazineFallbackCovers[9],
-      magazineFallbackCovers[3],
-      magazineFallbackCovers[10],
-      magazineFallbackCovers[2],
-    ];
-
-    return askDalenaImages[index % askDalenaImages.length];
-  }
-
-  if (haystack.includes("online-schools-in-south-africa")) return magazineFallbackCovers[1];
-  if (haystack.includes("preparing-for-june-matric-exams")) return magazineFallbackCovers[5];
-  if (haystack.includes("homeschooling-in-south-africa-eduxplore")) return magazineFallbackCovers[8];
-  if (haystack.includes("online-school-to-tertiary")) return magazineFallbackCovers[10];
-  if (haystack.includes("maths-vs-maths-literacy")) return magazineFallbackCovers[6];
-  if (haystack.includes("homeschooling-for-beginners")) return magazineFallbackCovers[0];
-  if (haystack.includes("options-after-matric")) return magazineFallbackCovers[4];
-  if (haystack.includes("foundations-for-academic-success")) return magazineFallbackCovers[9];
-  if (haystack.includes("microlearning-strategies")) return magazineFallbackCovers[2];
-  if (haystack.includes("holistic-school-readiness")) return magazineFallbackCovers[8];
-  if (haystack.includes("boost-childs-academic-performance")) return magazineFallbackCovers[7];
-  if (haystack.includes("ai-education-technology")) return magazineFallbackCovers[3];
-
-  if (haystack.includes("online school") || haystack.includes("online schooling") || haystack.includes("online-school")) {
-    return magazineFallbackCovers[1];
-  }
-
-  if (haystack.includes("maths") || haystack.includes("mathematics")) {
-    return magazineFallbackCovers[6];
-  }
-
-  if (haystack.includes("matric") || haystack.includes("exam")) {
-    return index % 2 === 0 ? magazineFallbackCovers[5] : magazineFallbackCovers[9];
-  }
-
-  if (haystack.includes("career") || haystack.includes("tertiary") || haystack.includes("data management")) {
-    return magazineFallbackCovers[8];
-  }
-
-  if (haystack.includes("books") || haystack.includes("reading") || haystack.includes("library")) {
-    return magazineFallbackCovers[4];
-  }
-
-  if (haystack.includes("readiness") || haystack.includes("big school") || haystack.includes("classroom")) {
-    return magazineFallbackCovers[8];
-  }
-
-  if (haystack.includes("academic performance") || haystack.includes("support") || haystack.includes("tutor")) {
-    return magazineFallbackCovers[7];
-  }
-
-  if (haystack.includes("microlearning") || haystack.includes("technology") || haystack.includes("ai ")) {
-    return magazineFallbackCovers[1];
-  }
-
-  if (haystack.includes("beginners") || haystack.includes("new homeschool")) {
-    return magazineFallbackCovers[11];
-  }
-
-  if (haystack.includes("curriculum") || haystack.includes("planning")) {
-    return magazineFallbackCovers[9];
-  }
-
-  if (haystack.includes("education") || haystack.includes("newspack-featured")) {
-    const educationImages = [
-      magazineFallbackCovers[1],
-      magazineFallbackCovers[5],
-      magazineFallbackCovers[8],
-      magazineFallbackCovers[6],
-      magazineFallbackCovers[11],
-      magazineFallbackCovers[4],
-      magazineFallbackCovers[9],
-      magazineFallbackCovers[3],
-      magazineFallbackCovers[7],
-      magazineFallbackCovers[2],
-      magazineFallbackCovers[10],
-      magazineFallbackCovers[0],
-    ];
-
-    return educationImages[index % educationImages.length];
-  }
-
-  const match = magazineFallbackCovers
-    .slice(1)
-    .find((cover) => cover.keywords.some((keyword) => haystack.includes(keyword)));
-
-  return match ?? magazineFallbackCovers[(index * 5) % magazineFallbackCovers.length];
-}
-
-function localizeFallbackPostImage(post: WPPost, index: number): WPPost {
-  const image = fallbackImageForPost(post, index);
-  const existingMedia = post._embedded?.["wp:featuredmedia"]?.[0];
-
-  return {
-    ...post,
-    _embedded: {
-      ...post._embedded,
-      "wp:featuredmedia": [
-        {
-          id: existingMedia?.id ?? post.featured_media ?? 9200 + index,
-          source_url: image.src,
-          alt_text: existingMedia?.alt_text || image.alt,
-          media_details: {
-            width: image.width,
-            height: image.height,
-            sizes: {
-              thumbnail: {
-                source_url: image.src,
-                width: image.width,
-                height: image.height,
-              },
-              medium: {
-                source_url: image.src,
-                width: image.width,
-                height: image.height,
-              },
-              medium_large: {
-                source_url: image.src,
-                width: image.width,
-                height: image.height,
-              },
-              large: {
-                source_url: image.src,
-                width: image.width,
-                height: image.height,
-              },
-              full: {
-                source_url: image.src,
-                width: image.width,
-                height: image.height,
-              },
-            },
-          },
-        },
-      ],
-    },
-  };
-}
-
-const exportedFallbackPosts = (fallbackPostsData as unknown as WPPost[]).map(localizeFallbackPostImage);
-const fallbackPosts: WPPost[] = exportedFallbackPosts.length
-  ? exportedFallbackPosts
-  : fallbackPostSeeds.map((seed, index) => createFallbackPost(seed, index));
-const legacyMagazinePosts = legacyMagazinePostsData as unknown as WPPost[];
-
-function getFallbackCategory(slug: string) {
-  const canonicalSlug = Object.entries(categoryAliases).find(([, alias]) => alias === slug)?.[0] ?? slug;
-  const resolvedSlug = categoryAliases[canonicalSlug] ?? slug;
-  const displayCategory = fallbackCategories[canonicalSlug] ?? fallbackCategories[slug];
-  const matchedCategory = fallbackPosts
-    .flatMap((post) => getPostCategories(post))
-    .find((category) => category.slug === slug || category.slug === resolvedSlug || category.slug === canonicalSlug);
-
-  if (matchedCategory) {
-    return {
-      ...matchedCategory,
-      slug: canonicalSlug,
-      name: displayCategory?.name ?? matchedCategory.name,
-      description: displayCategory?.description ?? matchedCategory.description,
-      link: displayCategory?.link ?? matchedCategory.link,
-    };
-  }
-
-  return displayCategory ?? null;
-}
-
-function getFallbackPosts(options: GetPostsOptions = {}) {
-  const excludedIds = new Set(Array.isArray(options.exclude) ? options.exclude : options.exclude ? [options.exclude] : []);
-  const categoryIds = new Set(Array.isArray(options.categories) ? options.categories : options.categories ? [options.categories] : []);
-  const tagIds = new Set(Array.isArray(options.tags) ? options.tags : options.tags ? [options.tags] : []);
-  const search = options.search?.trim().toLowerCase();
-  const page = Math.max(options.page ?? 1, 1);
-  const perPage = options.perPage ?? 10;
-
-  const filteredPosts = mergeMagazinePosts(fallbackPosts, legacyMagazinePosts).filter((post) => {
-    if (excludedIds.has(post.id)) return false;
-    if (categoryIds.size && !post.categories.some((categoryId) => categoryIds.has(categoryId))) return false;
-    if (tagIds.size && !post.tags?.some((tagId) => tagIds.has(tagId))) return false;
-
-    if (search) {
-      const haystack = `${getPostTitle(post)} ${getPostExcerpt(post)} ${post.slug}`.toLowerCase();
-      if (!haystack.includes(search)) return false;
-    }
-
-    return true;
-  });
-
-  return filteredPosts.slice((page - 1) * perPage, page * perPage);
-}
-
-function getFallbackPaginatedPosts(options: GetPostsOptions = {}): PaginatedPosts {
-  const page = Math.max(options.page ?? 1, 1);
-  const perPage = options.perPage ?? 10;
-  const allMatchingPosts = getFallbackPosts({ ...options, page: 1, perPage: fallbackPosts.length + legacyMagazinePosts.length });
-
-  return {
-    posts: allMatchingPosts.slice((page - 1) * perPage, page * perPage),
-    total: allMatchingPosts.length,
-    totalPages: Math.max(Math.ceil(allMatchingPosts.length / perPage), 1),
-  };
 }
 
 async function wpFetch<T>(path: string, params?: Record<string, string | number | undefined>) {
@@ -1172,81 +730,63 @@ function listParam(value?: number | number[]) {
   return Array.isArray(value) ? value.join(",") : value;
 }
 
-async function getMissingMagazinePosts() {
-  try {
-    const existing = await wpFetch<Array<{ slug: string }>>("/wp/v2/posts", {
-      slug: legacyMagazinePosts.map(post => post.slug).join(","), per_page: 100, _fields: "slug",
-    });
-    const slugs = new Set(existing.map(post => post.slug));
-    return legacyMagazinePosts.filter(post => !slugs.has(post.slug));
-  } catch {
-    const slugs = new Set(fallbackPosts.map(post => post.slug));
-    return legacyMagazinePosts.filter(post => !slugs.has(post.slug));
-  }
-}
-
-async function getSupplementedPosts(options: GetPostsOptions): Promise<PaginatedPosts> {
-  const perPage = Math.min(100, Math.max(1, options.perPage ?? 10));
-  const page = Number.isSafeInteger(options.page) && (options.page ?? 0) > 0 ? options.page! : 1;
-  const imported = filterMagazinePosts(await getMissingMagazinePosts(), options);
-  const params = { _embed: options.embed ?? 1, categories: listParam(options.categories), tags: listParam(options.tags), exclude: listParam(options.exclude), search: options.search };
-  if (!imported.length) return wpFetchPaginated("/wp/v2/posts", { ...params, per_page: perPage, page });
-  // Fetch the prefix needed for a stable combined page; imports must not repeat on page two.
-  const prefix = page * perPage;
-  const batchSize = Math.min(100, prefix);
-  const first = await wpFetchPaginated("/wp/v2/posts", { ...params, per_page: batchSize, page: 1 });
-  const batchCount = Math.ceil(Math.min(prefix, first.total) / batchSize);
-  const remaining = await Promise.all(Array.from({ length: Math.max(0, batchCount - 1) }, (_, index) =>
-    wpFetchPaginated("/wp/v2/posts", { ...params, per_page: batchSize, page: index + 2 })));
-  const primary = [...first.posts, ...remaining.flatMap(result => result.posts)];
-  const combined = mergeMagazinePosts(primary, imported);
-  const duplicateCount = imported.filter(post => primary.some(candidate => candidate.slug === post.slug)).length;
-  const total = first.total + imported.length - duplicateCount;
-  return { posts: combined.slice((page - 1) * perPage, page * perPage), total, totalPages: Math.max(1, Math.ceil(total / perPage)) };
+async function getCmsPosts(options: GetPostsOptions): Promise<PaginatedPosts> {
+  return wpFetchPaginated("/wp/v2/posts", {
+    status: "publish",
+    _embed: options.embed ?? 1,
+    categories: listParam(options.categories),
+    tags: listParam(options.tags),
+    exclude: listParam(options.exclude),
+    search: options.search,
+    per_page: Math.min(100, Math.max(1, options.perPage ?? 10)),
+    page: Number.isSafeInteger(options.page) && (options.page ?? 0) > 0 ? options.page! : 1,
+  });
 }
 
 export async function getPosts(options: GetPostsOptions = {}) {
   try {
-    return (await getSupplementedPosts(options)).posts;
+    return (await getCmsPosts(options)).posts;
   } catch (error) {
     logWordPressError("getPosts failed", error);
-    return getFallbackPosts(options);
+    return [];
   }
 }
 
 export async function getPaginatedPosts(options: GetPostsOptions = {}) {
   try {
-    return await getSupplementedPosts(options);
+    return await getCmsPosts(options);
   } catch (error) {
     logWordPressError("getPaginatedPosts failed", error);
-    return getFallbackPaginatedPosts(options);
+    return { posts: [], total: 0, totalPages: 0 };
   }
 }
 
 export async function getPostBySlug(slug: string) {
   try {
     const posts = await wpFetch<WPPost[]>("/wp/v2/posts", {
+      status: "publish",
       _embed: 1,
       slug: encodeURIComponent(slug),
       per_page: 1,
     });
 
-    return posts[0] ?? legacyMagazinePosts.find(post => post.slug === slug) ?? null;
+    return posts[0] ?? null;
   } catch (error) {
     logWordPressError(`getPostBySlug failed for "${slug}"`, error);
-    return fallbackPosts.find((post) => post.slug === slug) ?? legacyMagazinePosts.find(post => post.slug === slug) ?? null;
+    return null;
   }
 }
 
 export async function getAdjacentPosts(post: WPPost) {
   function choose(posts: WPPost[], direction: "before" | "after") {
-    return mergeMagazinePosts(posts, legacyMagazinePosts)
+    return posts
       .filter(candidate => candidate.slug !== post.slug && (direction === "before" ? candidate.date < post.date : candidate.date > post.date))
       .sort((a, b) => direction === "before" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date))[0] ?? null;
   }
   async function find(direction: "before" | "after") {
     try {
       const posts = await wpFetch<WPPost[]>("/wp/v2/posts", {
+      status: "publish",
         per_page: 1, _embed: 1, exclude: post.id,
         [direction]: post.date,
         order: direction === "before" ? "desc" : "asc",
@@ -1254,7 +794,7 @@ export async function getAdjacentPosts(post: WPPost) {
       });
       return choose(posts, direction);
     } catch {
-      return choose(fallbackPosts, direction);
+      return null;
     }
   }
   const [previous, next] = await Promise.all([find("before"), find("after")]);
@@ -1272,9 +812,7 @@ export async function getCategories() {
     return categories.map(normalizeCategory);
   } catch (error) {
     logWordPressError("getCategories failed", error);
-    return Array.from(
-      new Map(fallbackPosts.flatMap((post) => getPostCategories(post)).map((category) => [category.id, category])).values(),
-    );
+    return [];
   }
 }
 
@@ -1288,7 +826,7 @@ export async function getCategoryBySlug(slug: string) {
     return categories[0] ? normalizeCategory(categories[0]) : null;
   } catch (error) {
     logWordPressError(`getCategoryBySlug failed for "${slug}"`, error);
-    return getFallbackCategory(slug);
+    return null;
   }
 }
 
@@ -1383,11 +921,12 @@ export async function getAuthorBySlug(slug: string) {
 export async function getPostsByAuthor(authorId: number, perPage = 12) {
   try {
     const posts = await wpFetch<WPPost[]>("/wp/v2/posts", {
+      status: "publish",
       _embed: 1,
       author: authorId,
       per_page: perPage,
     });
-    return mergeMagazinePosts(posts, legacyMagazinePosts.filter(post => post.author === authorId)).slice(0, perPage);
+    return posts;
   } catch (error) {
     logWordPressError(`getPostsByAuthor failed for "${authorId}"`, error);
     return [];
@@ -1429,7 +968,7 @@ export async function getMagazinePosts() {
     };
   });
   const postIssues = relatedPosts.flatMap(getMagazineIssuesFromPost);
-  const issues = dedupeMagazineIssues([...postIssues, ...enrichedEmbeddedIssues, ...localMagazineIssues]);
+  const issues = dedupeMagazineIssues([...postIssues, ...enrichedEmbeddedIssues]);
 
   return applyMagazineFallbackCovers(issues.map((issue) => ({
     ...issue,

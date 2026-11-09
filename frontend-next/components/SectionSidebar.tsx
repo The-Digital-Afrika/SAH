@@ -1,3 +1,4 @@
+import { getArticlePath } from "@/lib/article-path";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getAdByPlacement, getMagazinePosts, getPosts, getPostTitle } from "@/lib/wordpress";
@@ -43,7 +44,7 @@ export default async function SectionSidebar({ idPrefix, children, features, sho
           <ol>
             {posts.map((post) => (
               <li key={post.id}>
-                <Link href={`/articles/${post.slug}`}>{getPostTitle(post)}</Link>
+                <Link href={getArticlePath(post)}>{getPostTitle(post)}</Link>
               </li>
             ))}
           </ol>

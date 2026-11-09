@@ -1,3 +1,4 @@
+import { getArticlePath } from "@/lib/article-path";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -27,7 +28,7 @@ export default function FeaturedStoryCard({ post, home = false }: FeaturedStoryC
   return (
     <article className={`${styles.card}${home ? " home-lead-story" : ""}`}
       data-featured-story-card data-home-lead-card={home || undefined}>
-      <Link className={styles.link} href={`/articles/${post.slug}`}>
+      <Link className={styles.link} href={getArticlePath(post)}>
         <div className={styles.media}>
           <Image className={`${styles.photo}${magazine ? ` ${styles.magazine}` : ""}`}
             src={image.src} alt={image.alt} fill sizes="(max-width: 1100px) 100vw, 768px" preload />

@@ -21,7 +21,7 @@ const promotions = [
     theme: "community",
   },
   {
-    href: "/articles",
+    href: "/education",
     title: "Make room for learning",
     description: "Explore education stories and practical learning ideas.",
     action: "Explore education",

@@ -1,3 +1,4 @@
+import { getCategoryPath } from "@/lib/category-path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import ArticleCard from "@/components/ArticleCard";
@@ -54,12 +55,12 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     title: category.name,
     description,
     alternates: {
-      canonical: `/category/${category.slug}`,
+      canonical: getCategoryPath(category.slug),
     },
     openGraph: {
       title: `${category.name} | SA Homeschooling & Beyond`,
       description,
-      url: `/category/${category.slug}`,
+      url: getCategoryPath(category.slug),
     },
   };
 }
@@ -114,9 +115,9 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
                 </p>
               ) : null}
               <nav className="post-navigation" aria-label={`${pageCategory.name} pagination`}>
-                {page > 1 ? <Link href={`/category/${pageCategory.slug}?page=${page - 1}`}>Previous page</Link> : <span />}
+                {page > 1 ? <Link href={`${getCategoryPath(pageCategory.slug)}?page=${page - 1}`}>Previous page</Link> : <span />}
                 {page < totalPages ? (
-                  <Link href={`/category/${pageCategory.slug}?page=${page + 1}`}>View More</Link>
+                  <Link href={`${getCategoryPath(pageCategory.slug)}?page=${page + 1}`}>View More</Link>
                 ) : (
                   <span />
                 )}
