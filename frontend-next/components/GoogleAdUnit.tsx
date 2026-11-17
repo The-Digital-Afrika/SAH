@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useId } from "react";
+import { useEffect, useId, useMemo, useState, type CSSProperties } from "react";
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import type { SiteAd } from "@/lib/wordpress";
+import { availableAdWidth, responsiveSlotMapping, responsiveSlotSizes } from "@/lib/home-leaderboard";
 
 type GoogleAdUnitProps = {
   ad: SiteAd;
@@ -17,6 +19,7 @@ type GoogleSlot = {
   addService: (service: GooglePubAdsService) => GoogleSlot;
   defineSizeMapping?: (sizeMapping: unknown) => GoogleSlot;
   getSlotElementId?: () => string;
+  getAdUnitPath?: () => string;
   setConfig?: (config: GoogleSlotConfig) => GoogleSlot;
   setTargeting?: (key: string, value: string | string[]) => GoogleSlot;
 };
@@ -34,14 +37,14 @@ type GoogleSizeMapping = {
 type GooglePubAdsService = {
   collapseEmptyDivs?: () => void;
   addEventListener?: (eventName: "slotRenderEnded", listener: (event: GoogleSlotRenderEvent) => void) => void;
+  removeEventListener?: (eventName: "slotRenderEnded", listener: (event: GoogleSlotRenderEvent) => void) => void;
   enableSingleRequest?: () => void;
 };
 
 type GoogleSlotRenderEvent = {
-  slot: {
-    getSlotElementId: () => string;
-  };
+  slot: GoogleSlot;
   isEmpty: boolean;
+  size?: GoogleSlotSize | null;
 };
 
 type GoogleTag = {
@@ -75,54 +78,26 @@ function ensureGooglePublisherTagQueue() {
 }
 
 function clientId(baseId: string, generatedId: string, idSuffix?: string) {
-  const suffix = idSuffix ?? generatedId.replace(/[^a-zA-Z0-9_-]/g, "");
+  const suffix = [idSuffix, generatedId].filter(Boolean).join("-").replace(/[^a-zA-Z0-9_-]/g, "");
 
   return `${baseId}-${suffix}`;
 }
 
-function findSize(sizes: GoogleSlotSize[], width: number, height: number) {
-  return sizes.find(([sizeWidth, sizeHeight]) => sizeWidth === width && sizeHeight === height);
-}
-
-function compactAdSizes(sizes: GoogleSlotSize[]) {
-  const compactSizes = sizes.filter(([width, height]) => width <= 728 && height <= 250);
-
-  return compactSizes.length ? compactSizes : sizes;
-}
-
-function responsiveAdSizes(sizes: GoogleSlotSize[]) {
-  const mobileRectangle = findSize(sizes, 300, 250);
-  const compactSizes = compactAdSizes(sizes);
-  const wideSizes = sizes.filter(([width]) => width >= 728);
-  const desktopSizes = wideSizes.length ? wideSizes : sizes;
-  const tabletSizes = wideSizes.filter(([width]) => width <= 728);
-  const mobileSizes = mobileRectangle ? [mobileRectangle] : compactSizes.filter(([width]) => width <= 320);
-
+function measureSlot(element: HTMLElement) {
+  const styles = window.getComputedStyle(element);
+  const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
   return {
-    desktop: desktopSizes,
-    tablet: tabletSizes.length ? tabletSizes : compactSizes,
-    mobile: mobileSizes.length ? mobileSizes : compactSizes,
+    viewportWidth,
+    width: availableAdWidth(element.clientWidth, parseFloat(styles.paddingLeft) || 0, parseFloat(styles.paddingRight) || 0, viewportWidth),
   };
-}
-
-function sizesForElement(sizes: GoogleSlotSize[], divId: string) {
-  const measuredWidth = Math.floor(document.getElementById(divId)?.getBoundingClientRect().width ?? 0);
-  const elementWidth = measuredWidth > 0 ? measuredWidth : window.innerWidth;
-  const fittingSizes = sizes.filter(([width]) => width <= elementWidth);
-
-  return fittingSizes.length ? fittingSizes : sizes.filter(([width]) => width <= 320);
 }
 
 function adUnitPath(networkCode: string, adUnitCode: string) {
   return adUnitCode.startsWith("/") ? adUnitCode : `/${networkCode}/${adUnitCode}`;
 }
 
-function normalizedPathname() {
-  return window.location.pathname.replace(/^\/+|\/+$/g, "");
-}
-
-function commonTargeting() {
-  const path = normalizedPathname();
+function commonTargeting(pathname: string) {
+  const path = pathname.replace(/^\/+|\/+$/g, "");
   const [section, slug] = path.split("/");
   const isHome = !path;
 
@@ -134,8 +109,8 @@ function commonTargeting() {
   };
 }
 
-function applyTargeting(slot: GoogleSlot) {
-  const targeting = commonTargeting();
+function applyTargeting(slot: GoogleSlot, pathname: string) {
+  const targeting = commonTargeting(pathname);
 
   if (slot.setConfig) {
     slot.setConfig({ targeting });
@@ -162,118 +137,142 @@ function configureGoogleTag(googleTag: GoogleTag, pubads: GooglePubAdsService) {
 
 export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }: GoogleAdUnitProps) {
   const generatedId = useId();
+  const pathname = usePathname() ?? "/";
   const divId = clientId(ad.id, generatedId, idSuffix);
-  const shouldUseGoogle = Boolean(ad.google);
-  const htmlAd = shouldUseGoogle ? undefined : ad.html;
-  const hasHtmlAd = Boolean(htmlAd);
+  // Server navigation may supply a new object containing the same configuration.
+  const googleKey = ad.google ? JSON.stringify(ad.google) : "";
+  const google = useMemo(() => googleKey ? JSON.parse(googleKey) as NonNullable<SiteAd["google"]> : undefined, [googleKey]);
+  const leaderboard = google?.adUnitCode.split("/").pop() === "sahomeschooling_home_leaderboard";
+  const responsiveHome = Boolean(google?.responsiveHomeLeaderboard);
+  const htmlAd = google ? undefined : ad.html;
+  const [sizesKey, setSizesKey] = useState<string | null>(null);
+  const suppressed = sizesKey === "[]";
+  const selectedSizes: GoogleSlotSize[] = sizesKey ? JSON.parse(sizesKey) : [];
+  const reservedHeight = selectedSizes.length ? Math.max(...selectedSizes.map(([, height]) => height)) : undefined;
 
   useEffect(() => {
-    const google = ad.google;
+    if (!google) return;
+    const element = document.getElementById(divId);
+    if (!element) return;
+    const measure = () => {
+      const { width, viewportWidth } = measureSlot(element);
+      setSizesKey(JSON.stringify(responsiveSlotSizes(google.sizes, width, viewportWidth, leaderboard)));
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    if (element.parentElement) observer.observe(element.parentElement);
+    window.addEventListener("resize", measure);
+    measure();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [divId, google, leaderboard]);
 
-    if (!google) return undefined;
-
+  useEffect(() => {
+    if (!google || !sizesKey || sizesKey === "[]") return;
     ensureGooglePublisherTagQueue();
-
     let slot: GoogleSlot | null = null;
+    let pubads: GooglePubAdsService | undefined;
     let cancelled = false;
-    const pendingTimeout = window.setTimeout(() => {
+    const onRender = (event: GoogleSlotRenderEvent) => {
+      // Ignore late events from a destroyed slot sharing this element ID.
+      if (cancelled || event.slot !== slot) return;
       const element = document.getElementById(divId);
-      if (!element || element.classList.contains("google-ad-slot--loaded")) return;
-
+      if (!element) return;
+      if (event.size) {
+        element.style.setProperty("--ad-creative-width", `${event.size[0]}px`);
+        element.style.setProperty("--ad-creative-height", `${event.size[1]}px`);
+        element.style.setProperty("--home-creative-width", `${event.size[0]}px`);
+        element.style.setProperty("--home-creative-height", `${event.size[1]}px`);
+      }
       element.classList.remove("google-ad-slot--pending");
-      element.classList.add("google-ad-slot--empty");
-    }, 3000);
-    const path = adUnitPath(google.networkCode, google.adUnitCode);
+      element.classList.toggle("google-ad-slot--loaded", !event.isEmpty);
+      element.classList.toggle("google-ad-slot--empty", event.isEmpty);
+    };
 
     window.googletag?.cmd.push(() => {
       const googleTag = window.googletag;
-      if (!googleTag?.defineSlot || !googleTag.pubads || !googleTag.enableServices || !googleTag.display) return;
-      if (cancelled || !document.getElementById(divId)) return;
-
-      window.saHomeschoolingAdSlots = window.saHomeschoolingAdSlots ?? {};
-
-      const previousSlot = window.saHomeschoolingAdSlots[divId];
-      if (previousSlot) {
-        googleTag.destroySlots?.([previousSlot]);
-        delete window.saHomeschoolingAdSlots[divId];
+      const element = document.getElementById(divId);
+      if (cancelled || !element || !googleTag?.defineSlot || !googleTag.pubads || !googleTag.enableServices || !googleTag.display) return;
+      // Re-measure when GPT is ready, rather than trusting a queued measurement.
+      const { width, viewportWidth } = measureSlot(element);
+      const slotSizes = responsiveSlotSizes(google.sizes, width, viewportWidth, leaderboard);
+      const currentSizesKey = JSON.stringify(slotSizes);
+      if (currentSizesKey !== sizesKey) {
+        setSizesKey(currentSizesKey);
+        return;
       }
-
-      const slotSizes = sizesForElement(google.sizes, divId);
-
-      slot = googleTag.defineSlot(path, slotSizes.length ? slotSizes : google.sizes, divId);
+      if (!slotSizes.length) return;
+      window.saHomeschoolingAdSlots = window.saHomeschoolingAdSlots ?? {};
+      const previousSlot = window.saHomeschoolingAdSlots[divId];
+      if (previousSlot) googleTag.destroySlots?.([previousSlot]);
+      slot = googleTag.defineSlot(adUnitPath(google.networkCode, google.adUnitCode), slotSizes, divId);
       if (!slot) return;
-
+      window.saHomeschoolingAdSlots[divId] = slot;
       const sizeMapping = googleTag.sizeMapping?.();
       if (sizeMapping && slot.defineSizeMapping) {
-        const responsiveSizes = responsiveAdSizes(slotSizes.length ? slotSizes : google.sizes);
-
-        slot.defineSizeMapping(
-          sizeMapping
-            .addSize([970, 0], responsiveSizes.desktop)
-            .addSize([728, 0], responsiveSizes.tablet)
-            .addSize([0, 0], responsiveSizes.mobile)
-            .build()
-        );
+        // Only map sizes admitted by the current container/viewport measurement.
+        responsiveSlotMapping(slotSizes, width, leaderboard).forEach(({ viewport, sizes }) => {
+          sizeMapping.addSize(viewport, sizes);
+        });
+        const mapping = sizeMapping.build();
+        if (mapping) slot.defineSizeMapping(mapping);
       }
-
-      window.saHomeschoolingAdSlots[divId] = slot;
-      const pubads = googleTag.pubads();
-
-      applyTargeting(slot);
+      pubads = googleTag.pubads();
+      applyTargeting(slot, pathname);
+      // Leave dimensions under frontend control so an empty response cannot hide
+      // the measurement surface or cause a resize/re-request loop.
+      slot.setConfig?.({ collapseDiv: "DISABLED" });
       slot.addService(pubads);
-
       if (!window.saHomeschoolingAdsConfigured) {
         configureGoogleTag(googleTag, pubads);
-        pubads.addEventListener?.("slotRenderEnded", (event) => {
-          const element = document.getElementById(event.slot.getSlotElementId());
-          if (!element) return;
-
-          element.classList.remove("google-ad-slot--pending");
-          element.classList.toggle("google-ad-slot--loaded", !event.isEmpty);
-          element.classList.toggle("google-ad-slot--empty", event.isEmpty);
-        });
         window.saHomeschoolingAdsConfigured = true;
       }
-
+      pubads.addEventListener?.("slotRenderEnded", onRender);
+      element.classList.remove("google-ad-slot--loaded", "google-ad-slot--empty");
+      element.classList.add("google-ad-slot--pending");
       googleTag.enableServices();
       googleTag.display(divId);
     });
 
     return () => {
       cancelled = true;
-      window.clearTimeout(pendingTimeout);
-
       if (!slot) return;
-
+      pubads?.removeEventListener?.("slotRenderEnded", onRender);
+      const destroyedSlot = slot;
       window.googletag?.cmd.push(() => {
-        window.googletag?.destroySlots?.([slot as GoogleSlot]);
-        if (window.saHomeschoolingAdSlots?.[divId] === slot) {
+        window.googletag?.destroySlots?.([destroyedSlot]);
+        if (window.saHomeschoolingAdSlots?.[divId] === destroyedSlot) {
           delete window.saHomeschoolingAdSlots[divId];
         }
       });
     };
-  }, [ad.google, ad.html, divId]);
+  }, [google, divId, leaderboard, pathname, sizesKey]);
 
   return (
     <>
-      {shouldUseGoogle ? (
+      {google ? (
         <Script id={gptScriptId} src="https://securepubads.g.doubleclick.net/tag/js/gpt.js" strategy="afterInteractive" />
       ) : null}
-      <figure className="ad-unit-frame">
+      <figure
+        className={`ad-unit-frame${google ? " responsive-ad-frame" : ""}${responsiveHome ? " home-leaderboard-frame" : ""}`}
+        style={google ? { "--ad-reserved-height": reservedHeight === undefined ? undefined : `${reservedHeight}px` } as CSSProperties : undefined}
+      >
         <div
           id={divId}
           className={[
             "google-ad-slot",
-            shouldUseGoogle ? "google-ad-slot--live" : "",
-            shouldUseGoogle ? "google-ad-slot--pending" : "",
-            hasHtmlAd ? "google-ad-slot--html" : "",
+            google ? "google-ad-slot--live google-ad-slot--pending" : "",
+            suppressed ? "google-ad-slot--suppressed" : "",
+            htmlAd ? "google-ad-slot--html" : "",
             sizeClass,
             className,
-          ]
-            .filter(Boolean)
-            .join(" ")}
+          ].filter(Boolean).join(" ")}
           data-ad-unit={ad.dataUnit}
-          data-google-ad-unit={ad.google?.adUnitCode}
+          data-google-ad-unit={google?.adUnitCode}
+          data-responsive-ad={google ? leaderboard ? "leaderboard" : "sidebar" : undefined}
+          data-home-leaderboard={responsiveHome ? "true" : undefined}
           aria-label="Advertisement"
           dangerouslySetInnerHTML={htmlAd ? { __html: htmlAd } : undefined}
         />

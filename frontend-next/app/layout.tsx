@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleTagManager } from "@next/third-parties/google";
 import SignupPopup from "@/components/SignupPopup";
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <GoogleTagManager gtmId="GTM-5RK38GC2" />
       <body>
         {children}
         <SignupPopup />
