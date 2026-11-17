@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import MagazineCard from "@/components/MagazineCard";
-import NewsletterAdStack from "@/components/NewsletterAdStack";
-import ResourceCards from "@/components/ResourceCards";
+import styles from "@/components/MagazineLibrary.module.css";
 import SectionPageLayout from "@/components/SectionPageLayout";
-import SectionIntro from "@/components/SectionIntro";
 import { getMagazinePosts } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
@@ -29,31 +27,16 @@ export default async function MagazinesPage() {
       <Header />
 
       <main className="magazines-main">
-        <SectionPageLayout idPrefix="magazines">
-          <SectionIntro section="magazines" />
-          <section className="magazine-grid" aria-label="Magazine library">
-            {magazines.length ? (
-              <>
-                {magazines.slice(0, 2).map((issue) => (
-                  <MagazineCard issue={issue} key={`${issue.id}-${issue.slug}`} />
-                ))}
-
-                {magazines.length > 2 ? (
-                  <div className="magazine-newsletter-break">
-                    <NewsletterAdStack idPrefix="magazines-inline" className="magazine-newsletter-stack" fallbackAds />
-                  </div>
-                ) : null}
-
-                {magazines.slice(2).map((issue) => (
-                  <MagazineCard issue={issue} key={`${issue.id}-${issue.slug}`} />
-                ))}
-              </>
-            ) : (
-              <p className="archive-loading">Magazine issues are temporarily unavailable.</p>
-            )}
+        <SectionPageLayout idPrefix="magazines" showFooterAd={false}>
+          <section className={styles.library} aria-labelledby="magazine-library-title">
+            <h1 id="magazine-library-title">Explore Our Magazines</h1>
+            <div className={styles.grid}>
+              {magazines.length ? magazines.map((issue) => (
+                <MagazineCard issue={issue} key={issue.id + '-' + issue.slug} />
+              )) : <p>Magazine issues are temporarily unavailable.</p>}
+            </div>
           </section>
 
-          <ResourceCards />
         </SectionPageLayout>
       </main>
 

@@ -1,0 +1,39 @@
+/* Loaded banners must use their column width, not the viewport width. */
+.layout:global(.section-page-layout) .content > :is(:global(.home-ad-row), :global(.archive-pagination-ad)) {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding-inline: 0 !important;
+}
+
+.layout:global(.section-page-layout) .content :global(.ad-unit-frame) {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.layout:global(.section-page-layout) .content :global(.google-ad-slot) {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+.layout:global(.section-page-layout) .content :is(:global(.google-ad-slot--leaderboard), :global(.google-ad-slot--leaderboard-sm), :global(.google-ad-slot--wide-banner)) {
+  width: min(970px, 100%) !important;
+  padding-inline: 0 !important;
+}
+
+.layout:global(.section-page-layout) .content :global(.google-ad-slot) :is(div, a, ins, iframe, img) {
+  box-sizing: border-box !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.layout:global(.section-page-layout) .content :global(.google-ad-slot) img {
+  height: auto !important;
+  object-fit: contain !important;
+}

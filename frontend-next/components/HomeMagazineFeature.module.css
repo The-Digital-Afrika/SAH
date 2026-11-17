@@ -1,84 +1,67 @@
-.feature {
-  container-type: inline-size;
-  container-name: home-magazine;
-}
-
-:global(.home-page.modern-home) :global(.home-community-magazine) a.card {
+.feature.feature {
   width: 100%;
   min-width: 0;
-  padding: 24px !important;
-  box-sizing: border-box;
-  grid-template-columns: minmax(0, 1fr) !important;
-  grid-template-areas:
-    "kicker"
-    "title"
-    "cover"
-    "copy"
-    "action" !important;
-  gap: 16px !important;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0 !important;
+  background: #fff;
+  box-shadow: none;
 }
 
-:global(.home-page.modern-home) :global(.home-community-magazine) a.card > :global(.kicker) {
-  min-width: 0;
-  max-width: 100%;
-  font-size: 14px !important;
+.heading { padding: 14px 16px 10px; text-align: center; }
+
+.feature .heading h3 {
+  margin: 0 0 6px !important;
+  color: var(--brand-pink) !important;
+  font-family: var(--heading-font) !important;
+  font-size: 20px !important;
+  font-weight: 400 !important;
   line-height: 1.3 !important;
   letter-spacing: 0 !important;
-  overflow-wrap: anywhere;
+  text-transform: uppercase;
+  overflow-wrap: break-word;
 }
 
-:global(.home-page.modern-home) :global(.home-community-magazine) a.card > h3 {
-  min-width: 0;
-  max-width: 100% !important;
-  font-size: 32px !important;
-  line-height: 1.15 !important;
+.feature .heading p {
+  margin: 0 !important;
+  color: #171b22 !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
   letter-spacing: 0 !important;
-  overflow-wrap: anywhere;
 }
 
-:global(.home-page.modern-home) :global(.home-community-magazine) a.card > img {
-  width: min(280px, 100%) !important;
-  max-width: 100%;
+.feature .cover {
+  display: block;
+  margin: 0 20px;
+  overflow: hidden;
+  border-radius: 12px !important;
+}
+
+.feature .cover img {
+  display: block;
+  width: 100% !important;
   height: auto !important;
-  justify-self: center !important;
   object-fit: contain !important;
+  border-radius: 12px !important;
 }
 
-:global(.home-page.modern-home) :global(.home-community-magazine) a.card > p {
-  min-width: 0;
-  max-width: 100% !important;
-  display: block !important;
-  -webkit-line-clamp: unset !important;
-  overflow: visible !important;
-  overflow-wrap: anywhere;
-  font-size: 15px !important;
-  line-height: 1.55 !important;
+.action { padding: 12px 18px 16px; }
+
+.read {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 118px;
+  margin: 0 auto;
+  min-height: 32px;
+  padding: 6px 20px;
+  border-radius: 999px;
+  background: var(--brand-pink);
+  color: #fff;
+  font: 400 13px/1.4 var(--body-font);
+  text-decoration: none;
 }
 
-:global(.home-page.modern-home) :global(.home-community-magazine) a.card > :global(.home-magazine-feature__cta) {
-  max-width: 100%;
-  white-space: normal;
-  text-align: center;
-}
-
-@container home-magazine (min-width: 560px) {
-  :global(.home-page.modern-home) :global(.home-community-magazine) a.card {
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
-    grid-template-areas:
-      "cover kicker"
-      "cover title"
-      "cover copy"
-      "cover action" !important;
-    column-gap: 24px !important;
-  }
-}
-
-@container home-magazine (max-width: 359px) {
-  :global(.home-page.modern-home) :global(.home-community-magazine) a.card {
-    padding: 20px !important;
-  }
-
-  :global(.home-page.modern-home) :global(.home-community-magazine) a.card > h3 {
-    font-size: 28px !important;
-  }
-}
+.read:hover { background: var(--brand-pink-dark); }
+.read:focus-visible, .cover:focus-visible { outline: 2px solid var(--brand-pink); outline-offset: -2px; }

@@ -2,6 +2,18 @@ import path from "path";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      { source: "/articles", destination: "/education", permanent: true },
+      { source: "/category/education", destination: "/education", permanent: true },
+      { source: "/category/development", destination: "/development", permanent: true },
+      { source: "/category/parenting", destination: "/parenting", permanent: true },
+      { source: "/category/partner-2", destination: "/partners", permanent: true },
+      { source: "/category/cooking-bonding", destination: "/cooking-bonding", permanent: true },
+      { source: "/category/cooking-and-bonding", destination: "/cooking-bonding", permanent: true },
+      { source: "/category/ask-dalena", destination: "/ask-dalena", permanent: true },
+    ];
+  },
   experimental: {
     turbopackFileSystemCacheForDev: false,
   },

@@ -12,7 +12,7 @@
 :global(.section-page-content) .panel .label {
   margin: 0 0 20px;
   color: #595959;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-lato);
   font-size: 13px;
   font-weight: 400;
   line-height: 1.5;
@@ -23,7 +23,7 @@
   max-width: 100%;
   margin: 0 0 18px;
   color: #242424;
-  font-family: Arial, Helvetica, sans-serif !important;
+  font-family: var(--font-lato) !important;
   font-size: 32px;
   font-weight: 700;
   line-height: 1.25;
@@ -35,7 +35,7 @@
 :global(.section-page-content) .panel .description {
   margin: 0;
   color: #454545;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-lato);
   font-size: 15px;
   font-weight: 400;
   line-height: 1.65;

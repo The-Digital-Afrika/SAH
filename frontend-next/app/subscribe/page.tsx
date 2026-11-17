@@ -3,7 +3,7 @@ import AdBanner from "@/components/AdBanner";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterForm from "@/components/NewsletterForm";
-import ResourceCards from "@/components/ResourceCards";
+import styles from "@/components/SubscribeForm.module.css";
 
 export const metadata: Metadata = {
   title: "Newsletter",
@@ -20,22 +20,22 @@ export const metadata: Metadata = {
 
 export default function SubscribePage() {
   return (
-    <div className="subscribe-page">
+    <div className={`subscribe-page ${styles.page}`}>
       <Header />
 
       <main className="newsletter-page">
         <section className="newsletter-panel">
-          <NewsletterForm idPrefix="subscribe" className="compact-form" title="Join our community" headingLevel="h1" />
+          <NewsletterForm idPrefix="subscribe" className={`compact-form ${styles.form}`} title="Join our community" headingLevel="h1" />
         </section>
 
         <AdBanner
           placement="subscribe-bottom"
           idSuffix="subscribe-before-resources"
-          wrapClassName="archive-pagination-ad"
+          wrapClassName={`archive-pagination-ad ${styles.ad}`}
           variant="google-ad-slot--wide-banner"
+          fallback
         />
 
-        <ResourceCards />
       </main>
 
       <Footer />

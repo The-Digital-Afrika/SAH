@@ -1,0 +1,55 @@
+.reading.reading:global(.article-content-card) {
+  font-size: 18px !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0 !important;
+}
+
+.reading.reading :global(.article-inline-heading h1) {
+  margin-bottom: 16px !important;
+  font-size: 32px !important;
+  line-height: 1.25 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: break-word;
+}
+
+.reading.reading :global(.article-inline-heading p) {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  letter-spacing: 0 !important;
+}
+
+.reading.reading :global(.intro-box p),
+.reading.reading :global(.intro-box em),
+.reading.reading .body :is(p, li, blockquote, td, th) {
+  font-size: 18px !important;
+  line-height: 1.65 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: break-word;
+}
+
+.reading.reading .body :is(p, ul, ol, blockquote) {
+  margin-block: 0 18px !important;
+}
+
+.reading.reading .body :is(h1, h2, h3, h4, h5, h6) {
+  margin-block: 24px 12px !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0 !important;
+  overflow-wrap: break-word;
+}
+
+.reading.reading .body :global(h1) { font-size: 28px !important; }
+.reading.reading .body :global(h2) { font-size: 22px !important; }
+.reading.reading .body :global(h3) { font-size: 20px !important; }
+.reading.reading .body :global(h4) { font-size: 18px !important; }
+.reading.reading .body :is(h5, h6) { font-size: 16px !important; }
+
+.reading.reading .body :is(strong, b, em, a, span) {
+  font-size: inherit !important;
+  line-height: inherit !important;
+  letter-spacing: 0 !important;
+}
+
+@media (max-width: 760px) {
+  .reading.reading :global(.article-inline-heading h1) { font-size: 28px !important; }
+}

@@ -1,0 +1,17 @@
+.library.library { background: #fff; padding: 24px 20px 32px; }
+.library.library > h1 { margin: 0 0 32px; color: var(--brand-pink, #ff2c59); text-align: center; font-family: var(--font-lato); font-size: 30px; line-height: 1.2; text-transform: none; letter-spacing: normal; }
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; align-items: start; }
+.issue.issue { display: grid; grid-row: span 4; grid-template-rows: subgrid; min-width: 0; background: #fff; padding: 0 0 20px; margin: 0; border: 0; box-shadow: none; }
+.issue.issue > h2 { margin: 0 0 12px; color: #333; font-size: 26px; line-height: 1.15; }
+.issue.issue > p { margin: 0 0 22px; font-family: var(--font-lato); font-size: 16px; line-height: 1.65; color: #111; display: block; overflow: visible; }
+.cover.cover { display: block; width: 100%; aspect-ratio: 210 / 297; overflow: hidden; padding: 0; margin: 0; background: #fff; box-shadow: 0 2px 10px #0002; }
+.cover.cover img { display: block; width: 100%; height: 100%; object-fit: contain; margin: 0; border-radius: 0; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px 18px; padding-top: 16px; }
+.actions a { font-size: 14px; font-weight: 700; color: #d91f50; text-underline-offset: 4px; }
+.actions a:hover { color: #333; }
+.cover:focus-visible, .actions a:focus-visible { outline: 2px solid #ff2c59; outline-offset: 4px; }
+@media (max-width: 600px) {
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .library.library { padding: 22px 16px; }
+  .library.library > h1 { font-size: 26px; margin-bottom: 24px; }
+}

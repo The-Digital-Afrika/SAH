@@ -4,15 +4,27 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FormEvent, useMemo, useState } from "react";
+import brandStyles from "./HeaderBrand.module.css";
 
 const searchItems = [
-  { title: "Education articles", url: "/articles", category: "Education" },
-  { title: "Development", url: "/category/development", category: "Development" },
-  { title: "Parenting", url: "/category/parenting", category: "Parenting" },
-  { title: "Cooking & Bonding", url: "/category/cooking-bonding", category: "Parenting" },
-  { title: "Partners", url: "/directory", category: "Partners" },
+  { title: "Education", url: "/education", category: "Education" },
+  { title: "Development", url: "/development", category: "Development" },
+  { title: "Parenting", url: "/parenting", category: "Parenting" },
+  { title: "Directory", url: "/directory", category: "Directory" },
+  { title: "Partners", url: "/partners", category: "Partners" },
   { title: "Magazines", url: "/magazines", category: "Magazines" },
   { title: "Newsletter Subscribe", url: "/subscribe", category: "Subscribe" },
+];
+
+const navigationItems = [
+  { label: "Home", href: "/", paths: ["/"] },
+  { label: "Education", href: "/education", paths: ["/education", "/articles"] },
+  { label: "Development", href: "/development", paths: ["/development", "/ask-dalena"] },
+  { label: "Parenting", href: "/parenting", paths: ["/parenting", "/cooking-bonding"] },
+  { label: "Directory", href: "/directory", paths: ["/directory"] },
+  { label: "Partners", href: "/partners", paths: ["/partners"] },
+  { label: "Magazine", href: "/magazines", paths: ["/magazines"] },
+  { label: "Subscribe", href: "/subscribe", paths: ["/subscribe"] },
 ];
 
 export default function Header() {
@@ -20,6 +32,9 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const activeHref = navigationItems.find(item => item.paths.some(path =>
+    pathname === path || (path !== "/" && pathname.startsWith(`${path}/`))
+  ))?.href;
 
   const matches = useMemo(() => {
     const cleanQuery = query.trim().toLowerCase();
@@ -39,16 +54,17 @@ export default function Header() {
 
   return (
     <>
-      <header className="site-header">
+      <header className={`site-header ${brandStyles.header}`}>
         <div className="header-inner">
           <Link className="brand" href="/" aria-label="Home&School home">
             <Image
-              className="brand-logo"
-              src="/images/hs-home-school-logo-2026.png"
+              className={`brand-logo ${brandStyles.logo}`}
+              src="/images/home-school-flourish-logo.png"
               alt="Home & School"
-              width={900}
-              height={454}
-              priority
+              width={2169}
+              height={725}
+              sizes="150px"
+              preload
             />
           </Link>
 
@@ -63,49 +79,17 @@ export default function Header() {
           </button>
 
           <nav className={`site-nav${menuOpen ? " open" : ""}`} aria-label="Main navigation">
-            <Link className={pathname === "/" ? "active" : undefined} href="/" prefetch>
-              Home
-            </Link>
-            <Link className={pathname.startsWith("/articles") ? "active" : undefined} href="/articles" prefetch>
-              Education
-            </Link>
-            <div className="nav-dropdown">
-              <Link
-                className={`nav-parent${pathname.includes("/category/development") ? " active" : ""}`}
-                href="/category/development"
-                prefetch
-              >
-                Development
+            {navigationItems.map(item => (
+              <Link key={item.href} href={item.href} prefetch
+                className={activeHref === item.href ? "active" : undefined}
+                aria-current={activeHref === item.href ? "page" : undefined}>
+                {item.label}
               </Link>
-              <div className="nav-dropdown-menu">
-                <Link href="/category/ask-dalena" prefetch>Ask Dalena</Link>
-              </div>
-            </div>
-            <div className="nav-dropdown">
-              <Link
-                className={`nav-parent${pathname.includes("/category/parenting") ? " active" : ""}`}
-                href="/category/parenting"
-                prefetch
-              >
-                Parenting
-              </Link>
-              <div className="nav-dropdown-menu">
-                <Link href="/category/cooking-bonding" prefetch>Cooking &amp; Bonding</Link>
-              </div>
-            </div>
-            <Link className={pathname === "/directory" ? "active" : undefined} href="/directory" prefetch>
-              Partners
-            </Link>
-            <Link className={pathname === "/magazines" ? "active" : undefined} href="/magazines" prefetch>
-              Magazines
-            </Link>
-            <Link className={pathname === "/subscribe" ? "active" : undefined} href="/subscribe" prefetch>
-              Subscribe
-            </Link>
+            ))}
           </nav>
 
           <button className="search-link header-search-link" type="button" aria-label="Search" onClick={() => setSearchOpen(true)}>
-            Search
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg>
           </button>
         </div>
       </header>
@@ -129,7 +113,7 @@ export default function Header() {
             <input
               id="site-search-input"
               type="search"
-              placeholder="Type a title or topic"
+
               autoComplete="off"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -139,7 +123,6 @@ export default function Header() {
             {matches.length ? (
               matches.map((item) => (
                 <Link href={item.url} key={item.url} onClick={() => setSearchOpen(false)}>
-                  <span>{item.category}</span>
                   <strong>{item.title}</strong>
                 </Link>
               ))
@@ -152,5 +135,3 @@ export default function Header() {
     </>
   );
 }
-
-

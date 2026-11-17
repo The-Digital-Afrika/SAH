@@ -5,6 +5,7 @@ import ArticleCard from "@/components/ArticleCard";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
+import SectionSidebar from "@/components/SectionSidebar";
 import { getPostsByTag, getTagBySlug } from "@/lib/wordpress";
 
 type TagPageProps = {
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
 export default async function TagPage({ params, searchParams }: TagPageProps) {
   const [{ slug }, { page: pageParam }] = await Promise.all([params, searchParams]);
   const page = Math.max(Number(pageParam ?? "1"), 1);
-  const { tag, posts, totalPages } = await getPostsByTag(slug, page, 4);
+  const { tag, posts, totalPages } = await getPostsByTag(slug, page, 40);
   const title = tag?.name ?? titleFromSlug(slug);
 
   return (
@@ -75,9 +76,9 @@ export default async function TagPage({ params, searchParams }: TagPageProps) {
             </nav>
           </section>
 
-          <aside className="education-sidebar tag-sidebar">
-            <NewsletterAdStack idPrefix={`tag-${slug}`} formClassName="sidebar-newsletter labeled" />
-          </aside>
+          <SectionSidebar idPrefix={`tag-${slug}`} className="education-sidebar tag-sidebar">
+            <NewsletterAdStack idPrefix={`tag-${slug}`} formClassName="sidebar-newsletter labeled" showAds={false} />
+          </SectionSidebar>
         </section>
 
         <AdBanner

@@ -1,3 +1,6 @@
+import { getArticlePath } from "@/lib/article-path";
+import { getPostBySlug } from "@/lib/wordpress";
+import { getCategoryPath } from "@/lib/category-path";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,8 +18,8 @@ type WordPressWebhookPayload = {
   categories?: string[];
 };
 
-const staticPaths = ["/", "/articles", "/directory", "/magazines", "/authors"];
-const commonCategoryPaths = ["/category/education", "/category/parenting", "/category/development", "/category/cooking-bonding"];
+const staticPaths = ["/", "/education", "/directory", "/magazines", "/authors", "/partners", "/ask-dalena"];
+const commonCategoryPaths = ["/education", "/parenting", "/development", "/cooking-bonding"];
 
 function getSecret(request: NextRequest) {
   return request.headers.get("x-wordpress-webhook-secret") ?? request.nextUrl.searchParams.get("secret");
@@ -24,10 +27,6 @@ function getSecret(request: NextRequest) {
 
 function getPostSlug(payload: WordPressWebhookPayload) {
   return payload.post?.slug ?? payload.post?.post_name ?? payload.slug;
-}
-
-function getPostStatus(payload: WordPressWebhookPayload) {
-  return payload.post?.status ?? payload.post?.post_status ?? payload.status ?? payload.post_status;
 }
 
 function getCategorySlugs(payload: WordPressWebhookPayload) {
@@ -63,11 +62,7 @@ async function revalidateWordPress(request: NextRequest, payload: WordPressWebho
     return NextResponse.json({ error: "Invalid webhook secret" }, { status: 401 });
   }
 
-  const status = getPostStatus(payload);
-
-  if (status && status !== "publish") {
-    return NextResponse.json({ revalidated: false, skipped: `Ignoring WordPress status: ${status}` });
-  }
+  // Unpublishing must invalidate cached listings and article pages too.
 
   const paths = new Set(staticPaths);
   commonCategoryPaths.forEach((path) => paths.add(path));
@@ -75,10 +70,12 @@ async function revalidateWordPress(request: NextRequest, payload: WordPressWebho
 
   if (slug) {
     paths.add(`/articles/${slug}`);
+    const post = await getPostBySlug(slug);
+    if (post) paths.add(getArticlePath(post));
   }
 
   getCategorySlugs(payload).forEach((categorySlug) => {
-    paths.add(`/category/${categorySlug}`);
+    paths.add(getCategoryPath(categorySlug));
   });
 
   revalidateTag("wordpress-json", "max");

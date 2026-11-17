@@ -3,9 +3,10 @@
 import type { CSSProperties, FormEvent } from "react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { SIGNUP_COMPLETE_KEY, subscribeToNewsletter } from "@/lib/newsletter-client";
 
 const POPUP_DELAY_MS = 180_000;
-const SIGNUP_COMPLETE_KEY = "sa-home-school:community-signup-complete";
 const POPUP_SEEN_PATHS_KEY = "sa-home-school:community-popup-seen-paths";
 
 const overlayStyle: CSSProperties = {
@@ -36,8 +37,7 @@ const dialogStyle: CSSProperties = {
   padding: "38px",
   border: "1px solid rgba(229, 31, 88, 0.16)",
   borderRadius: 8,
-  background:
-    "radial-gradient(circle at 92% 0%, rgba(229, 31, 88, 0.14), transparent 30%), linear-gradient(180deg, #fff9fb 0%, #ffffff 52%)",
+  background: "#ffffff",
   boxShadow: "0 28px 80px rgba(8, 12, 18, 0.28)",
 };
 
@@ -94,9 +94,9 @@ const submitStyle: CSSProperties = {
   padding: "0 20px",
   border: 0,
   borderRadius: 7,
-  background: "#e51f58",
+  background: "var(--brand-pink)",
   color: "#ffffff",
-  boxShadow: "0 14px 28px rgba(229, 31, 88, 0.24)",
+  boxShadow: "none",
   fontSize: 13,
   fontWeight: 900,
   cursor: "pointer",
@@ -129,14 +129,6 @@ function markPathAsSeen(pathname: string) {
   }
 }
 
-function markSignedUp() {
-  try {
-    window.localStorage.setItem(SIGNUP_COMPLETE_KEY, "true");
-  } catch {
-    // The popup still closes even when storage is unavailable.
-  }
-}
-
 function shouldPreviewPopup() {
   try {
     const params = new URLSearchParams(window.location.search);
@@ -150,6 +142,8 @@ export default function SignupPopup() {
   const pathname = usePathname();
   const [popupPath, setPopupPath] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     const resetOpenPopup = window.setTimeout(() => {
@@ -199,14 +193,19 @@ export default function SignupPopup() {
     setPopupPath(null);
   }
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    markSignedUp();
-    setSubmitted(true);
-
-    window.setTimeout(() => {
-      setPopupPath(null);
-    }, 1200);
+    if (pending || submitted) return;
+    const form = event.currentTarget;
+    const values = new FormData(form);
+    setPending(true);
+    setMessage("");
+    try {
+      setMessage(await subscribeToNewsletter({ firstName: String(values.get("name") ?? ""), lastName: String(values.get("surname") ?? ""), email: String(values.get("email") ?? ""), company: String(values.get("company") ?? "") }));
+      setSubmitted(true);
+      form.reset();
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Your signup could not be sent. Please try again."); }
+    finally { setPending(false); }
   }
 
   if (popupPath !== pathname) {
@@ -227,19 +226,22 @@ export default function SignupPopup() {
           X
         </button>
 
-        <div className="signup-popup__badge" aria-hidden="true">
-          <span>h</span>
-          <span className="signup-popup__badge-amp">&amp;</span>
-          <span>s</span>
-        </div>
-        <p className="kicker">Newsletter</p>
+        <svg width="0" height="0" aria-hidden="true" focusable="false" style={{ position: "absolute" }}>
+          <defs>
+            <filter id="signup-logo-brand" colorInterpolationFilters="sRGB">
+              {/* White lettering becomes black; the coloured ampersand becomes brand pink. */}
+              <feColorMatrix type="matrix" values="0 -0.914 0 0 0.914  0 -0.157 0 0 0.157  0 -0.365 0 0 0.365  0 0 0 1 0" />
+            </filter>
+          </defs>
+        </svg>
+        <Image className="signup-popup__logo" src="/images/home-school-flourish-logo.png" alt="Home & School" width={2169} height={725} sizes="220px" />
         <h2 id="signup-popup-title">Join our community</h2>
         <p className="signup-popup__intro">Fresh homeschooling ideas, resources, and family inspiration straight to your inbox.</p>
 
-        <form className="signup-popup__form" onSubmit={onSubmit} style={formStyle}>
+        <form className="signup-popup__form" onSubmit={onSubmit} style={formStyle} aria-busy={pending}>
           <div className="signup-popup__field" style={fieldStyle}>
             <label htmlFor="community-popup-name" style={labelStyle}>Name</label>
-            <input id="community-popup-name" name="name" type="text" autoComplete="given-name" placeholder="Your name" required style={inputStyle} />
+            <input id="community-popup-name" name="name" type="text" autoComplete="given-name" required style={inputStyle} />
           </div>
 
           <div className="signup-popup__field" style={fieldStyle}>
@@ -249,7 +251,7 @@ export default function SignupPopup() {
               name="surname"
               type="text"
               autoComplete="family-name"
-              placeholder="Your surname"
+
               required
               style={inputStyle}
             />
@@ -262,21 +264,20 @@ export default function SignupPopup() {
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="you@example.com"
+
               required
               style={inputStyle}
             />
           </div>
 
-          <button className="signup-popup__submit" type="submit" style={submitStyle}>
-            Sign up
+          <div hidden aria-hidden="true"><label>Company<input name="company" tabIndex={-1} autoComplete="off" /></label></div>
+          <button className="signup-popup__submit" type="submit" style={submitStyle} disabled={pending || submitted}>
+            {pending ? "Signing up…" : submitted ? "Signup received" : "Sign up"}
           </button>
 
-          {submitted ? <p className="signup-popup__message">Thank you for signing up.</p> : null}
+          {message ? <p className="signup-popup__message" role={submitted ? "status" : "alert"}>{message}</p> : null}
         </form>
       </section>
     </div>
   );
 }
-
-

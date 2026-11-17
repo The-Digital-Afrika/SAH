@@ -5,6 +5,7 @@ import ArticleCard from "@/components/ArticleCard";
 import AuthorAvatar from "@/components/AuthorAvatar";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import SectionPageLayout from "@/components/SectionPageLayout";
 import {
   getAuthorBio,
   getAuthorBySlug,
@@ -49,14 +50,15 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
 
   if (!author) return <AuthorUnavailable slug={slug} />;
 
-  const posts = await getPostsByAuthor(author.id, 24);
+  const posts = await getPostsByAuthor(author.id, 40);
   const email = getAuthorEmail(author);
 
   return (
-    <div className="directory-page">
+    <div className="directory-page shared-sidebar-page">
       <Header />
 
       <main className="newsletter-page">
+        <SectionPageLayout idPrefix={`author-${slug}`}>
         <section className="author-header">
           <AuthorAvatar author={author} />
           <div>
@@ -90,6 +92,7 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
           wrapClassName="archive-pagination-ad"
           variant="google-ad-slot--wide-banner"
         />
+        </SectionPageLayout>
       </main>
 
       <Footer />
@@ -99,10 +102,11 @@ export default async function AuthorPage({ params }: AuthorPageProps) {
 
 function AuthorUnavailable({ slug }: { slug: string }) {
   return (
-    <div className="directory-page">
+    <div className="directory-page shared-sidebar-page">
       <Header />
 
       <main className="newsletter-page">
+        <SectionPageLayout idPrefix={`author-unavailable-${slug}`}>
         <section className="author-header">
           <div className="author-avatar" aria-hidden="true" />
           <div>
@@ -127,6 +131,7 @@ function AuthorUnavailable({ slug }: { slug: string }) {
           wrapClassName="archive-pagination-ad"
           variant="google-ad-slot--wide-banner"
         />
+        </SectionPageLayout>
       </main>
 
       <Footer />

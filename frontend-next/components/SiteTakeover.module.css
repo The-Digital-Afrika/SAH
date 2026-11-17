@@ -1,0 +1,133 @@
+.takeover {
+  --site-width: 970px;
+  min-height: 100vh;
+  background: linear-gradient(115deg, var(--takeover-start), var(--takeover-middle) 48%, var(--takeover-end));
+  background-size: 100vw 100vh;
+  background-attachment: fixed;
+}
+
+/* Avoid a hidden horizontal scroll container trapping the sticky header. */
+:global(html):has(.takeover),
+:global(body):has(.takeover) {
+  overflow-x: clip !important;
+  overflow-y: visible !important;
+}
+
+.masthead {
+  width: min(100%, var(--site-width));
+  margin: 0 auto;
+  padding: 12px 0 0;
+}
+
+.masthead:has(.topAd :global(.google-ad-slot--empty)) {
+  display: none;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  color: #fff;
+  font: 10px/1.4 var(--font-lato);
+  text-align: center;
+  text-shadow: 0 1px 3px #333;
+  text-transform: uppercase;
+}
+
+.banner {
+  display: block;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.banner img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.banner:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+.topAd {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.topAd :global(.ad-unit-frame) {
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.topAd :global(.google-ad-slot) {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 90px;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.site {
+  position: relative;
+  width: min(100%, var(--site-width));
+  margin: 0 auto;
+  background: #fff;
+}
+
+@media (min-width: 1241px) {
+  .site :global(.site-header .header-inner) {
+    grid-template-columns: 150px minmax(0, 1fr) 40px !important;
+    width: calc(100% - 40px) !important;
+    min-height: 66px !important;
+    gap: 12px !important;
+  }
+
+  .site :global(.site-header .brand) {
+    width: 150px !important;
+    max-width: 150px !important;
+    height: 66px !important;
+  }
+
+  .site :global(.site-header .brand-logo) { max-height: 37px !important; }
+  .site :global(.site-header .site-nav) { gap: 6px !important; }
+
+  .site :global(.site-header .site-nav a),
+  .site :global(.site-header .nav-dropdown > a) {
+    min-height: 66px !important;
+    padding-inline: 3px !important;
+    font-size: 16px !important;
+  }
+
+  .site :global(.site-header button.search-link.header-search-link) {
+    width: 30px !important;
+    min-width: 30px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    border-radius: 50% !important;
+    background: #fff !important;
+    color: var(--brand-pink) !important;
+  }
+
+  .site :global(.site-header button.search-link.header-search-link)::before,
+  .site :global(.site-header button.search-link.header-search-link)::after {
+    content: none !important;
+    display: none !important;
+  }
+
+  .site :global(.home-page .home-editorial-showcase > .home-lead-story--compact h2) {
+    font-size: 64px !important;
+    line-height: 1.05 !important;
+  }
+
+  .site :global(.site-featured-copy h2) { font-size: 54px !important; line-height: 1.08 !important; }
+}
+
+@media (max-width: 727px) {
+  .topAd :global(.google-ad-slot) { min-height: 250px; }
+}

@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 
-const SIGNUP_COMPLETE_KEY = "sa-home-school:community-signup-complete";
+import { subscribeToNewsletter } from "@/lib/newsletter-client";
 
 type NewsletterFormProps = {
   idPrefix: string;
@@ -20,38 +20,46 @@ export default function NewsletterForm({
   headingLevel = "h2",
 }: NewsletterFormProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [message, setMessage] = useState("");
   const Heading = headingLevel;
 
-  function onSubmit(event: FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (pending || submitted) return;
+    const form = event.currentTarget;
+    const values = new FormData(form);
+    setPending(true);
+    setMessage("");
     try {
-      window.localStorage.setItem(SIGNUP_COMPLETE_KEY, "true");
-    } catch {
-      // Keep the form usable even if browser storage is blocked.
-    }
-    setSubmitted(true);
+      setMessage(await subscribeToNewsletter({ firstName: String(values.get("first-name") ?? ""), lastName: String(values.get("last-name") ?? ""), email: String(values.get("email") ?? ""), company: String(values.get("company") ?? "") }));
+      setSubmitted(true);
+      form.reset();
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Your signup could not be sent. Please try again."); }
+    finally { setPending(false); }
   }
 
   return (
-    <form className={className} onSubmit={onSubmit}>
+    <form className={className} onSubmit={onSubmit} aria-busy={pending}>
       {showKicker ? <span className="kicker">Newsletter</span> : <div className="section-rule" />}
       <Heading>{title}</Heading>
       <div className="field-row field-row--first-name">
         <label htmlFor={`${idPrefix}-name`}>Name</label>
-        <input id={`${idPrefix}-name`} name="first-name" type="text" placeholder="Name" />
+        <input id={`${idPrefix}-name`} name="first-name" type="text" />
       </div>
       <div className="field-row field-row--last-name">
         <label htmlFor={`${idPrefix}-last-name`}>Last name</label>
-        <input id={`${idPrefix}-last-name`} name="last-name" type="text" placeholder="Last name" />
+        <input id={`${idPrefix}-last-name`} name="last-name" type="text" />
       </div>
       <div className="field-row field-row--email">
         <label htmlFor={`${idPrefix}-email`}>Email address:</label>
-        <input id={`${idPrefix}-email`} name="email" type="email" placeholder="Your email address" required />
+        <input id={`${idPrefix}-email`} name="email" type="email" required />
       </div>
-      <button className="signup-button" type="submit">
-        Sign up
+      <div hidden aria-hidden="true"><label>Company<input name="company" tabIndex={-1} autoComplete="off" /></label></div>
+      <button className="signup-button" type="submit" disabled={pending || submitted}>
+        {pending ? "Signing up…" : submitted ? "Signup received" : "Sign up"}
       </button>
-      {submitted ? <p className="form-message">Thank you for signing up.</p> : null}
+      {message ? <p className="form-message" role={submitted ? "status" : "alert"}>{message}</p> : null}
     </form>
   );
 }

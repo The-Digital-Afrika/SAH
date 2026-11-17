@@ -1,4 +1,5 @@
 import Link from "next/link";
+import styles from "./ResourceCards.module.css";
 
 type ResourceCard = {
   href: string;
@@ -22,7 +23,7 @@ const resourceContent: Record<ResourceCardsContext, ResourceCardsContent> = {
     title: "Plan the next step in your homeschool journey",
     cards: [
       {
-        href: "/category/development",
+        href: "/development",
         label: "Development",
         title: "Support learning skills and confidence",
         description: "Explore thinking skills, learning support, study habits, and practical development guidance.",
@@ -49,14 +50,14 @@ const resourceContent: Record<ResourceCardsContext, ResourceCardsContent> = {
     title: "More support for family life and learning",
     cards: [
       {
-        href: "/category/cooking-bonding",
+        href: "/cooking-bonding",
         label: "Cooking & Bonding",
         title: "Cook, connect, and learn together",
         description: "Try family-friendly recipes and activities that build connection beyond formal lessons.",
         variant: "recipes",
       },
       {
-        href: "/category/development",
+        href: "/development",
         label: "Development",
         title: "Understand how children learn",
         description: "Find guidance on confidence, motivation, learning support, and emotional development.",
@@ -76,14 +77,14 @@ const resourceContent: Record<ResourceCardsContext, ResourceCardsContent> = {
     title: "Build stronger learning foundations",
     cards: [
       {
-        href: "/articles",
+        href: "/education",
         label: "Education",
         title: "Connect skills to subject planning",
         description: "Move from learning support into subject choices, matric planning, and education pathways.",
         variant: "directory",
       },
       {
-        href: "/category/parenting",
+        href: "/parenting",
         label: "Parenting",
         title: "Support motivation and wellbeing",
         description: "Read practical parenting guidance for routines, stress, confidence, and connection.",
@@ -103,14 +104,14 @@ const resourceContent: Record<ResourceCardsContext, ResourceCardsContent> = {
     title: "Turn everyday moments into learning",
     cards: [
       {
-        href: "/category/parenting",
+        href: "/parenting",
         label: "Parenting",
         title: "Strengthen family connection",
         description: "Find parenting ideas for routines, communication, confidence, and time together.",
         variant: "recipes",
       },
       {
-        href: "/category/development",
+        href: "/development",
         label: "Development",
         title: "Build skills through simple activities",
         description: "Explore learning development, thinking skills, and practical support strategies.",
@@ -144,7 +145,7 @@ const resourceContent: Record<ResourceCardsContext, ResourceCardsContent> = {
         variant: "directory",
       },
       {
-        href: "/category/cooking-bonding",
+        href: "/cooking-bonding",
         label: "Cooking & Bonding",
         title: "Cook and learn together",
         description: "Family-friendly recipes that double as practical homeschool activities.",
@@ -170,7 +171,7 @@ export default function ResourceCards({ context }: ResourceCardsProps) {
   const content = resourceContent[resolveContext(context)];
 
   return (
-    <section className="resource-card-section" aria-label="More SA Homeschooling resources">
+    <section className={`resource-card-section ${styles.section}`} data-resource-cards aria-label="More SA Homeschooling resources">
       <div className="section-heading resource-card-heading">
         <span className="kicker">{content.kicker}</span>
         <h2>{content.title}</h2>

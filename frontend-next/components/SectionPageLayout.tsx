@@ -1,17 +1,21 @@
 import type { ReactNode } from "react";
 import SectionSidebar from "./SectionSidebar";
+import styles from "./SectionPageLayout.module.css";
 
 type SectionPageLayoutProps = {
   idPrefix: string;
   children: ReactNode;
   newsletter?: ReactNode;
+  sidebarFeatures?: ReactNode[];
+  showFooterAd?: boolean;
+  featureAdCount?: number;
 };
 
-export default function SectionPageLayout({ idPrefix, children, newsletter }: SectionPageLayoutProps) {
+export default function SectionPageLayout({ idPrefix, children, newsletter, sidebarFeatures, showFooterAd = true, featureAdCount = 0 }: SectionPageLayoutProps) {
   return (
-    <div className="section-page-layout">
-      <div className="section-page-content">{children}</div>
-      <SectionSidebar idPrefix={idPrefix}>{newsletter}</SectionSidebar>
+    <div className={`section-page-layout ${styles.layout}`}>
+      <div className={`section-page-content ${styles.content}`}>{children}</div>
+      <SectionSidebar idPrefix={idPrefix} features={sidebarFeatures} showFooterAd={showFooterAd} featureAdCount={featureAdCount}>{newsletter}</SectionSidebar>
     </div>
   );
 }
