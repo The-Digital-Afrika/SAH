@@ -158,6 +158,7 @@ export type SiteAd = {
     networkCode: string;
     adUnitCode: string;
     sizes: Array<[number, number]>;
+    responsiveHomeLeaderboard?: boolean;
   };
 };
 
@@ -192,10 +193,18 @@ const googleLeaderboardAd = {
   networkCode: googleAdNetworkCode,
   adUnitCode: "sahomeschooling_home_leaderboard",
   sizes: [
-    [300, 250],
-    [728, 90],
     [970, 250],
+    [728, 90],
+    [320, 100],
+    [320, 50],
   ] as Array<[number, number]>,
+};
+
+// All placements keep the same unit; the homepage flag preserves its scoped styling.
+const googleHomeLeaderboardAd = {
+  ...googleLeaderboardAd,
+  responsiveHomeLeaderboard: true,
+  sizes: [[970, 250], [728, 90], [320, 100], [320, 50]] as Array<[number, number]>,
 };
 
 const googleSidebarAd = {
@@ -550,14 +559,14 @@ const fallbackAds: Record<AdPlacement, SiteAd> = {
     placement: "home-top",
     dataUnit: "newspack_home_above_menu",
     sizeClass: "google-ad-slot--leaderboard",
-    google: googleLeaderboardAd,
+    google: googleHomeLeaderboardAd,
   },
   "home-middle": {
     id: "ad-after-hero",
     placement: "home-middle",
     dataUnit: "newspack_after_hero",
     sizeClass: "google-ad-slot--leaderboard",
-    google: googleLeaderboardAd,
+    google: googleHomeLeaderboardAd,
   },
   "home-bottom": {
     id: "ad-footer-wide",
