@@ -6,7 +6,6 @@ export default function Footer({ flush = false }: { flush?: boolean }) {
   return (
     <footer className="home-footer" style={flush ? { marginTop: 0 } : undefined}>
       <div className="footer-columns">
-        <section className="footer-brand-column">
           <Link className="footer-logo-link" href="/" aria-label="Home & School home">
             <Image
               className="footer-logo"
@@ -17,6 +16,7 @@ export default function Footer({ flush = false }: { flush?: boolean }) {
               sizes="260px"
             />
           </Link>
+        <section className="footer-brand-column">
           <h2>Our Office</h2>
           <p>
             Tshimologong Digital Precinct, 41 Juta Street,

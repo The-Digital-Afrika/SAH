@@ -111,6 +111,10 @@
 }
 
 @media (max-width: 760px) {
+  :global(.home-page.modern-home) :global(.section-page-content) .cardSection :global(.home-category-card-grid) {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
   :global(.home-page.modern-home) .cardSection :global(.home-category-card) strong {
     font-size: 20px !important;
   }

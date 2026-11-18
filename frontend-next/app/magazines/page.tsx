@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import MagazineCard from "@/components/MagazineCard";
 import styles from "@/components/MagazineLibrary.module.css";
 import SectionPageLayout from "@/components/SectionPageLayout";
+import MobileMagazineFeed from "@/components/MobileMagazineFeed";
 import { getMagazinePosts } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
@@ -28,7 +29,8 @@ export default async function MagazinesPage() {
 
       <main className="magazines-main">
         <SectionPageLayout idPrefix="magazines" showFooterAd={false}>
-          <section className={styles.library} aria-labelledby="magazine-library-title">
+          <MobileMagazineFeed magazines={magazines} />
+          <section className={`${styles.library} magazine-desktop-library`} aria-labelledby="magazine-library-title">
             <h1 id="magazine-library-title">Explore Our Magazines</h1>
             <div className={styles.grid}>
               {magazines.length ? magazines.map((issue) => (

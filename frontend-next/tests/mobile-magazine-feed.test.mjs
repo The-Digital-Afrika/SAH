@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+import vm from 'node:vm';
+import ts from 'typescript';
+import * as jsx from 'react/jsx-runtime';
+import * as react from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+const source = readFileSync(new URL('../components/MobileMagazineFeed.tsx', import.meta.url), 'utf8');
+const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } });
+const exports = {};
+vm.runInNewContext(compiled.outputText, { exports, require(name) {
+  if (name === 'react/jsx-runtime') return jsx;
+  if (name === 'react') return react;
+  if (name.endsWith('.css')) return { default: {} };
+  if (name === '@/lib/wordpress') return { getMagazineReaderUrl: issue => '/magazines/' + issue.slug };
+  if (name === './MagazineCard') return { default: ({ issue }) => jsx.jsx('article', { 'data-issue': issue.id }) };
+  if (name === './FeaturedStoryCard') return { default: ({ post }) => jsx.jsx('article', { 'data-lead': post.id }) };
+  if (name === './LatestMagazine') return { default: ({ issue }) => jsx.jsx('section', { 'data-latest': issue.id }) };
+  if (name === './NewsletterForm') return { default: () => jsx.jsx('form', { 'data-community': true }) };
+  if (name === './AdBanner') return { default: () => jsx.jsx('aside', { 'data-ad': true }) };
+  if (name === 'next/link') return { default: ({ href, children }) => jsx.jsx('a', { href, children }) };
+  throw new Error(name);
+} });
+test('magazine mobile flow starts with lead then latest issue and retains every issue', () => {
+  const magazines = Array.from({ length: 14 }, (_, i) => ({ id: String(i+1), slug: 'issue-'+(i+1), title: 'Issue '+(i+1) }));
+  magazines[0].sourcePost = { id: 'lead-story' };
+  const html = renderToStaticMarkup(jsx.jsx(exports.default, { magazines }));
+  const sequence = [...html.matchAll(/data-latest="(\d+)"|data-issue="(\d+)"|data-ad="true"|data-community="true"|>Most Recent<|>More magazines</g)].map(m => m[1] ? 'latest' : m[2] || (m[0].includes('community') ? 'community' : m[0].includes('Most Recent') ? 'recent' : m[0].includes('More magazines') ? 'more' : 'ad'));
+  assert.deepEqual(sequence, ['latest','ad','2','3','community','ad','4','5','ad','recent','ad','6','7','ad','8','9','ad','10','11','ad','more','12','13','14']);
+  assert.ok(html.includes('data-lead="lead-story"'));
+  assert.ok(html.indexOf('data-lead=') < html.indexOf('data-latest='));
+});

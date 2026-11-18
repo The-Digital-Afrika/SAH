@@ -9970,22 +9970,29 @@ main {
 }
 
 .site-search-panel {
-  overflow-y: auto !important;
+  overflow: hidden !important;
   align-items: start;
   padding-top: clamp(72px, 9vw, 104px);
 }
 
 .site-search-dialog {
-  max-height: none !important;
-  margin-bottom: 42px;
+  display: flex;
+  flex-direction: column;
+  max-height: 100% !important;
+  min-height: 0;
+  overflow: hidden;
+  margin-bottom: 0;
 }
 
 .site-search-results {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   padding-bottom: 12px;
 }
 
 body.search-open {
-  overflow: auto !important;
+  overflow: hidden !important;
 }
 
 a.post-row.modern-list-row {
@@ -19896,13 +19903,15 @@ form button,
 .section-page-layout .section-page-content > .education-content-grid,
 .section-page-layout .section-page-content > .resource-card-section,
 .section-page-layout .section-page-content > .magazine-grid,
-.home-page .section-page-content > .home-editorial-showcase {
+.home-page .section-page-content > .home-editorial-showcase,
+.section-page-layout .section-page-content > .section-desktop-feed > :is(.page-featured-mosaic, .weekly-section, .education-content-grid, .resource-card-section, .magazine-grid) {
   width: 100% !important;
   max-width: 100% !important;
   margin-inline: 0 !important;
 }
 
-.section-page-content > .education-content-grid {
+.section-page-content > .education-content-grid,
+.section-page-content > .section-desktop-feed > .education-content-grid {
   grid-template-columns: minmax(0, 1fr) !important;
 }
 

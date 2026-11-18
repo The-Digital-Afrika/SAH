@@ -743,6 +743,24 @@ async function getCmsPosts(options: GetPostsOptions): Promise<PaginatedPosts> {
   });
 }
 
+// Search must report CMS failures instead of presenting them as an empty result.
+export async function searchPosts(search: string, page = 1) {
+  const url = apiUrl("/wp/v2/posts", {
+    search, page, per_page: 20, status: "publish", _embed: 1, orderby: "relevance",
+    _fields: "id,slug,date,title,excerpt,categories,_links,_embedded",
+  });
+  // Bound each request and retry transient gateway failures once.
+  let failure: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetch(url, { headers: wordpressFetchHeaders, signal: AbortSignal.timeout(8000), cache: "no-store" });
+      if (!response.ok) throw new Error(`Search request failed (${response.status})`);
+      return { posts: await response.json() as WPPost[], total: Number(response.headers.get("x-wp-total")), totalPages: Number(response.headers.get("x-wp-totalpages")) };
+    } catch (error) { failure = error; }
+  }
+  throw failure;
+}
+
 export async function getPosts(options: GetPostsOptions = {}) {
   try {
     return (await getCmsPosts(options)).posts;
@@ -968,7 +986,17 @@ export async function getMagazinePosts() {
     };
   });
   const postIssues = relatedPosts.flatMap(getMagazineIssuesFromPost);
-  const issues = dedupeMagazineIssues([...postIssues, ...enrichedEmbeddedIssues]);
+  const archivedIssues: MagazineIssue[] = localMagazineOrder.map((slug) => ({
+    id: `archive-${slug}`,
+    slug,
+    title: localMagazineTitles[slug] ?? titleFromSlug(slug),
+    description: localMagazineDescriptions[slug],
+    pdfUrl: localMagazinePdfUrls[slug] ?? `/magazines/${slug}.pdf`,
+    embedUrl: `/magazines/embed/${slug}`,
+    coverImage: localMagazineCovers[slug],
+    issueNumber: extractIssueNumber(slug),
+  }));
+  const issues = dedupeMagazineIssues([...postIssues, ...enrichedEmbeddedIssues, ...archivedIssues]);
 
   return applyMagazineFallbackCovers(issues.map((issue) => ({
     ...issue,
@@ -1056,7 +1084,7 @@ export function getPostExcerpt(post: WPPost, fallbackLength = 170) {
 
   if (excerpt) return excerpt;
 
-  return `${stripHtml(post.content.rendered).slice(0, fallbackLength).trim()}...`;
+  return post.content?.rendered ? `${stripHtml(post.content.rendered).slice(0, fallbackLength).trim()}...` : "";
 }
 
 export function getPostAuthor(post: WPPost) {

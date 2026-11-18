@@ -20,23 +20,20 @@ type SectionSidebarProps = {
 };
 
 export default async function SectionSidebar({ idPrefix, children, features, showFooterAd = true, featureAdCount = 0, className = "", independentScroll = false, totalAds }: SectionSidebarProps) {
-  const standardFlow = idPrefix !== "magazines";
   const [posts, sidebarAd, footerAd, magazines] = await Promise.all([
     getPosts({ perPage: 5 }),
     getAdByPlacement("article-sidebar"),
     showFooterAd ? getAdByPlacement("home-bottom") : Promise.resolve(null),
-    standardFlow && !features?.length ? getMagazinePosts() : Promise.resolve([]),
+    !features?.length ? getMagazinePosts() : Promise.resolve([]),
   ]);
   const titleId = `${idPrefix}-most-recent-title`;
 
   return (
     <StickySidebar className={`section-sidebar ${className}`} label="Magazine, newsletter, recent articles and advertisements" independentScroll={independentScroll}>
-      {features?.length ? features : standardFlow ? <LatestMagazine issue={magazines[0]} /> : null}
-      {standardFlow ? <>
+      {features?.length ? features : <LatestMagazine issue={magazines[0]} />}
         <ResourceCardAd id={`${idPrefix}-sidebar-top`} tall={false} />
         {children ?? <NewsletterForm idPrefix={`${idPrefix}-sidebar`} />}
         <ResourceCardAd id={`${idPrefix}-sidebar-bottom`} tall />
-      </> : null}
 
       <section className="section-most-recent" aria-labelledby={titleId}>
         <h2 id={titleId}>Most Recent</h2>
@@ -53,10 +50,8 @@ export default async function SectionSidebar({ idPrefix, children, features, sho
         )}
       </section>
 
-      {!standardFlow ? children : null}
-
       <SidebarAdRail idPrefix={idPrefix} sidebarAd={sidebarAd} footerAd={footerAd}
-        existingAdCount={featureAdCount + (standardFlow ? 2 : 0)} totalAds={totalAds} />
+        existingAdCount={featureAdCount + 2} totalAds={totalAds} />
     </StickySidebar>
   );
 }

@@ -10,7 +10,7 @@
 }
 .column { min-width: 0; }
 .article { background: #fff; min-width: 0; border-radius: 10px 10px 0 0; overflow: hidden; }
-.hero { width: 100%; height: auto; aspect-ratio: 2.4; object-fit: cover; }
+.hero { width: 100%; height: auto; aspect-ratio: 1.82; object-fit: cover; object-position: center top; }
 .copy { padding: 20px; }
 .heading h1, .body h1 {
   margin: 16px 0 20px;

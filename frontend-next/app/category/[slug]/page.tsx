@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import SectionPageLayout from "@/components/SectionPageLayout";
 import MoreStories from "@/components/MoreStories";
+import MobileSectionFeed from "@/components/MobileSectionFeed";
 import { getCategoryBySlug, getPostsByCategory } from "@/lib/wordpress";
 
 type CategoryPageProps = {
@@ -96,6 +97,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
             />
           }
         >
+          <MobileSectionFeed posts={posts} title={pageCategory.name} idPrefix={`category-${pageCategory.slug}`} page={page} totalPages={totalPages} href={getCategoryPath(pageCategory.slug)} />
+          <div className="section-desktop-feed">
           {useFeaturedCard ? (
             posts[0] ? <FeaturedStoryCard post={posts[0]} /> : null
           ) : <FeaturedMosaic posts={posts} className="page-featured-mosaic" showSecondary={false} />}
@@ -126,6 +129,7 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
           </section>
 
           {posts.length < 40 ? <MoreStories exclude={posts.map(post => post.id)} count={40 - posts.length} /> : null}
+          </div>
         </SectionPageLayout>
       </main>
 

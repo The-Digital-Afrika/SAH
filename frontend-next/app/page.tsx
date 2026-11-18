@@ -13,12 +13,14 @@ import SectionPageLayout from "@/components/SectionPageLayout";
 import magazineStyles from "@/components/HomeMagazineFeature.module.css";
 import communityStyles from "@/components/HomeCommunitySignup.module.css";
 import homeStyles from "@/components/HomeArticleGrids.module.css";
+import indexedPosts from "@/data/search-posts.json";
 import {
   getMagazinePosts,
   getMagazineReaderUrl,
   getPosts,
   getPostsByCategory,
   type MagazineIssue,
+  type WPPost,
 } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
@@ -59,12 +61,13 @@ export default async function Home() {
       description: "Cooking and bonding stories",
     },
   ];
-  const [posts, magazines, partnerSection, ...categorySections] = await Promise.all([
+  const [livePosts, magazines, partnerSection, ...categorySections] = await Promise.all([
     getPosts({ perPage: 40 }),
     getMagazinePosts(),
     getPostsByCategory("partner-2", 1, 8),
     ...categoryConfigs.map((category) => getPostsByCategory(category.slug, 1, 8)),
   ]);
+  const posts = livePosts.length ? livePosts : (indexedPosts as unknown as WPPost[]).slice(0, 40);
   const featuredMagazine = magazines[0];
   const sidebarFeatures = [<HomeMagazineFeature issue={featuredMagazine} key="latest-magazine" />];
 
@@ -85,7 +88,7 @@ export default async function Home() {
           </section>
 
 
-          <AdBanner placement="home-middle" idSuffix="before-community" wrapClassName="home-ad-row modern-ad-row" fallback />
+          <AdBanner placement="home-middle" idSuffix="before-community" wrapClassName="home-ad-row modern-ad-row mobile-hide-before-community" fallback />
 
           <section className={communityStyles.section} data-home-community-signup aria-label="Community signup">
             <NewsletterForm
@@ -97,7 +100,7 @@ export default async function Home() {
 
 
           <AdBanner placement="home-middle" idSuffix="before-categories"
-            wrapClassName="home-ad-row modern-ad-row home-category-ad" fallback />
+            wrapClassName="home-ad-row modern-ad-row home-category-ad mobile-after-community" fallback />
 
           {categorySections.map((section, index) => {
             const config = categoryConfigs[index];
@@ -116,7 +119,7 @@ export default async function Home() {
                 />
                 {index < categorySections.length - 1 ? (
                   <AdBanner placement="home-middle" idSuffix={`category-${config.slug}`}
-                    wrapClassName="home-ad-row modern-ad-row home-category-ad" fallback />
+                    wrapClassName={`home-ad-row modern-ad-row home-category-ad mobile-after-${config.slug}`} fallback />
                 ) : null}
               </Fragment>
             ) : null;
@@ -124,7 +127,7 @@ export default async function Home() {
 
 
           <AdBanner placement="home-middle" idSuffix="before-resources"
-            wrapClassName="home-ad-row modern-ad-row home-category-ad" fallback />
+            wrapClassName="home-ad-row modern-ad-row home-category-ad mobile-after-cooking" fallback />
 
           <section className="home-section home-section--soft" aria-label="Education guides">
             <div className="home-split home-guides-grid home-guides-grid--articles-only">

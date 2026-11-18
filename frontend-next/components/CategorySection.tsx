@@ -15,6 +15,7 @@ export default function CategorySection({ category, posts, limit = 4 }: Category
     <section
       className={`home-section home-section--soft home-category-section--cards ${styles.cardSection}`}
       aria-label={`${category.name} articles`}
+      data-home-category={category.name.toLowerCase().replace(/[^a-z]+/g, "-")}
     >
       <div className="home-split home-category-grid">
         <div className="section-heading home-category-heading">

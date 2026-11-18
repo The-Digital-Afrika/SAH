@@ -7,8 +7,8 @@
 }
 
 /* Avoid a hidden horizontal scroll container trapping the sticky header. */
-:global(html):has(.takeover),
-:global(body):has(.takeover) {
+:global(html:not(.search-open)):has(.takeover),
+:global(body:not(.search-open)):has(.takeover) {
   overflow-x: clip !important;
   overflow-y: visible !important;
 }

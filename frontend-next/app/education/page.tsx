@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import NewsletterAdStack from "@/components/NewsletterAdStack";
 import SectionPageLayout from "@/components/SectionPageLayout";
+import MobileSectionFeed from "@/components/MobileSectionFeed";
 import { getPostsByCategory } from "@/lib/wordpress";
 
 export const metadata: Metadata = {
@@ -44,6 +45,8 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
           showFooterAd={false}
           newsletter={<NewsletterAdStack idPrefix="education" formClassName="sidebar-newsletter labeled" fallbackAds showAds={false} />}
         >
+          <MobileSectionFeed posts={posts} title="Education" idPrefix="education" page={page} totalPages={totalPages} href="/education" />
+          <div className="section-desktop-feed">
           {posts[0] ? <FeaturedStoryCard post={posts[0]} /> : null}
 
           <section className="weekly-section education-weekly-modern" aria-label="More education stories">
@@ -75,6 +78,7 @@ export default async function ArticlesPage({ searchParams }: ArticlesPageProps) 
             </section>
           </section>
 
+          </div>
         </SectionPageLayout>
       </main>
 

@@ -338,3 +338,386 @@ body .section-most-recent a {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
+/* Search previews: publication-style image, metadata and excerpt. */
+.site-search-results a.search-result-card { display: flex; align-items: flex-start; gap: 18px; padding: 18px 0; border: 0; border-bottom: 1px solid #e3ded7; border-radius: 0; background: transparent; }
+.search-result-image { width: 128px; height: 90px; object-fit: cover; flex-shrink: 0; }
+.search-result-copy { display: grid; gap: 7px; min-width: 0; }
+.site-search-results .search-result-copy strong { font-family: var(--body-font); font-size: 18px; font-weight: 700; line-height: 1.35; }
+.search-result-copy small { font-size: 12px; color: var(--muted); }
+.search-result-copy p { margin: 0; font-size: 14px; line-height: 1.55; }
+@media (max-width: 600px) { .search-result-image { width: 85px; height: 70px; } .site-search-results a.search-result-card { gap: 12px; } }
+
+html.search-open,
+html.search-open body.search-open {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+.site-search-panel:not([hidden]) {
+  --search-top: clamp(16px, 6vh, 64px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100dvh;
+  padding: var(--search-top) 16px 16px;
+  overflow: hidden !important;
+}
+
+.site-search-panel .site-search-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - var(--search-top) - 16px) !important;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+.site-search-dialog > :not(.site-search-results) {
+  flex-shrink: 0;
+}
+
+.site-search-dialog .site-search-results {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* Match the live site's opening search view. */
+.site-search-panel .site-search-dialog {
+  padding: 28px 24px 34px;
+}
+.site-search-dialog .site-search-form {
+  gap: 12px;
+}
+.site-search-dialog .site-search-form label {
+  padding-right: 36px;
+  font-family: var(--body-font);
+  font-size: 18px;
+  font-weight: 900;
+}
+.site-search-dialog .site-search-form input {
+  min-height: 74px;
+  border: 1px solid #d9c9bb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: none;
+}
+.site-search-dialog .site-search-form input:focus {
+  border-color: #d9c9bb;
+  box-shadow: none;
+  outline: none;
+}
+.site-search-dialog .site-search-form input:focus-visible {
+  outline: 2px solid var(--brand-pink);
+  outline-offset: 2px;
+}
+.site-search-dialog .site-search-results {
+  gap: 12px;
+  margin-top: 26px;
+  padding-bottom: 0;
+}
+.site-search-results a.search-category-card {
+  display: flex;
+  align-items: center;
+  min-height: 71px;
+  padding: 18px 22px;
+  border: 1px solid #e3ded7;
+  border-radius: 10px;
+  background: #fff;
+}
+.site-search-results a.search-category-card strong {
+  font-family: var(--heading-font);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.site-search-dialog .site-search-close {
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+}
+.site-search-dialog .site-search-close::before,
+.site-search-dialog .site-search-close::after {
+  left: 8px;
+  top: 14px;
+  width: 14px;
+}
+
+/* Updated search reference: heading above compact category cards. */
+.site-search-panel .site-search-dialog {
+  padding: 42px 36px 48px;
+}
+.site-search-dialog .kicker {
+  margin: 0 0 20px;
+}
+.site-search-dialog h2 {
+  max-width: none;
+  margin: 0 0 34px;
+  font-family: var(--heading-font);
+  font-size: clamp(30px, 5.5vw, 48px);
+  line-height: 1.08;
+}
+.site-search-dialog .site-search-form label {
+  font-size: 16px;
+}
+.site-search-dialog .site-search-form input {
+  min-height: 65px;
+  border-radius: 8px;
+}
+.site-search-dialog .site-search-results {
+  gap: 10px;
+  margin-top: 24px;
+}
+.site-search-results a.search-category-card {
+  min-height: 64px;
+  padding: 16px 20px;
+  border-radius: 9px;
+}
+.site-search-results a.search-category-card strong {
+  font-size: 22px;
+}
+.site-search-dialog .site-search-close {
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+}
+.site-search-dialog .site-search-close::before,
+.site-search-dialog .site-search-close::after {
+  top: 21px;
+  left: 13px;
+  width: 18px;
+}
+@media (max-width: 600px) {
+  .site-search-panel .site-search-dialog { padding: 38px 20px 24px; }
+  .site-search-dialog h2 { margin-bottom: 24px; }
+}
+
+/* Magazine archive uses the same page gutters and sidebar as section tabs. */
+body .magazines-page .magazines-main {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding-top: 18px !important;
+  background: var(--page);
+}
+body .magazines-page .section-page-layout {
+  width: calc(100% - 48px) !important;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+}
+@media (max-width: 1100px) and (min-width: 761px) {
+  body .magazines-page .section-page-layout { grid-template-columns: minmax(0, 1fr) 260px; }
+  body .magazines-page .section-sidebar { width: 260px; }
+}
+@media (max-width: 760px) {
+  body .magazines-page .section-page-layout {
+    width: calc(100% - 24px) !important;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body .magazines-page .section-sidebar { width: 100%; }
+}
+
+/* Keep all footer headings aligned beneath the brand row. */
+body .home-footer .footer-columns {
+  row-gap: 22px !important;
+}
+body .home-footer .footer-columns > .footer-logo-link {
+  grid-column: 1 / -1;
+  justify-self: start;
+  width: min(260px, 100%);
+  margin-bottom: 0 !important;
+}
+@media (max-width: 900px) {
+  body .home-footer .footer-columns > .footer-logo-link { margin-bottom: 22px !important; }
+}
+
+/* Mobile homepage reading order; reuse the desktop content and sidebar blocks. */
+@media (max-width: 760px) {
+  body .home-page.modern-home .section-page-layout {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 24px !important;
+  }
+  body .home-page.modern-home .section-page-content,
+  body .home-page.modern-home .home-editorial-showcase,
+  body .home-page.modern-home .section-sidebar {
+    display: contents !important;
+  }
+  body .home-page.modern-home .home-lead-story { order: 1; }
+  body .home-page.modern-home [data-home-sidebar-magazine] { order: 2; }
+  body .home-page.modern-home .section-sidebar > [data-resource-ad][data-ad-format="small"] { order: 3; }
+  body .home-page.modern-home [data-home-category="partners"] { order: 4; }
+  body .home-page.modern-home [data-home-community-signup] { order: 5; margin: 0 !important; }
+  body .home-page.modern-home .mobile-after-community { order: 6; }
+  body .home-page.modern-home [data-home-category="education"] { order: 7; }
+  body .home-page.modern-home .mobile-after-education { order: 8; }
+  body .home-page.modern-home .section-most-recent { order: 9; }
+  body .home-page.modern-home .section-sidebar > [data-resource-ad][data-ad-format="big"] { order: 10; }
+  body .home-page.modern-home [data-home-category="development"] { order: 11; }
+  body .home-page.modern-home .mobile-after-development { order: 12; }
+  body .home-page.modern-home [data-home-category="parenting"] { order: 13; }
+  body .home-page.modern-home .mobile-after-parenting { order: 14; }
+  body .home-page.modern-home [data-home-category="cooking-bonding"] { order: 15; }
+  body .home-page.modern-home .mobile-after-cooking { order: 16; }
+  body .home-page.modern-home [data-home-category="more-stories"] { order: 17; }
+
+  body .home-page.modern-home .section-sidebar > :not([data-home-sidebar-magazine]):not([data-resource-ad]):not(.section-most-recent),
+  body .home-page.modern-home [data-home-category="top-stories"],
+  body .home-page.modern-home .mobile-hide-before-community,
+  body .home-page.modern-home .home-section:has(.home-guides-grid--articles-only) {
+    display: none !important;
+  }
+  body .home-page.modern-home [data-home-category]:not([data-home-category="more-stories"]) .home-category-card-grid > :nth-child(n+3) {
+    display: none !important;
+  }
+  body .home-page.modern-home [data-home-community-signup] form {
+    grid-template-columns: minmax(0, 1fr) !important;
+    padding: 24px 20px !important;
+  }
+  body .home-page.modern-home .section-page-layout > *,
+  body .home-page.modern-home [data-resource-ad] {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+/* Equal mobile gutters, including fixed-width advertising creatives. */
+@media (max-width: 760px) {
+  body .home-page.modern-home .section-page-layout {
+    width: calc(100% - 24px) !important;
+    margin-inline: auto !important;
+    padding-inline: 0 !important;
+  }
+  body .home-page.modern-home :is(.home-ad-row, [data-resource-ad]) :is(.house-ad, .ad-unit-frame, .google-ad-slot, iframe, ins) {
+    margin-inline: auto !important;
+    max-width: 100% !important;
+  }
+  body .home-page.modern-home :is(.home-ad-row, [data-resource-ad]) .google-ad-slot {
+    justify-content: center !important;
+  }
+}
+
+/* Section archives: full-width mobile cards, two articles followed by an ad. */
+.mobile-section-feed { display: none; }
+.section-desktop-feed { display: contents; }
+@media (max-width: 760px) {
+  body .education-page .section-desktop-feed { display: none !important; }
+  body .education-page .mobile-section-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    min-width: 0;
+  }
+  body .education-page .mobile-section-feed > h1 {
+    margin: 0;
+    padding: 20px;
+    background: #fff;
+    color: var(--brand-pink);
+    font-family: var(--heading-font);
+    font-size: 34px;
+    line-height: 1.1;
+  }
+  body .education-page .mobile-section-pair {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 20px;
+    background: #fff;
+    min-width: 0;
+  }
+  body .education-page .section-page-layout {
+    width: calc(100% - 24px) !important;
+    margin-inline: auto !important;
+    padding-inline: 0 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 24px;
+  }
+  body .education-page .mobile-section-ad {
+    width: 100%;
+    min-width: 0;
+    margin-inline: auto;
+  }
+  body .education-page :is(.mobile-section-ad, .section-sidebar) :is(.house-ad, .ad-unit-frame, .google-ad-slot, iframe, ins) {
+    margin-inline: auto !important;
+    max-width: 100% !important;
+  }
+  body .education-page :is(.mobile-section-ad, .section-sidebar) .google-ad-slot { justify-content: center !important; }
+}
+
+@media (max-width: 760px) {
+  body :is(.education-index-page, .category-index-page) .section-sidebar { display: none !important; }
+  body .education-page .mobile-section-feed > .sidebar-newsletter {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+  body .education-page .mobile-section-feed .section-most-recent { margin: 0 !important; width: 100%; }
+  body .education-page .mobile-section-pair > h2 { margin: 0; color: var(--brand-pink); font-family: var(--heading-font); }
+}
+
+@media (max-width: 760px) {
+  body .magazines-page .magazine-desktop-library,
+  body .magazines-page .section-sidebar { display: none !important; }
+  body .magazines-page .section-page-layout { margin-inline: auto !important; padding-inline: 0 !important; }
+}
+
+/* Give the stacked mobile footer distinct, comfortable sections. */
+@media (max-width: 760px) {
+  body .home-footer {
+    padding: 36px 24px 28px !important;
+  }
+  body .home-footer .footer-columns {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 32px !important;
+    margin-bottom: 32px !important;
+  }
+  body .home-footer .footer-columns > .footer-logo-link {
+    width: min(240px, 100%);
+    margin: 0 !important;
+  }
+  body .home-footer .footer-columns > section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+    margin: 0 !important;
+  }
+  body .home-footer .footer-columns h2 {
+    margin: 0 0 8px !important;
+  }
+  body .home-footer .footer-columns p,
+  body .home-footer .footer-columns section > a {
+    margin: 0 !important;
+    overflow-wrap: anywhere;
+  }
+  body .home-footer .footer-bottom {
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+    padding-top: 24px !important;
+    text-align: center;
+  }
+  body .home-footer .social-links { flex-wrap: wrap; }
+}
+
+/* Desktop archives have one content column; the shared sidebar is outside it. */
+@media (min-width: 761px) {
+  body .education-page .section-page-content > .section-desktop-feed > .education-content-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    min-width: 0;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+  }
+}

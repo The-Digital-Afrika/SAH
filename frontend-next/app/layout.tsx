@@ -32,8 +32,8 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   icons: {
-    icon: "/icon.png",
-    apple: "/apple-icon.png",
+    icon: "/icon.png?v=hs-flourish",
+    apple: "/apple-icon.png?v=hs-flourish",
   },
 };
 

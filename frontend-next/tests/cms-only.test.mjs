@@ -22,11 +22,32 @@ function cms(fetch) {
 }
 const plain = value => JSON.parse(JSON.stringify(value));
 
+test('saved magazine archive includes working PDFs and covers back to issue one', async () => {
+  const api = cms(async () => Response.json([]));
+  const archive = await api.getMagazinePosts();
+  const urls = new Set();
+  for (const issue of archive) {
+    assert.ok(!urls.has(issue.pdfUrl), `Duplicate PDF: ${issue.pdfUrl}`);
+    urls.add(issue.pdfUrl);
+    if (issue.pdfUrl.startsWith('/magazines/')) {
+      const pdf = readFileSync(new URL(`../public${issue.pdfUrl}`, import.meta.url));
+      assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
+    }
+    if (issue.coverImage?.src.startsWith('/magazine-covers/')) {
+      assert.ok(readFileSync(new URL(`../public${issue.coverImage.src}`, import.meta.url)).length > 0);
+    }
+    assert.ok(await api.getMagazineBySlug(issue.slug));
+  }
+});
+
 test('missing CMS article stays missing instead of showing an imported magazine', async () => {
   const api = cms(async () => Response.json([]));
   assert.equal(await api.getPostBySlug('sa-homeschooling-beyond-september-2026-issue-is-here'), null);
   assert.deepEqual(plain(await api.getPosts()), []);
-  assert.deepEqual(plain(await api.getMagazinePosts()), []);
+  const archive = plain(await api.getMagazinePosts());
+  assert.ok(archive.length >= 23);
+  assert.ok(archive.some(issue => issue.pdfUrl === '/magazines/sa-homeschooling-issue-1.pdf'));
+  assert.ok(archive.every(issue => !issue.sourcePost));
 });
 
 test('CMS outage returns empty lists and no saved article or category', async () => {

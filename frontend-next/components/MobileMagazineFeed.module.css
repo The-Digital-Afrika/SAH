@@ -1,0 +1,11 @@
+.feed { display: none; }
+@media (max-width: 760px) {
+  .feed { display: flex; flex-direction: column; gap: 24px; width: 100%; min-width: 0; }
+  .pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 20px; background: #fff; min-width: 0; }
+  .pair > article { grid-row: auto !important; grid-template-rows: auto !important; gap: 16px; }
+  .pair > h2 { margin: 0; font-family: var(--heading-font); color: var(--brand-pink); }
+  .ad { width: 100%; min-width: 0; }
+  .feed :global(.sidebar-newsletter), .feed :global(.section-most-recent) { width: 100% !important; max-width: none !important; margin: 0 !important; }
+  .feed :is(:global(.house-ad), :global(.ad-unit-frame), :global(.google-ad-slot), iframe, ins) { margin-inline: auto !important; max-width: 100% !important; }
+  .feed :global(.google-ad-slot) { justify-content: center !important; }
+}
