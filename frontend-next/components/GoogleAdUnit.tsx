@@ -5,6 +5,7 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import type { SiteAd } from "@/lib/wordpress";
 import { adRenderedEvent } from "@/lib/takeover";
+import { availableAdWidth, responsiveSlotSizes, responsiveSlotMapping } from "@/lib/home-leaderboard";
 
 type GoogleAdUnitProps = {
   ad: SiteAd;
@@ -44,6 +45,7 @@ type GooglePubAdsService = {
 type GoogleSlotRenderEvent = {
   slot: GoogleSlot;
   isEmpty: boolean;
+  size?: GoogleSlotSize | null;
   creativeId?: number | null;
   lineItemId?: number | null;
 };
@@ -190,14 +192,11 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
       element.classList.remove("google-ad-slot--pending");
       element.classList.toggle("google-ad-slot--loaded", !event.isEmpty);
       element.classList.toggle("google-ad-slot--empty", event.isEmpty);
-    };
-      element.classList.add("google-ad-slot--empty");
       element.dispatchEvent(new CustomEvent(adRenderedEvent, {
         bubbles: true,
-        detail: { slotId: divId, isEmpty: true },
+        detail: { slotId: divId, isEmpty: event.isEmpty, creativeId: event.creativeId, lineItemId: event.lineItemId },
       }));
-    }, 3000);
-    const path = adUnitPath(google.networkCode, google.adUnitCode);
+    };
 
     window.googletag?.cmd.push(() => {
       const googleTag = window.googletag;
@@ -235,23 +234,6 @@ export default function GoogleAdUnit({ ad, sizeClass, className = "", idSuffix }
       slot.addService(pubads);
       if (!window.saHomeschoolingAdsConfigured) {
         configureGoogleTag(googleTag, pubads);
-        pubads.addEventListener?.("slotRenderEnded", (event) => {
-          const element = document.getElementById(event.slot.getSlotElementId());
-          if (!element) return;
-
-          element.classList.remove("google-ad-slot--pending");
-          element.classList.toggle("google-ad-slot--loaded", !event.isEmpty);
-          element.classList.toggle("google-ad-slot--empty", event.isEmpty);
-          element.dispatchEvent(new CustomEvent(adRenderedEvent, {
-            bubbles: true,
-            detail: {
-              slotId: element.id,
-              isEmpty: event.isEmpty,
-              creativeId: event.creativeId,
-              lineItemId: event.lineItemId,
-            },
-          }));
-        });
         window.saHomeschoolingAdsConfigured = true;
       }
       pubads.addEventListener?.("slotRenderEnded", onRender);

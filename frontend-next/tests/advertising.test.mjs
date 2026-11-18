@@ -57,7 +57,7 @@ function fixture({ sizes = sidebar, width = 300, viewport = 1440, padding = 0, r
     sizeClass: "test-slot", idSuffix: "explicit",
   };
   const classes = new Set();
-  const element = { clientWidth: width, parentElement: {}, style: { setProperty() {} }, classList: {
+  const element = { clientWidth: width, parentElement: {}, dispatchEvent() {}, style: { setProperty() {} }, classList: {
     add(...names) { names.forEach((name) => classes.add(name)); },
     remove(...names) { names.forEach((name) => classes.delete(name)); },
     toggle(name, present) { if (present) classes.add(name); else classes.delete(name); },
@@ -119,8 +119,9 @@ function fixture({ sizes = sidebar, width = 300, viewport = 1440, padding = 0, r
     if (name === "next/navigation") return { usePathname: () => pathname };
     if (name === "next/script") return () => null;
     if (name === "@/lib/home-leaderboard") return sizing;
+    if (name === "@/lib/takeover") return load("lib/takeover.ts");
     return require(name);
-  }, { window, document, ResizeObserver: class {
+  }, { window, document, CustomEvent: class { constructor(type, options) { this.type = type; Object.assign(this, options); } }, ResizeObserver: class {
     constructor(callback) { this.callback = callback; observers.add(callback); }
     observe() {} disconnect() { observers.delete(this.callback); }
   } });
