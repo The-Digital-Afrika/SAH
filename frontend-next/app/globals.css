@@ -18488,6 +18488,7 @@ form button,
   visibility: visible !important;
 }
 
+:is(
 .ad-strip:has(.google-ad-slot--pending),
 .top-ad:has(.google-ad-slot--pending),
 .home-menu-ad:has(.google-ad-slot--pending),
@@ -18525,7 +18526,8 @@ form button,
 .partner-detail-bottom-ad:has(.google-ad-slot--empty),
 .education-final-ad:has(.google-ad-slot--empty),
 .education-between-ad:has(.google-ad-slot--empty),
-.lower-ad:has(.google-ad-slot--empty) {
+.lower-ad:has(.google-ad-slot--empty)
+):not(:has([data-responsive-ad])) {
   width: 0 !important;
   height: 0 !important;
   min-height: 0 !important;
@@ -20283,5 +20285,150 @@ form button,
 
   .house-ad--banner .house-ad-copy strong {
     font-size: 22px;
+  }
+}
+
+/* Responsive homepage leaderboards only; other ad units retain their styles. */
+.home-page :is(.home-menu-ad, .home-ad-row):has([data-home-leaderboard]) {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 24px 0 0 !important;
+  overflow: hidden !important;
+}
+
+.home-page .ad-unit-frame.home-leaderboard-frame,
+.home-page .section-page-layout .ad-has-fallback > .ad-unit-frame.home-leaderboard-frame {
+  container-type: inline-size;
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  max-width: 970px !important;
+  min-width: 0 !important;
+  opacity: 1;
+}
+
+.home-page .home-leaderboard-frame [data-home-leaderboard] {
+  display: flex !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 100px !important;
+  padding: 0 !important;
+  aspect-ratio: auto !important;
+}
+
+.home-page .home-leaderboard-frame [data-home-leaderboard].google-ad-slot--empty {
+  visibility: hidden !important;
+}
+
+/* Preserve the creative's actual dimensions instead of stretching the iframe. */
+.home-page .home-leaderboard-frame [data-home-leaderboard] > div,
+.home-page .home-leaderboard-frame [data-home-leaderboard] iframe {
+  width: var(--home-creative-width, auto) !important;
+  height: var(--home-creative-height, auto) !important;
+  max-width: 100% !important;
+}
+
+.home-page .ad-has-fallback:has([data-home-leaderboard].google-ad-slot--pending:not(.google-ad-slot--suppressed)) > .house-ad {
+  display: none;
+}
+
+@container (min-width: 728px) {
+  .home-page .home-leaderboard-frame [data-home-leaderboard] {
+    min-height: 90px !important;
+  }
+}
+
+@container (min-width: 970px) {
+  .home-page .home-leaderboard-frame [data-home-leaderboard] {
+    min-height: 250px !important;
+  }
+}
+
+/* Keep existing house promotions inside the space reserved for an empty banner. */
+.home-page .ad-has-fallback:has([data-home-leaderboard].google-ad-slot--empty) > .house-ad {
+  position: absolute;
+  inset: 24px 0 0;
+  width: 100%;
+  max-width: 100%;
+  height: calc(100% - 24px);
+  min-height: 0;
+}
+
+@container (max-width: 319px) {
+  .home-page .home-leaderboard-frame [data-home-leaderboard] {
+    min-height: 0 !important;
+  }
+}
+
+/* Shared Google slot sizing: retain existing wrappers and placement locations. */
+figure.ad-unit-frame.responsive-ad-frame:has(> .google-ad-slot[data-responsive-ad]) {
+  container-type: inline-size;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  --ad-default-height: 100px;
+}
+
+figure.ad-unit-frame.responsive-ad-frame:has(> [data-responsive-ad="sidebar"]) {
+  --ad-default-height: 250px;
+}
+
+figure.ad-unit-frame.responsive-ad-frame > .google-ad-slot[data-responsive-ad] {
+  display: flex !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: var(--ad-reserved-height, var(--ad-default-height)) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  aspect-ratio: auto !important;
+  overflow: hidden !important;
+}
+
+figure.ad-unit-frame.responsive-ad-frame > .google-ad-slot[data-responsive-ad]:is(.google-ad-slot--pending, .google-ad-slot--empty, .google-ad-slot--suppressed) {
+  visibility: hidden !important;
+}
+
+figure.ad-unit-frame.responsive-ad-frame > .google-ad-slot[data-responsive-ad].google-ad-slot--suppressed {
+  min-height: 0 !important;
+}
+
+figure.ad-unit-frame.responsive-ad-frame > .google-ad-slot[data-responsive-ad] > div,
+figure.ad-unit-frame.responsive-ad-frame > .google-ad-slot[data-responsive-ad] iframe {
+  width: var(--ad-creative-width, auto) !important;
+  height: var(--ad-creative-height, auto) !important;
+  max-width: 100% !important;
+}
+
+/* Keep the measurement surface in flow; existing promotions overlay pending/empty slots. */
+.section-page-layout .ad-has-fallback > figure.ad-unit-frame.responsive-ad-frame:not(:has(.google-ad-slot--suppressed)) {
+  position: relative !important;
+  inset: auto !important;
+  opacity: 1;
+}
+
+.section-page-layout .ad-has-fallback:has(> .responsive-ad-frame [data-responsive-ad]):not(:has(.google-ad-slot--suppressed)) > .house-ad {
+  position: absolute;
+  inset: 24px 0 auto;
+  max-height: calc(100% - 24px);
+  overflow: hidden;
+}
+
+@media (min-width: 970px) {
+  figure.ad-unit-frame.responsive-ad-frame:has(> [data-responsive-ad="sidebar"]) {
+    --ad-default-height: 600px;
+  }
+}
+
+@container (min-width: 728px) {
+  .responsive-ad-frame > [data-responsive-ad="leaderboard"] {
+    --ad-default-height: 90px;
+  }
+}
+
+@container (min-width: 970px) {
+  .responsive-ad-frame > [data-responsive-ad="leaderboard"] {
+    --ad-default-height: 250px;
   }
 }

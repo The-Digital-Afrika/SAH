@@ -25,11 +25,12 @@ export default function AdCreative({
   const slot = active ? (
     <GoogleAdUnit ad={ad} sizeClass={sizeClass} className={className} idSuffix={idSuffix} />
   ) : (
-    <figure className="ad-unit-frame">
+    <figure className={`ad-unit-frame${ad.google ? " responsive-ad-frame" : ""}`}>
       <div
         className={`google-ad-slot google-ad-slot--pending ${sizeClass}`}
         data-ad-unit={ad.dataUnit}
         data-google-ad-unit={ad.google?.adUnitCode}
+        data-responsive-ad={ad.google ? ad.google.adUnitCode.split("/").pop() === "sahomeschooling_home_leaderboard" ? "leaderboard" : "sidebar" : undefined}
         aria-label="Advertisement"
       />
     </figure>
