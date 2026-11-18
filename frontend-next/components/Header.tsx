@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useId, useState } from "react";
 import brandStyles from "./HeaderBrand.module.css";
 
 import { searchPages, type SearchItem } from "@/lib/search-types";
@@ -22,6 +22,7 @@ const navigationItems = [
 export default function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigationId = useId();
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const activeHref = navigationItems.find(item => item.paths.some(path =>
@@ -89,9 +90,15 @@ export default function Header() {
 
   return (
     <>
-      <header className={`site-header ${brandStyles.header}`}>
+      <header className={`site-header ${brandStyles.header}`} onKeyDown={(event) => {
+        if (event.key === "Escape" && menuOpen) {
+          setMenuOpen(false);
+          event.currentTarget.querySelector<HTMLButtonElement>(".menu-toggle")?.focus();
+          event.preventDefault();
+        }
+      }}>
         <div className="header-inner">
-          <Link className="brand" href="/" aria-label="Home&School home">
+          <Link className="brand" href="/" aria-label="Home&School home" onClick={() => setMenuOpen(false)}>
             <Image
               className={`brand-logo ${brandStyles.logo}`}
               src="/images/home-school-flourish-logo.png"
@@ -106,16 +113,18 @@ export default function Header() {
           <button
             className="menu-toggle"
             type="button"
-            aria-label="Open navigation"
+            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+            aria-controls={navigationId}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((isOpen) => !isOpen)}
           >
-            Menu
+            {menuOpen ? "Close" : "Menu"}
           </button>
 
-          <nav className={`site-nav${menuOpen ? " open" : ""}`} aria-label="Main navigation">
+          <nav id={navigationId} className={`site-nav${menuOpen ? " open" : ""}`} aria-label="Main navigation">
             {navigationItems.map(item => (
               <Link key={item.href} href={item.href} prefetch
+                onClick={() => setMenuOpen(false)}
                 className={activeHref === item.href ? "active" : undefined}
                 aria-current={activeHref === item.href ? "page" : undefined}>
                 {item.label}
@@ -123,7 +132,7 @@ export default function Header() {
             ))}
           </nav>
 
-          <button className="search-link header-search-link" type="button" aria-label="Search" onClick={() => setSearchOpen(true)}>
+          <button className="search-link header-search-link" type="button" aria-label="Search" onClick={() => { setMenuOpen(false); setSearchOpen(true); }}>
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 5 5" /></svg>
           </button>
         </div>

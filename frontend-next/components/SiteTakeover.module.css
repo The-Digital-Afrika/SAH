@@ -19,8 +19,15 @@
   padding: 12px 0 0;
 }
 
-.masthead:has(.topAd :global(.google-ad-slot--empty)) {
-  display: none;
+/* Collapse vertically without removing the width used to measure the ad.
+   display:none would suppress and recreate an empty slot indefinitely. */
+.masthead:has(.topAd :global(.google-ad-slot--empty)),
+.masthead:has(.topAd :global(.google-ad-slot--pending)),
+.masthead:has(.topAd :global(.google-ad-slot--suppressed)) {
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+  visibility: hidden;
 }
 
 .label {

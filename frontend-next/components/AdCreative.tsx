@@ -41,7 +41,7 @@ export default function AdCreative({
   const wide = !sizeClass.includes("medium-rect") && Boolean(ad.google?.sizes.some(([width]) => width > 300));
 
   return (
-    <div className={[wrapClassName, fallback ? "ad-has-fallback" : ""].filter(Boolean).join(" ")} aria-label="Advertisement">
+    <div className={[wrapClassName, "ad-placement", fallback ? "ad-has-fallback" : ""].filter(Boolean).join(" ")} aria-label="Advertisement">
       {slot}
       {fallback ? <HouseAd seed={idSuffix ?? ad.placement} wide={wide} /> : null}
     </div>

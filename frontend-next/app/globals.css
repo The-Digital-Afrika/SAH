@@ -20134,10 +20134,12 @@ form button,
   display: none;
 }
 
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending),
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) {
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--pending),
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--empty) {
   position: relative !important;
-  display: flex !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 !important;
   width: 100% !important;
   height: auto !important;
   min-height: 0 !important;
@@ -20147,8 +20149,8 @@ form button,
   overflow: visible !important;
 }
 
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .ad-unit-frame,
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .ad-unit-frame {
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--pending) > .ad-unit-frame,
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--empty) > .ad-unit-frame {
   position: absolute !important;
   inset: 24px 0 auto !important;
   width: 100% !important;
@@ -20157,8 +20159,8 @@ form button,
   pointer-events: none;
 }
 
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending)::before,
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty)::before {
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--pending)::before,
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--empty)::before {
   content: "Advertisement" !important;
   position: absolute !important;
   inset: 6px 0 auto !important;
@@ -20173,8 +20175,8 @@ form button,
   text-align: center !important;
 }
 
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .house-ad,
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .house-ad {
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--pending) > .house-ad,
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--empty) > .house-ad {
   display: grid;
   grid-template-columns: 88px minmax(0, 1fr);
   align-items: center;
@@ -20238,16 +20240,16 @@ form button,
   line-height: 1.3;
 }
 
-.section-page-layout .ad-has-fallback > .house-ad--community {
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback) > .house-ad--community {
   --house-ad-background: #c3194d;
 }
 
-.section-page-layout .ad-has-fallback > .house-ad--education {
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback) > .house-ad--education {
   --house-ad-background: #254c40;
 }
 
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .house-ad--banner,
-.section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .house-ad--banner {
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--pending) > .house-ad--banner,
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--empty) > .house-ad--banner {
   grid-template-columns: 140px minmax(0, 1fr);
   max-width: 970px;
   min-height: 176px;
@@ -20270,8 +20272,8 @@ form button,
 }
 
 @media (max-width: 620px) {
-  .section-page-layout .ad-has-fallback:has(.google-ad-slot--pending) > .house-ad--banner,
-  .section-page-layout .ad-has-fallback:has(.google-ad-slot--empty) > .house-ad--banner {
+  :is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--pending) > .house-ad--banner,
+  :is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback):has(.google-ad-slot--empty) > .house-ad--banner {
     grid-template-columns: 88px minmax(0, 1fr);
     gap: 16px;
     min-height: 250px;
@@ -20401,17 +20403,21 @@ figure.ad-unit-frame.responsive-ad-frame > .google-ad-slot[data-responsive-ad] i
   max-width: 100% !important;
 }
 
-/* Keep the measurement surface in flow; existing promotions overlay pending/empty slots. */
-.section-page-layout .ad-has-fallback > figure.ad-unit-frame.responsive-ad-frame:not(:has(.google-ad-slot--suppressed)) {
+/* Share one grid cell. Both the paid slot and its fallback contribute their
+   height, including lazy and suppressed slots, so neither overlaps content. */
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback) > figure.ad-unit-frame.responsive-ad-frame {
+  grid-area: 1 / 1;
   position: relative !important;
   inset: auto !important;
   opacity: 1;
 }
 
-.section-page-layout .ad-has-fallback:has(> .responsive-ad-frame [data-responsive-ad]):not(:has(.google-ad-slot--suppressed)) > .house-ad {
-  position: absolute;
-  inset: 24px 0 auto;
-  max-height: calc(100% - 24px);
+:is(.section-page-layout .ad-has-fallback, .ad-placement.ad-has-fallback) > .house-ad {
+  grid-area: 1 / 1;
+  position: relative !important;
+  inset: auto !important;
+  height: auto !important;
+  max-height: none !important;
   overflow: hidden;
 }
 

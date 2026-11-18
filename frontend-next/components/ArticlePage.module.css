@@ -58,6 +58,9 @@
 .related > h2 { margin: 0 0 20px; padding-left: 8px; border-left: 3px solid var(--brand-pink); color: #111; font: 400 24px/1.1 var(--heading-font); }
 .relatedGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .page .sidebar { width: 300px; gap: 24px; }
+.page .sidebar :global(.section-sidebar-ad.ad-placement) {
+  margin-inline: auto !important;
+}
 .newsletter { background: #fff; border-radius: 12px; padding: 20px 14px; display: grid; gap: 14px; }
 .newsletter > :global(.section-rule) { display: none; }
 .newsletter h2 { margin: 0; border-left: 3px solid var(--brand-pink); padding-left: 6px; color: #111; font: 400 23px/1.1 var(--heading-font); }
